@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- ============================================================================
+  SYNTHETIC TEST FIXTURE — NOT real customer data.
+  No live PITC response was observable from this sandbox (egress blocked), so
+  this file is hand-built to mirror the DOCUMENTED structure of
+  https://bill.pitc.com.pk/lescobill result pages, per the open-source
+  PITC-Bill-Checker (github.com/farhankhalidkayani/pitc-bill-checker):
+    * error box: <div id="ua"> (empty here = success case)
+    * bill data: label/value <table> rows ("Consumer Name", "Due Date", ...)
+  All VALUES below are invented placeholders for parser testing only.
+  Replace with a captured real page before treating parse results as final.
+============================================================================= -->
+<html>
+<head><title>LESCO Bill - SYNTHETIC</title></head>
+<body>
+<form method="post" action="./lescobill">
+  <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="SYNTHETIC_VIEWSTATE_TOKEN" />
+  <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="SYNTHETIC_GENERATOR" />
+  <input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="SYNTHETIC_EVENTVALIDATION" />
+  <input type="hidden" name="__RequestVerificationToken" value="SYNTHETIC_RVT" />
+  <div id="ua"></div>
+  <table>
+    <tr><td>Consumer Name</td><td>SAMPLE CUSTOMER (SYNTHETIC)</td></tr>
+    <tr><td>Address</td><td>12 SAMPLE STREET, LAHORE</td></tr>
+    <tr><td>Customer ID</td><td>7654321</td></tr>
+    <tr><td>Reference No</td><td>06113530462901</td></tr>
+    <tr><td>Tariff</td><td>A-1 RESIDENTIAL</td></tr>
+    <tr><td>Billing Month</td><td>SEP-26</td></tr>
+    <tr><td>Issue Date</td><td>12-SEP-26</td></tr>
+    <tr><td>Due Date</td><td>26-SEP-26</td></tr>
+    <tr><td>Reading Date</td><td>10-SEP-26</td></tr>
+    <tr><td>Previous Reading</td><td>12340</td></tr>
+    <tr><td>Current Reading</td><td>12590</td></tr>
+    <tr><td>Units Consumed</td><td>250</td></tr>
+    <tr><td>Electricity Charges</td><td>6790.00</td></tr>
+    <tr><td>GST</td><td>1294.20</td></tr>
+    <tr><td>Amount Payable (within due date)</td><td>8484.20</td></tr>
+    <tr><td>Amount Payable (after due date)</td><td>9332.62</td></tr>
+  </table>
+</form>
+</body>
+</html>

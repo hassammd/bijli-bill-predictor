@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v2.0.5: cleartext HTTP is permitted ONLY for bill.pitc.com.pk —
+     the single plain-HTTP fallback attempt when HTTPS fails with a
+     TLS/connect error (user guide). Everything else stays HTTPS-only. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">bill.pitc.com.pk</domain>
+    </domain-config>
+</network-security-config>

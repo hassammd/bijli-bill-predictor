@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hatch.bijlibill"
+    android:versionCode="61"
+    android:versionName="3.6.29">
+
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
+
+    <!-- needed to fetch bills from the LESCO/PITC portal -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- needed for the v2.0.5 internet pre-check before fetching -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- v2.1.0: Meter Check video capture (runtime request in
+         MeterCheckActivity; the system camera app does the capture) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- v2.3.0: due-date reminder notification (runtime request on
+         Android 13+, once, with a plain-words rationale) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- v3.1.1: re-arm the daily bill reminder after reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- v2.3.0: exact-alarm scheduling for the reminder (2 days before
+         the due date, 09:00); falls back gracefully when unavailable -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- v2.3.0: saving the downloaded PDF to Downloads on Android 9
+         and below only (API 29+ uses MediaStore, no permission needed) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/AppTheme"
+        android:allowBackup="true"
+        android:networkSecurityConfig="@xml/network_security_config">
+
+        <!-- AdMob App ID (TEST id — replace with your real AdMob App ID before release).
+             Must match AdsConfig.ADMOB_APP_ID. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <activity
+            android:name=".BillActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- v3.6.9: full-screen bill viewer (new page, like competitor apps) -->
+        <activity
+            android:name=".BillViewerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- v2.6.0 design system: bottom-nav "Bills" tab — full saved-meter
+             list (same tap/long-press behaviour as the home cards) -->
+        <activity
+            android:name=".BillsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <!-- v2.2.0 Meter Check: longer videos, kWh auto-detect, gallery
+             upload (no new permissions — ACTION_GET_CONTENT grants
+             one-shot read access to the picked video) -->
+        <activity
+            android:name=".MeterCheckActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PremiumActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- v3.2.0: 200-Unit Guard screen -->
+        <activity
+            android:name=".GuardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <!-- v3.2.0: What-if Compare screen -->
+        <activity
+            android:name=".WhatIfActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <!-- v2.3.0: due-date reminder receiver (explicit broadcast from
+             AlarmManager only — not exported) -->
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false" />
+
+        <!-- v3.1.1: daily bill reminder (inexact repeating alarm,
+             explicit broadcast only — not exported) -->
+        <receiver
+            android:name=".DailyReminderReceiver"
+            android:exported="false" />
+
+        <!-- v3.2.0: daily 200-Unit Guard check (inexact repeating
+             alarm, explicit broadcast only — not exported) -->
+        <receiver
+            android:name=".GuardReminderReceiver"
+            android:exported="false" />
+
+        <!-- v3.4.0: one-shot bill-day nudge (explicit broadcast only
+             — not exported) -->
+        <receiver
+            android:name=".BillDayNudgeReceiver"
+            android:exported="false" />
+
+        <!-- v3.4.0: weekly usage report (inexact repeating alarm,
+             explicit broadcast only — not exported) -->
+        <receiver
+            android:name=".WeeklyReportReceiver"
+            android:exported="false" />
+
+        <!-- v3.1.1: re-arm the daily reminder after reboot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

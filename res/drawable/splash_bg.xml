@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v3.0.0: linear green gradient (160deg -> top-to-bottom), dot pattern removed -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#0D5A43"
+        android:centerColor="#06382B"
+        android:endColor="#04271E" />
+</shape>

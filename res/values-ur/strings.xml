@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- v2.0 BILL FETCHER ONLY — calculator removed -->
+    <string name="app_name">بجلی بل کیلکولیٹر</string>
+    <string name="app_tagline">LESCO کا بل — ریفرنس نمبر سے!</string>
+    <string name="splash_tagline">بجلی کا بل، اب آپ کی مٹھی میں</string>
+    <!-- v2.6.0 design system: splash headline + foot always in Urdu (design-faithful) -->
+    <string name="splash_title">بجلی بل کیلکولیٹر</string>
+    <string name="for_pakistan_urdu">پاکستان کے لیے</string>
+    <string name="made_for_pakistan">پاکستان کے لیے</string>
+    <string name="lang_urdu">اردو</string>
+
+    <!-- Home -->
+    <string name="home_title">بجلی بل</string>
+    <string name="home_subtitle">بجلی کمپنی منتخب کریں، ریفرنس نمبر لکھیں اور اپنا بل دیکھیں</string>
+    <string name="disco_label">بجلی کمپنی</string>
+    <string name="kelectric_soon">کے-الیکٹرک جلد آ رہا ہے!</string>
+    <string name="meters_title">میرے میٹر</string>
+    <string name="meters_empty">ابھی کوئی میٹر save نہیں ہے — پہلا بل دیکھیں، خود save ہو جائے گا</string>
+    <string name="ref_label">ریفرنس نمبر</string>
+    <string name="ref_hint">جیسا بل پر لکھا ہے، مثلاً: 12345678901234U</string>
+    <string name="tab_ref">ریفرنس نمبر</string>
+    <string name="tab_custid">کسٹمر آئی ڈی</string>
+    <string name="custid_hint">7 ہندسوں کی آئی ڈی (بل پر لکھی ہوتی ہے)</string>
+    <string name="fetch_btn">بل دیکھیں</string>
+    <string name="ref_invalid">ریفرنس نمبر 14 ہندسوں کا ہونا چاہیے — آخر میں U یا R ہو سکتا ہے</string>
+    <string name="custid_invalid">کسٹمر آئی ڈی 7 ہندسوں کی ہونی چاہیے</string>
+    <string name="fetching">بل لوڈ ہو رہا ہے…</string>
+    <string name="fetch_failed">بل نہیں مل سکا — نمبر چیک کر کے دوبارہ کوشش کریں</string>
+    <string name="fetch_network_down">LESCO کی ویب سائٹ ابھی نہیں کھل رہی — تھوڑی دیر بعد دوبارہ کوشش کریں</string>
+    <string name="fetch_invalid_ref">یہ ریفرنس نمبر غلط لگ رہا ہے — بل سے دیکھ کر دوبارہ لکھیں</string>
+    <string name="fetch_not_found">اس نمبر کا بل نہیں ملا — نمبر بل سے دیکھ کر دوبارہ لکھیں</string>
+    <string name="fetch_token_error">ویب سائٹ سے رابطہ تو ہو گیا لیکن فارم سمجھ نہیں آیا — تھوڑی دیر بعد دوبارہ کوشش کریں</string>
+    <string name="fetch_parse_empty">ویب سائٹ سے جواب تو ملا لیکن بل پڑھا نہیں جا سکا — اگلی اپڈیٹ میں ٹھیک ہو جائے گا</string>
+    <string name="fetch_antiforgery_error">ویب سائٹ نے سیکیورٹی کوکی مانگی جو بھیجی نہ جا سکی — دوبارہ کوشش کریں</string>
+    <string name="report_btn">📤 رپورٹ بھیجیں</string>
+    <string name="report_saved">رپورٹ بن گئی ہے — اب اسے چیٹ میں بھیج دیں</string>
+    <string name="report_failed">رپورٹ نہیں بن سکی — دوبارہ کوشش کریں</string>
+    <string name="debug_server">سرور: %1$s</string>
+    <string name="cached_note">محفوظ کاپی — 24 گھنٹے تک درست</string>
+    <string name="saved_title">محفوظ ریفرنسز</string>
+    <string name="saved_empty">ابھی کوئی ریفرنس save نہیں ہے — اوپر نمبر لکھ کر SAVE دبائیں</string>
+    <string name="saved_cid_suffix">(کسٹمر آئی ڈی)</string>
+    <string name="save_name_hint">نام لکھیں، مثلاً: گھر</string>
+    <string name="save_btn">محفوظ کریں</string>
+    <string name="save_need_ref">پہلے ریفرنس نمبر لکھیں</string>
+    <string name="save_need_name">پہچان کے لیے نام لکھیں</string>
+    <string name="saved_ok">ریفرنس save ہو گیا</string>
+    <string name="delete_title">Delete کرنا ہے؟</string>
+    <string name="delete_msg">%1$s (%2$s) delete ہو جائے گا۔</string>
+    <string name="deleted">Delete ہو گیا</string>
+
+    <!-- Shared -->
+    <string name="yes">ہاں</string>
+    <string name="no">نہیں</string>
+    <string name="ok">ٹھیک ہے</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">واپس</string>
+    <string name="about_btn">تعارف</string>
+    <string name="premium_btn">پریمیم</string>
+
+    <!-- Bill screen -->
+    <string name="bill_title">بجلی کا بل</string>
+    <string name="view_bill_btn">پورا بل دیکھیں</string>
+    <string name="bill_for">ریفرنس: %1$s</string>
+    <string name="bill_for_cid">کسٹمر آئی ڈی: %1$s</string>
+    <string name="refresh_btn">دوبارہ لوڈ کریں</string>
+
+    <!-- About -->
+    <string name="about_title">تعارف</string>
+    <string name="about_subtitle">بل فیچر v2.5.0</string>
+    <string name="about_how">یہ کیسے کام کرتا ہے</string>
+    <string name="about_step1">1۔ اپنے LESCO بل سے ریفرنس نمبر نوٹ کریں (بل پر جیسا لکھا ہے، U/R سمیت)</string>
+    <string name="about_step2">2۔ ایپ میں لکھ کر "بل دیکھیں" دبائیں</string>
+    <string name="about_step3">3۔ پورا بل تفصیل کے ساتھ دیکھیں — ویب سائٹ کھولنے کی ضرورت نہیں</string>
+    <string name="about_source_title">ڈیٹا کہاں سے آتا ہے</string>
+    <string name="about_source_text">بل کا ڈیٹا LESCO/PITC کی آفیشل ویب سائٹ سے لیا جاتا ہے۔ ریٹس اور ٹیکسز بل پر چھپے ہوتے ہیں — ایپ حساب نہیں لگاتی، صرف آپ کا اصل بل دکھاتی ہے۔</string>
+    <string name="about_disclaimer_title">سرکاری ذرائع اور اعلان</string>
+    <string name="about_disclaimer_text">ٹیرف سلیب: نیپرا (nepra.org.pk)۔ بل ریکارڈ: پاکستانی ڈسکوز کا آفیشل پی آئی ٹی سی بلنگ پورٹل — پی آئی ٹی سی پاکستان کی وزارت توانائی (پاور ڈویژن) کے تحت کام کرتا ہے (power.gov.pk)۔ یہ ایک آزاد ایپ ہے — اس کا نیپرا، واپڈا، پی آئی ٹی سی یا کسی ڈسکو (لیسکو، آئیسکو، گیپکو، فیسکو، میپکو وغیرہ) سے کوئی تعلق نہیں۔ اندازے صرف رہنمائی کے لیے ہیں۔</string>
+    <string name="about_update_btn">اپ ڈیٹس چیک کریں</string>
+    <string name="about_update_msg">اپ ڈیٹ چیک جلد آ رہا ہے۔</string>
+    <string name="about_version">ورژن 2.5.0</string>
+
+    <!-- Premium -->
+    <string name="premium_title">★ گو پریمیم</string>
+    <string name="premium_sub">بل فیچر کو اشتہارات سے پاک بنائیں</string>
+    <string name="feat_noads">✓  کوئی اشتہار نہیں — بینر اور انٹرسٹیشل ختم</string>
+    <string name="feat_refs">✓  لامحدود محفوظ ریفرنسز</string>
+    <string name="feat_priority">✓  ترجیحی سپورٹ</string>
+    <string name="buy_premium">پریمیم خریدیں — 499 روپے (ایک بار)</string>
+    <string name="premium_note">ادائیگی گوگل پلے کے ذریعے محفوظ طریقے سے ہوگی۔ بلنگ پلے کنسول پر پبلش کے وقت فعال ہوگی۔</string>
+    <string name="billing_title">پریمیم لیں</string>
+    <string name="billing_msg">گوگل پلے بلنگ اس ایپ کے پلے کنسول پر پبلش ہونے کے بعد فعال ہوگی۔\n\nپبلش کے بعد یہاں سے پریمیم خریدا جا سکے گا۔ (Product ID: %1$s)</string>
+
+    <!-- v2.0.5 -->
+    <string name="fetch_offline">انٹرنیٹ نہیں ہے — وائی فائی یا موبائل ڈیٹا چیک کریں</string>
+    <string name="fetch_http_error">ویب سائٹ نے جواب نہیں دیا — تھوڑی دیر بعد دوبارہ کوشش کریں</string>
+    <string name="browser_btn">🌐 براؤزر میں کھولیں</string>
+    <string name="browser_failed">براؤزر نہیں کھل سکا</string>
+    <string name="parse_partial_note">بل کا کچھ حصہ سمجھ نہیں آیا — نیچے پورا بل ویب سائٹ جیسا دکھ رہا ہے</string>
+    <string name="strip_payable">واجب الادا</string>
+    <string name="strip_due_date">آخری تاریخ</string>
+    <string name="strip_units">یونٹس</string>
+
+    <!-- v2.3.0 DOWNLOAD (replaces PRINT — direct PDF, no dialog) -->
+    <string name="download_btn">⬇ ڈاؤن لوڈ</string>
+    <string name="download_saved">PDF save ہو گئی ✓</string>
+    <string name="download_failed">PDF نہیں بن سکی — دوبارہ کوشش کریں</string>
+
+    <!-- v2.3.0 due-date reminder -->
+    <string name="reminder_set">Reminder لگ گیا: %1$s، صبح 9 بجے</string>
+    <string name="reminder_denied">نوٹیفکیشن آف ہے</string>
+    <string name="reminder_line">🔔 یاد دہانی: %1$s، صبح 9 بجے</string>
+    <string name="reminder_rationale">بل کی آخری تاریخ سے پہلے یاد دلانے کے لیے نوٹیفکیشن کی اجازت دیں</string>
+    <string name="reminder_channel">بل کی یاد دہانی</string>
+    <string name="reminder_notif_title">بجلی کے بل کی یاد دہانی</string>
+    <string name="reminder_notif_text">بل کی آخری تاریخ %1$s ہے — 2 دن رہ گئے! لیٹ فیس سے بچنے کے لیے جمع کروا دیں</string>
+
+    <!-- v3.1.1: DAILY bill-payment reminder -->
+    <string name="daily_rem_channel">بل یاد دہانیاں</string>
+    <string name="daily_rem_title">بجلی بل یاد دہانی</string>
+    <string name="daily_rem_future">بجلی کا بل ادا کریں — آخری تاریخ میں %1$d دن رہ گئے ہیں (%2$s روپے)</string>
+    <string name="daily_rem_today">بجلی کا بل ادا کریں — آج آخری تاریخ ہے (%1$s روپے)</string>
+    <string name="daily_rem_overdue">بجلی کے بل کی آخری تاریخ گزر گئی (%1$s روپے)</string>
+    <string name="daily_rem_armed">روزانہ یاد دہانی آن ہے — ہر صبح 9 بجے نوٹیفکیشن آئے گا</string>
+    <string name="daily_rem_tap_enable">ٹیپ کریں — نوٹیفکیشن آن کریں</string>
+    <string name="daily_rem_need_perm">نوٹیفکیشن کی اجازت کے بغیر روزانہ یاد دہانی نہیں آئے گی</string>
+
+    <!-- v3.3.0: "Andaza vs Asal Bill" accuracy tracker -->
+    <string name="acc_title">اندازہ بمقابلہ اصل بل</string>
+    <string name="acc_est_line">تمہارا اندازہ: %1$s یونٹس / %2$s</string>
+    <string name="acc_bill_line">اصل بل: %1$s یونٹس / %2$s</string>
+    <string name="acc_pct_line">درستگی: %1$s</string>
+    <string name="acc_units_delta">یونٹس کا فرق: %1$s</string>
+    <string name="acc_history_title">پچھلے مہینے</string>
+    <string name="acc_hist_row">%1$s: %2$s درست</string>
+
+    <!-- v2.3.0 bill-history chart -->
+
+    <!-- v2.1.0 METER CHECK -->
+    <string name="meter_check_btn">یونٹ چیک</string>
+    <string name="meter_check_title">یونٹ چیک</string>
+    <string name="meter_check_sub">ویڈیو سے ریڈنگ، اندازاً بل</string>
+    <string name="meter_no_bill">پہلے "بل دیکھیں" سے بل نکالیں — پھر یونٹ چیک ہوگا</string>
+    <string name="meter_need_prev">بل سے ریڈنگ نہیں ملی — "دوبارہ لوڈ کریں" دبائیں</string>
+    <string name="meter_step1_title">میٹر کی ویڈیو بنائیں</string>
+    <string name="meter_step1_text">60 سیکنڈ کی ویڈیو — پورا سائیکل کیپچر کریں، ریڈنگ صاف نظر آئے۔</string>
+    <string name="meter_bill_prev">🧾 بل والی ریڈنگ: %1$s</string>
+    <string name="meter_capture_btn">ویڈیو بنائیں</string>
+    <string name="meter_gallery_btn">گیلری سے ویڈیو چنو</string>
+    <string name="meter_gallery_sub">میٹر کے پاس انٹرنیٹ نہ ہو تو ویڈیو بنا لیں، گھر آ کر اپ لوڈ کریں</string>
+    <string name="meter_manual_btn">ریڈنگ لکھیں</string>
+    <string name="meter_manual_title">ریڈنگ لکھیں</string>
+    <string name="meter_manual_sub">بغیر ویڈیو کے — میٹر کی موجودہ ریڈنگ لکھیں، اعشاریہ (decimal) والی بھی چلے گی</string>
+    <string name="meter_manual_prev_label">پچھلی ریڈنگ</string>
+    <string name="meter_manual_prev_hint">پچھلی دفعہ کی ریڈنگ لکھیں — اسی سے یونٹس گنے جائیں گے</string>
+    <string name="meter_kwh_found">kWh والی ریڈنگ خود پہچانی ✓</string>
+    <string name="meter_video_too_long">ویڈیو ایک منٹ سے لمبی ہے — چھوٹی کلپ چنیں</string>
+    <string name="meter_video_too_big">ویڈیو 150MB سے بڑی ہے — چھوٹی کلپ چنیں</string>
+    <string name="meter_camera_denied">کیمرہ کی اجازت نہیں ملی — سسٹم کیمرہ کھل رہا ہے</string>
+    <string name="meter_no_camera_app">کوئی کیمرہ ایپ نہیں ملی</string>
+    <string name="meter_video_cancelled">ویڈیو نہیں بنی — دوبارہ کوشش کریں</string>
+    <string name="meter_frames_title">فریم چنیں</string>
+    <string name="meter_frames_hint">وہ فریم ٹیپ کریں جس میں ریڈنگ سب سے صاف ہو</string>
+    <string name="meter_extracting">ویڈیو سے فریمز نکال رہا ہوں…</string>
+    <string name="meter_ocr_reading">ریڈنگ پڑھی جا رہی ہے…</string>
+    <string name="meter_ocr_none">OCR سے ریڈنگ نہیں پڑھی جا سکی — خود لکھ دیں</string>
+    <string name="meter_ocr_fail_tips">کیمرہ میٹر کے قریب رکھیں، فلیش آن کریں، 20–30 سیکنڈ کی ویڈیو بنائیں، میٹر کا شیشہ صاف کریں — پھر ریڈنگ خود لکھ دیں</string>
+    <string name="meter_zoom_hint">تصویر پر ٹیپ کریں — بڑا کر کے دیکھیں</string>
+    <string name="meter_recapture_btn">دوبارہ ویڈیو</string>
+    <string name="meter_next_btn">آگے</string>
+    <string name="meter_confirm_title">ریڈنگ کنفرم کریں</string>
+    <string name="meter_suggested">OCR تجویز:</string>
+    <string name="meter_reading_label">میٹر ریڈنگ</string>
+    <string name="meter_reading_hint">kWh والی ریڈنگ لکھیں — 352.32 جیسی decimal والی بھی چلے گی</string>
+    <string name="meter_calc_btn">حساب لگائیں</string>
+    <string name="meter_result_title">یونٹ چیک — تخمینہ</string>
+    <string name="meter_units_so_far">اب تک</string>
+    <string name="meter_units_unit">یونٹس</string>
+    <string name="meter_andaza_bill">تخمینہ بل</string>
+    <string name="meter_readings_line">بل والی ریڈنگ %1$s ← نئی %2$s = %3$s یونٹس (بل کے بعد سے)</string>
+    <string name="meter_slab_left">اگلی سلیب (%1$d) تک %2$s یونٹس باقی</string>
+    <string name="meter_slab_warn">صرف %1$s یونٹس دور! اگلی سلیب %2$d پر ریٹ بڑھ جائے گا</string>
+    <string name="meter_protected_warn">200 کراس ہوا تو Protected کیٹیگری ختم — بل میں بڑا اضافہ!</string>
+    <string name="meter_projection">📈 اس رفتار سے مہینے کے اخر تک ~%1$d یونٹس</string>
+    <string name="meter_tax_real">بل کی اصل شرح سے اندازہ</string>
+    <string name="meter_tax_fallback">بل میں ٹیکس کی تفصیل نہیں — 18%% GST سے اندازہ</string>
+    <string name="est_hero_sub">%1$s \u06cc\u0648\u0646\u0679\u0633 \u00b7 %2$s</string>
+    <!-- v3.1.0 units-first hero + bill-mirror estimate -->
+    <string name="est_units_eyebrow">استعمال شدہ یونٹس</string>
+    <string name="est_units_word">یونٹس</string>
+    <string name="est_hero_mirror">پچھلے بل کے چارجز سے اندازہ</string>
+    <string name="est_excluded_note">پرانا بقایا، لیٹ فیس اور اقساط اس اندازے میں شامل نہیں</string>
+    <string name="andaza_rate_per_unit">%1$s / یونٹ</string>
+    <string name="meter_disclaimer">یہ تخمینہ ہے — حتمی بل ہمیشہ LESCO/PITC کی ویب سائٹ والا ہوگا۔</string>
+    <string name="meter_why_andaza_q">یہ تخمینہ کیوں ہے؟</string>
+    <string name="meter_why_andaza_a">اصل بل LESCO بناتا ہے — FPA ہر مہینے بدلتا ہے اور ریڈنگ کی تاریخ مختلف ہو سکتی ہے۔ ہمارا اندازہ پچھلے بل کے اصل چارجز (FPA، ٹیکس، فکسڈ چارجز) کو آپ کی نئی ریڈنگ پر لگاتا ہے: جو لائن پچھلے بل میں تھی وہی شامل ہے، کچھ بنایا نہیں گیا۔ پرانا بقایا، لیٹ فیس اور اقساط شامل نہیں۔ حتمی بل ہمیشہ LESCO/PITC کی ویب سائٹ والا ہوتا ہے۔</string>
+    <string name="meter_bildekho_btn">بل دیکھیں</string>
+    <string name="meter_recheck_btn">دوبارہ چیک</string>
+    <!-- v2.6.0 Unit Check / Estimate design-system keys -->
+    <string name="step_bill_loaded">بل</string>
+    <string name="step_record">ریکارڈ</string>
+    <string name="step_analyze">تجزیہ</string>
+    <string name="step_estimate">تخمینہ</string>
+    <string name="nav_back">\u2192 واپس</string>
+    <string name="andaza_lbl_energy">بجلی \u00b7 سلیب ریٹ</string>
+    <string name="andaza_subsidy_net_note">پروٹیکٹڈ سبسڈی کے بعد (خالص)</string>
+    <string name="andaza_lbl_taxes">ٹیکس</string>
+    <string name="andaza_lbl_gst">جی ایس ٹی</string>
+    <string name="andaza_lbl_fpa">ایف پی اے</string>
+    <string name="andaza_lbl_tax_fallback">ٹیکس (18%% GST سے اندازہ)</string>
+    <string name="andaza_lbl_total">کل اندازہ</string>
+    <string name="meter_readings_pair">%1$s \u2190 %2$s</string>
+    <string name="meter_units_since">= %1$s یونٹس (بل کے بعد سے اب تک)</string>
+    <string name="slab_card_title">اگلی سلیب (%1$d) تک</string>
+    <string name="slab_card_suffix">یونٹس باقی</string>
+    <string name="meter_top_slab">سب سے اونچی سلیب میں ہیں</string>
+
+    <string name="bill_sum_payable">قابلِ ادائیگی (اس تاریخ تک)</string>
+    <string name="bill_sum_due">آخری تاریخ</string>
+    <string name="bill_sum_late">دیر کا جرمانہ</string>
+    <string name="bill_sum_late_full">دیر ہونے پر جرمانہ: %1$s روپے \u2014 کل %2$s روپے</string>
+    <string name="bill_sum_late_only">دیر ہونے پر جرمانہ: %1$s روپے</string>
+    <string name="bill_sum_after_only">آخری تاریخ کے بعد کل: %1$s روپے</string>
+    <string name="bill_sum_units">یونٹس (اس مہینے)</string>
+    <!-- v2.6.0 design system: Bill Result screen -->
+    <string name="bill_ref_masked">حوالہ: %1$s</string>
+    <string name="bill_id_masked">آئی ڈی: %1$s</string>
+    <string name="hero_payable">کل قابلِ ادائیگی</string>
+    <string name="hero_units_label">اس مہینے کے یونٹس</string>
+    <string name="hero_units_value">%1$s یونٹس</string>
+    <string name="due_days_left">%1$d دن باقی ہیں</string>
+    <string name="due_today">آج آخری دن ہے</string>
+    <string name="due_chip">آخری تاریخ %1$s \u2022 %2$s</string>
+    <string name="late_row_label">دیر ہونے پر</string>
+    <string name="late_card_title">دیر ہونے پر جرمانہ</string>
+    <string name="late_tier1">پہلی مدت تک</string>
+    <string name="late_tier2">اس کے بعد</string>
+    <string name="late_tier_value">%1$s روپے (+%2$s)</string>
+    <string name="bill_month_label">بلنگ کا مہینہ</string>
+    <string name="bill_saved_pill">محفوظ \u2022 24 گھنٹے</string>
+    <!-- v3.1.1: automatic previous-dues status from the bill's Arrears
+         figure (never the current bill's paid state) -->
+    <string name="arrears_chip_has">پچھلا بقایا: روپے %1$s</string>
+    <string name="arrears_chip_none">کوئی بقایا نہیں</string>
+    <string name="andaza_how_title">اندازہ بل کیسے بنا؟</string>
+    <string name="andaza_row_energy">بجلی: %1$s یونٹس \u00d7 سلیب ریٹ = %2$s (آپ کے سلیب کے حساب سے)</string>
+    <string name="andaza_row_taxes">ٹیکسز: %1$s (پچھلے بل میں تقریباً %2$s%% \u2014 تخمینہ)</string>
+    <string name="andaza_row_gst">جی ایس ٹی تقریباً %1$s%%: %2$s (پچھلے بل جیسا \u2014 تخمینہ)</string>
+    <string name="andaza_row_fpa">ایف پی اے تقریباً %1$s%%: %2$s (پچھلے بل جیسا \u2014 تخمینہ)</string>
+    <string name="andaza_row_tax_fallback">ٹیکس: %1$s (بل میں تفصیل نہیں ملی \u2014 18%% جی ایس ٹی تخمینہ)</string>
+    <string name="andaza_row_total">کل تخمینہ بل: %1$s</string>
+    <!-- v2.6.0 design system: home -->
+    <string name="home_greeting">Assalam-o-Alaikum \uD83D\uDC4B</string>
+    <string name="home_greeting_sub">اپنا بجلی بل چیک کریں — صرف ریفرنس نمبر چاہیے۔</string>
+    <string name="helper_ref">بل پر لکھا 14 ہندسوں کا ریفرنس نمبر درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
+    <string name="helper_cid">بل پر لکھا 7 ہندسوں کا کسٹمر آئی ڈی درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
+    <string name="paste">پیسٹ کریں</string>
+    <string name="unit_check_sub">ویڈیو سے ریڈنگ، اندازہ بل</string>
+    <string name="see_all">سب دیکھیں</string>
+    <string name="nav_home">ہوم</string>
+    <string name="nav_bills">بل</string>
+    <string name="nav_unit">یونٹ چیک</string>
+    <string name="nav_settings">سیٹنگز</string>
+    <string name="bills_title">بلز</string>
+    <!-- v3.2.0: 200-Unit Guard -->
+    <string name="guard_title">200 یونٹ گارڈ</string>
+    <string name="guard_anchor_title">مہینے کا آغاز (اینکر)</string>
+    <string name="guard_anchor_reading">شروع والی ریڈنگ (بل کے مطابق)</string>
+    <string name="guard_anchor_date">شروع کی تاریخ</string>
+    <string name="guard_anchor_save">اینکر save کریں</string>
+    <string name="guard_reading_title">ریڈنگ نوٹ کرو</string>
+    <string name="guard_reading_hint">آج کی میٹر ریڈنگ</string>
+    <string name="guard_reading_save">ریڈنگ save کریں</string>
+    <string name="guard_history_title">لکھی ہوئی ریڈنگز</string>
+    <string name="guard_history_empty">ابھی کوئی ریڈنگ نہیں لکھی۔</string>
+    <string name="guard_no_anchor">پہلے شروع والی ریڈنگ اور تاریخ save کریں۔</string>
+    <string name="guard_projection">مہینے کے آخر تک: %1$s یونٹ</string>
+    <string name="guard_used_so_far">اب تک %1$s یونٹ (%2$d دن میں)</string>
+    <string name="guard_daily_budget">روزانہ %1$s یونٹ سے زیادہ استعمال نہ کریں (%2$d دن باقی)</string>
+    <string name="guard_over_limit">200 یونٹ کراس ہو چکے ہیں!</string>
+    <string name="guard_cycle_over">مہینہ مکمل ہو گیا ہے۔</string>
+    <string name="guard_daily_avg">اب تک روزانہ اوسط: %1$s یونٹ</string>
+    <string name="guard_status_safe">محفوظ — 200 سے نیچے رہو گے</string>
+    <string name="guard_status_warning">خبردار — 200 کے قریب ہو!</string>
+    <string name="guard_status_danger">خطرہ — 200 کراس ہونے والا ہے!</string>
+    <string name="guard_open_btn">200 یونٹ گارڈ</string>
+    <string name="guard_save_reading_btn">گارڈ میں ریڈنگ محفوظ کرو</string>
+    <string name="guard_notif_channel">200 یونٹ گارڈ وارننگز</string>
+    <string name="guard_notif_title">200 یونٹ گارڈ</string>
+    <string name="guard_notif_warning">اندازہ %1$s یونٹ — 200 کے قریب ہیں، احتیاط کریں!</string>
+    <string name="guard_notif_danger">اندازہ %1$s یونٹ — 200 کراس ہونے والا ہے!</string>
+    <!-- v3.2.0: What-if Compare -->
+    <string name="whatif_title">کیا ہو اگر — موازنہ</string>
+    <string name="whatif_hint">یونٹ لکھیں اور دیکھیں ہر صورت میں اندازہ بل کتنا بنے گا:</string>
+    <string name="whatif_compare_btn">موازنہ کریں</string>
+    <string name="whatif_need_bill">پہلے بل نکالیں — پھر اسی کے چارجز سے اندازہ لگے گا۔</string>
+    <string name="whatif_fetch_btn">بل نکالو</string>
+    <string name="whatif_slot_title">%1$s یونٹ</string>
+    <string name="whatif_other_charges">باقی چارجز (ٹیکس وغیرہ)</string>
+    <string name="whatif_jumps_title">فرق (ایک سے دوسرے تک)</string>
+    <string name="whatif_jump">%1$s \u2192 %2$s: +%3$s</string>
+    <string name="whatif_max_jump">سب سے بڑا جمپ: %1$s \u2192 %2$s (+%3$s) — یہی 200 والی دیوار ہے!</string>
+    <string name="whatif_cliff_banner">200 کراس — اس مہینے سبسڈی ختم، پورا بل نان پروٹیکٹڈ ریٹس پر!</string>
+    <string name="whatif_note_estimate">یہ سب اندازے ہیں — اصل بل میں ٹیکس/ایف پی اے تھوڑے مختلف ہو سکتے ہیں۔</string>
+    <string name="whatif_open_btn">کیا ہو اگر — موازنہ</string>
+    <!-- v3.2.0: cliff-crossed estimate banner (Meter Check) -->
+    <string name="crossed_cliff_banner">200 یونٹ کراس! اس مہینے سبسڈی ختم — پورا بل نان پروٹیکٹڈ ریٹس پر بنے گا۔</string>
+    <!-- v3.4.0: daily streak -->
+    <string name="streak_line">🔥 %1$d ہفتے مسلسل</string>
+    <string name="streak_milestone_4w">4 ہفتے! زبردست — اسی رفتار سے جاری رکھو!</string>
+    <string name="streak_milestone_12w">12 ہفتے! 3 مہینے — تم لیجنڈ ہو!</string>
+    <string name="streak_home_card">🔥 %1$d ہفتے مسلسل — گارڈ میں چیک اِن کرو</string>
+    <!-- v3.4.0: bill-day nudge -->
+    <string name="nudge_notif_channel">بل یاد دہانی</string>
+    <string name="nudge_notif_title">نیا بل آیا ہوگا</string>
+    <string name="nudge_notif_text">نیا بل آیا ہوگا — فیچ کرو اور اپنا ایکوریسی اسکور دیکھو!</string>
+    <!-- v3.4.0: weekly usage report -->
+    <string name="weekly_notif_channel">ہفتہ وار رپورٹ</string>
+    <string name="weekly_notif_title">اس ہفتے کی رپورٹ</string>
+    <string name="weekly_notif_text">اس ہفتے %1$s یونٹ — 200 سے %2$s دور</string>
+    <string name="weekly_notif_text_danger">اس ہفتے %1$s یونٹ — 200 سے %2$s دور۔ گارڈ کھولو!</string>
+    <string name="weekly_notif_text_fallback">اس ہفتے %1$s یونٹ (اندازہ) — گارڈ میں ریڈنگ لکھو</string>
+    <!-- v3.6.0: zero-input Guard + Sunday reminder -->
+    <string name="guard_estimate_note">⚠ یہ اندازہ ہے — پچھلے بل کی رفتار سے۔ ریڈنگ لکھنے پر درست ہوگا۔</string>
+    <string name="weekly_notif_text_auto">پچھلے بل کی رفتار سے مہینے کے آخر تک %1$s یونٹ کا اندازہ</string>
+    <string name="weekly_notif_text_auto_danger">پچھلے بل کی رفتار سے مہینے کے آخر تک %1$s یونٹ کا اندازہ — 200 کراس ہونے کا خطرہ!</string>
+    <string name="weekly_notif_nudge">آج کی ریڈنگ لکھ دو — صرف 10 سیکنڈ لگیں گے</string>
+    <string name="notif_off_title">اتوار کے ریمائنڈر کے لیے نوٹیفکیشن آن کرو</string>
+    <string name="notif_off_text">نوٹیفکیشن بند ہیں — ہفتہ وار گارڈ ریمائنڈر نہیں آئے گا۔</string>
+    <string name="notif_off_open">سیٹنگز کھولو</string>
+    <string name="outside_pk_title">کیا آپ پاکستان سے باہر ہیں؟</string>
+    <string name="outside_pk_msg">بل صرف پاکستان کے اندر نکلتا ہے (PITC باہر کے کنکشن بلاک کرتا ہے)۔ پاکستان سے باہر آپ بل predictor اور calculator manual entry کے ساتھ استعمال کر سکتے ہیں۔</string>
+    <string name="outside_pk_yes">جی ہاں، باہر ہوں</string>
+    <string name="outside_pk_no">نہیں، پاکستان میں ہوں</string>
+</resources>

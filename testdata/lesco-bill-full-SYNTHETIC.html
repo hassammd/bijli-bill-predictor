@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- ============================================================================
+  SYNTHETIC TEST FIXTURE — NOT real customer data.
+  Hand-built to mirror the DOCUMENTED structure of
+  https://bill.pitc.com.pk/lescobill result pages (open-source PITC-Bill-Checker):
+    * error box: <div id="ua"> (empty here = success case)
+    * bill data: label/value <table> rows
+    * a second table with a "Month" header = bill history
+  All VALUES are invented placeholders for parser testing only.
+============================================================================= -->
+<html>
+<head><title>LESCO Bill - SYNTHETIC FULL</title></head>
+<body>
+<form method="post" action="./lescobill">
+  <div id="ua"></div>
+  <table>
+    <tr><td>Consumer Name</td><td>SAMPLE CUSTOMER (SYNTHETIC)</td></tr>
+    <tr><td>Address</td><td>12 SAMPLE STREET, LAHORE</td></tr>
+    <tr><td>Customer ID</td><td>7654321</td></tr>
+    <tr><td>Reference No</td><td>06113530462901</td></tr>
+    <tr><td>Category</td><td>RESIDENTIAL</td></tr>
+    <tr><td>Tariff</td><td>A-1 RESIDENTIAL</td></tr>
+    <tr><td>Meter No</td><td>MTR-998877</td></tr>
+    <tr><td>Billing Month</td><td>SEP-26</td></tr>
+    <tr><td>Issue Date</td><td>12-SEP-26</td></tr>
+    <tr><td>Due Date</td><td>26-SEP-26</td></tr>
+    <tr><td>Reading Date</td><td>10-SEP-26</td></tr>
+    <tr><td>Previous Reading</td><td>12340</td></tr>
+    <tr><td>Current Reading</td><td>12590</td></tr>
+    <tr><td>Units Consumed</td><td>250</td></tr>
+    <tr><td>Electricity Charges</td><td>6790.00</td></tr>
+    <tr><td>Subsidy</td><td>0.00</td></tr>
+    <tr><td>Net Charges</td><td>6790.00</td></tr>
+    <tr><td>GST</td><td>1294.20</td></tr>
+    <tr><td>Taxes</td><td>400.00</td></tr>
+    <tr><td>FPA</td><td>625.00</td></tr>
+    <tr><td>Arrears</td><td>0.00</td></tr>
+    <tr><td>Current Bill</td><td>9109.20</td></tr>
+    <tr><td>Grand Total</td><td>9109.20</td></tr>
+    <tr><td>Amount Payable (within due date)</td><td>9109.20</td></tr>
+    <tr><td>LP Surcharge</td><td>911.00</td></tr>
+    <tr><td>Amount Payable (after due date)</td><td>10020.20</td></tr>
+  </table>
+  <table>
+    <tr><th>Month</th><th>Units</th><th>Amount</th></tr>
+    <tr><td>AUG-26</td><td>231</td><td>8412.55</td></tr>
+    <tr><td>JUL-26</td><td>268</td><td>9301.10</td></tr>
+  </table>
+</form>
+</body>
+</html>

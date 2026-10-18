@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!-- ============================================================================
+  SYNTHETIC TEST FIXTURE — NOT real customer data.
+  Generic PITC-style result page: bill fields are spread across THREE
+  separate tables (the v2.0.1 parser only read the first table, which
+  produced blank bills on real pages). All VALUES are invented.
+============================================================================= -->
+<html>
+<head><title>LESCO Bill - SYNTHETIC GENERIC</title></head>
+<body>
+<form method="post" action="./lescobill">
+  <div id="ua"></div>
+  <table>
+    <tr><td>Consumer Name</td><td>SAMPLE CUSTOMER (SYNTHETIC)</td></tr>
+    <tr><td>Address</td><td>12 SAMPLE STREET, LAHORE</td></tr>
+    <tr><td>Customer ID</td><td>7654321</td></tr>
+    <tr><td>Tariff</td><td>A-1 RESIDENTIAL</td></tr>
+    <tr><td>Issue Date</td><td>SEP-26</td></tr>
+  </table>
+  <table>
+    <tr><td>Current Reading</td><td>12590</td></tr>
+    <tr><td>Previous Reading</td><td>12340</td></tr>
+    <tr><td>Units Consumed</td><td>250</td></tr>
+    <tr><td>Reading Date</td><td>10-SEP-26</td></tr>
+  </table>
+  <table>
+    <tr><td>Amount Payable</td><td>9109.20</td></tr>
+    <tr><td>Amount Payable (After Due Date)</td><td>10020.20</td></tr>
+    <tr><td>Due Date</td><td>26-SEP-26</td></tr>
+    <tr><td>Electricity Charges</td><td>6790.00</td></tr>
+    <tr><td>GST</td><td>1294.20</td></tr>
+  </table>
+</form>
+</body>
+</html>

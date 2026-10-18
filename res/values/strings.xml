@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- v2.0 BILL FETCHER ONLY — calculator removed -->
+    <string name="app_name">Bijli Bill Calculator</string>
+    <string name="app_tagline">LESCO bill — reference number se!</string>
+    <string name="splash_tagline">بجلی کا بل، اب آپ کی مٹھی میں</string>
+    <!-- v2.6.0 design system: splash headline + foot always in Urdu (design-faithful) -->
+    <string name="splash_title">بجلی بل کیلکولیٹر</string>
+    <string name="for_pakistan_urdu">پاکستان کے لیے</string>
+    <string name="made_for_pakistan">Made for Pakistan</string>
+    <string name="lang_urdu">اردو</string>
+
+    <!-- Home -->
+    <string name="home_title">Bijli Bill</string>
+    <string name="home_subtitle">Bijli company chuno, reference dalo, bill dekho</string>
+    <string name="disco_label">Bijli Company</string>
+    <string name="kelectric_soon">K-Electric jald aa raha hai!</string>
+    <string name="meters_title">Mere Meter</string>
+    <string name="meters_empty">Abhi koi meter save nahi — pehla bill dekho, khud save ho jayega</string>
+    <string name="ref_label">Reference Number</string>
+    <string name="ref_hint">e.g. 02118240618604U</string>
+    <string name="tab_ref">Reference No</string>
+    <string name="tab_custid">Customer ID</string>
+    <string name="custid_hint">7-digit ID (bill par likhi hoti hai)</string>
+    <string name="fetch_btn">BILL DEKHO</string>
+    <string name="ref_invalid">Reference number 14 digits ka ho — aakhir mein U/R ho sakta hai</string>
+    <string name="custid_invalid">Customer ID exactly 7 digits ki honi chahiye</string>
+    <string name="fetching">Bill la raha hun…</string>
+    <string name="fetch_failed">Bill nahi mil saka — number check karo ya dobara try karo</string>
+    <string name="fetch_network_down">LESCO ki website is waqt khul nahi rahi — thodi dair baad dobara try karo</string>
+    <string name="fetch_invalid_ref">Yeh reference number ghalat lagta hai — bill se dekh kar dobara likho</string>
+    <string name="fetch_not_found">Is number ka bill nahi mila — number bill se dekh kar dobara likho</string>
+    <string name="fetch_token_error">Website se rabta hua lekin form samajh nahi aaya — thodi dair baad dobara try karo</string>
+    <string name="fetch_parse_empty">Website se jawab to mila lekin bill parha nahi gaya — agla update isay theek karega</string>
+    <string name="fetch_antiforgery_error">Website ne security cookie manga jo bheja nahi ja saka — dobara koshish karo</string>
+    <string name="report_btn">📤 REPORT BHEJO</string>
+    <string name="report_saved">Report ban gayi — ab ise chat mein bhej dein</string>
+    <string name="report_failed">Report nahi ban saki — dobara try karo</string>
+    <string name="debug_server">server: %1$s</string>
+    <string name="cached_note">Mehfooz copy — 24 ghante tak valid</string>
+    <string name="saved_title">Mehfooz References</string>
+    <string name="saved_empty">Abhi koi reference mehfooz nahi — upar number likh kar SAVE dabao</string>
+    <string name="saved_cid_suffix">(Customer ID)</string>
+    <string name="save_name_hint">Naam likhein, misal: Ghar</string>
+    <string name="save_btn">SAVE</string>
+    <string name="save_need_ref">Pehle reference number likhein</string>
+    <string name="save_need_name">Naam likhein taake pehchana jaye</string>
+    <string name="saved_ok">Reference mehfooz ho gaya</string>
+    <string name="delete_title">Delete karna hai?</string>
+    <string name="delete_msg">%1$s (%2$s) delete ho jayega.</string>
+    <string name="deleted">Delete ho gaya</string>
+
+    <!-- Shared -->
+    <string name="yes">Haan</string>
+    <string name="no">Nahi</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">BACK</string>
+    <string name="about_btn">ABOUT</string>
+    <string name="premium_btn">PREMIUM</string>
+
+    <!-- Bill screen -->
+    <string name="bill_title">Bijli ka Bill</string>
+    <string name="view_bill_btn">View Full Bill</string>
+    <string name="bill_for">Reference: %1$s</string>
+    <string name="bill_for_cid">Customer ID: %1$s</string>
+    <string name="refresh_btn">DOBARA LAO</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_subtitle">Bill Fetcher v2.5.0</string>
+    <string name="about_how">Kaise kaam karta hai</string>
+    <string name="about_step1">1. Apne LESCO bill se reference number lo (jaisa bill par likha hai, U/R samet)</string>
+    <string name="about_step2">2. App mein likh kar BILL DEKHO dabao</string>
+    <string name="about_step3">3. Poora bill tafseel ke saath dekh lo — website kholne ki zaroorat nahi</string>
+    <string name="about_source_title">Data kahan se aata hai</string>
+    <string name="about_source_text">Bill ka data LESCO/PITC ki official website se liya jata hai. Rates aur taxes bill par chhapay huay hotay hain — app kuch calculate nahi karti, sirf tumhara asal bill dikhati hai.</string>
+    <string name="about_disclaimer_title">Official Sources &amp; Disclaimer</string>
+    <string name="about_disclaimer_text">Tariff slabs: NEPRA (nepra.org.pk). Bill records: official PITC billing portal used by Pakistani DISCOs — PITC operates under Pakistan\'s Ministry of Energy, Power Division (power.gov.pk). This is an independent app — NOT affiliated with, endorsed by, or representing NEPRA, WAPDA, PITC, or any DISCO (LESCO, IESCO, GEPCO, FESCO, MEPCO, etc.). Predictions are estimates for guidance only.</string>
+    <string name="about_update_btn">CHECK FOR UPDATES</string>
+    <string name="about_update_msg">Update check jald aa raha hai.</string>
+    <string name="about_version">Version 2.5.0</string>
+
+    <!-- Premium -->
+    <string name="premium_title">★ Go Premium</string>
+    <string name="premium_sub">Bill Fetcher ko ads-free banayein</string>
+    <string name="feat_noads">✓  No ads — banner aur interstitial khatam</string>
+    <string name="feat_refs">✓  Unlimited saved references</string>
+    <string name="feat_priority">✓  Priority support</string>
+    <string name="buy_premium">BUY PREMIUM — Rs 499 (one-time)</string>
+    <string name="premium_note">Payment Google Play ke zariye mehfooz tareeqe se hogi. Billing Play Console par publish ke waqt enable hogi.</string>
+    <string name="billing_title">Go Premium</string>
+    <string name="billing_msg">Google Play Billing will be enabled when this app is published on the Play Console.\n\nPublish ke baad yahan se premium khareeda ja sakega. (Product ID: %1$s)</string>
+
+    <!-- v2.0.5 -->
+    <string name="fetch_offline">Internet nahi hai — WiFi ya mobile data check karo</string>
+    <string name="fetch_http_error">Website ne jawab nahi diya — thodi dair baad dobara try karo</string>
+    <string name="browser_btn">🌐 BROWSER MEIN KHOLO</string>
+    <string name="browser_failed">Browser nahi khul saka</string>
+    <string name="parse_partial_note">Bill ka kuch hissa samajh nahi aaya — neeche poora bill website jaisa dikh raha hai</string>
+    <string name="strip_payable">PAYABLE</string>
+    <string name="strip_due_date">DUE DATE</string>
+    <string name="strip_units">UNITS</string>
+
+    <!-- v2.3.0 DOWNLOAD (replaces PRINT — direct PDF, no dialog) -->
+    <string name="download_btn">⬇ DOWNLOAD</string>
+    <string name="download_saved">PDF save ho gaya ✓</string>
+    <string name="download_failed">PDF nahi ban saki — dobara try karo</string>
+
+    <!-- v2.3.0 due-date reminder -->
+    <string name="reminder_set">Reminder lag gaya: %1$s, subah 9 baje</string>
+    <string name="reminder_denied">Notification off hai</string>
+    <string name="reminder_line">🔔 Reminder: %1$s, 9 AM</string>
+    <string name="reminder_rationale">Bill ki last date se pehle yaad dilane ke liye notification ki ijazat dein</string>
+    <string name="reminder_channel">Bill reminders</string>
+    <string name="reminder_notif_title">Bijli ka bill yaad dila raha hun</string>
+    <string name="reminder_notif_text">Bill ki last date %1$s hai — 2 din reh gaye! Late fee se bachne ke liye jama karwa dein</string>
+
+    <!-- v3.1.1: DAILY bill-payment reminder -->
+    <string name="daily_rem_channel">Bill Reminders</string>
+    <string name="daily_rem_title">Bijli Bill Reminder</string>
+    <string name="daily_rem_future">Bijli ka bill pay karo — last date mein %1$d din reh gaye hain (Rs %2$s)</string>
+    <string name="daily_rem_today">Bijli ka bill pay karo — aaj last date hai (Rs %1$s)</string>
+    <string name="daily_rem_overdue">Bijli ke bill ki last date guzar gayi (Rs %1$s)</string>
+    <string name="daily_rem_armed">Rozana yaad-dihani ON — roz subah 9 baje notification aayegi</string>
+    <string name="daily_rem_tap_enable">Tap karo — notification on karo</string>
+    <string name="daily_rem_need_perm">Notification ki ijazat ke baghair rozana yaad-dihani nahi aayegi</string>
+
+    <!-- v3.3.0: "Andaza vs Asal Bill" accuracy tracker -->
+    <string name="acc_title">Andaza vs Asal Bill</string>
+    <string name="acc_est_line">Tumhara andaza: %1$s units / %2$s</string>
+    <string name="acc_bill_line">Asal bill: %1$s units / %2$s</string>
+    <string name="acc_pct_line">Accuracy: %1$s</string>
+    <string name="acc_units_delta">Units ka farq: %1$s</string>
+    <string name="acc_history_title">Pichlay mahine</string>
+    <string name="acc_hist_row">%1$s: %2$s accurate</string>
+
+    <!-- v2.3.0 bill-history chart -->
+
+    <!-- v2.1.0 METER CHECK -->
+    <string name="meter_check_btn">UNIT CHECK</string>
+    <string name="meter_check_title">Unit Check</string>
+    <string name="meter_check_sub">Video se reading, andaza bill</string>
+    <string name="meter_no_bill">Pehle BILL DEKHO se bill nikalo — phir Unit Check hoga</string>
+    <string name="meter_need_prev">Bill se reading nahi mili — DOBARA LAO dabao</string>
+    <string name="meter_step1_title">Meter ki video banao</string>
+    <string name="meter_step1_text">60 second ki video — poora cycle capture karein, reading saaf nazar aaye.</string>
+    <string name="meter_bill_prev">🧾 Bill wali reading: %1$s</string>
+    <string name="meter_capture_btn">VIDEO BANAO</string>
+    <string name="meter_gallery_btn">GALLERY SE VIDEO CHUNO</string>
+    <string name="meter_gallery_sub">Meter par internet na ho to video bana kar ghar aa kar upload karo</string>
+    <string name="meter_manual_btn">READING LIKHO</string>
+    <string name="meter_manual_title">Reading likho</string>
+    <string name="meter_manual_sub">Bina video ke — meter ki maujooda reading seedha likhein, isharia wali bhi chalegi</string>
+    <string name="meter_manual_prev_label">Pichli reading</string>
+    <string name="meter_manual_prev_hint">Pichli dafa ki reading likhein — isi se units ginay jayenge</string>
+    <string name="meter_kwh_found">kWh wali reading khud pehchani ✓</string>
+    <string name="meter_video_too_long">Video 1 minute se lambi hai — chhoti clip chunein</string>
+    <string name="meter_video_too_big">Video 150MB se bari hai — chhoti clip chunein</string>
+    <string name="meter_camera_denied">Camera permission nahi mili — system camera khul raha hai</string>
+    <string name="meter_no_camera_app">Koi camera app nahi mili</string>
+    <string name="meter_video_cancelled">Video nahi bani — dobara try karo</string>
+    <string name="meter_frames_title">Frame chuno</string>
+    <string name="meter_frames_hint">Woh frame tap karo jis mein reading sab se saaf hai</string>
+    <string name="meter_extracting">Video se frames nikal raha hun…</string>
+    <string name="meter_ocr_reading">Reading parhi ja rahi hai…</string>
+    <string name="meter_ocr_none">OCR se reading nahi parhi — khud likh dein</string>
+    <string name="meter_ocr_fail_tips">Camera meter ke qareeb rakho, flash on karo, 20–30 second ki video banao, meter ka sheesha saaf karo — phir reading khud likh dein</string>
+    <string name="meter_zoom_hint">Tasveer par tap karo — bara kar ke dekho</string>
+    <string name="meter_recapture_btn">DOBARA VIDEO</string>
+    <string name="meter_next_btn">AGAY</string>
+    <string name="meter_confirm_title">Reading confirm karo</string>
+    <string name="meter_suggested">OCR tajweez:</string>
+    <string name="meter_reading_label">Meter reading</string>
+    <string name="meter_reading_hint">kWh wali reading likhein — 352.32 jaisi isharia wali bhi chalegi</string>
+    <string name="meter_calc_btn">HISAAB LAGAO</string>
+    <string name="meter_result_title">Unit Check — ANDAZA</string>
+    <string name="meter_units_so_far">AB TAK</string>
+    <string name="meter_units_unit">units</string>
+    <string name="meter_andaza_bill">ANDAZA BILL</string>
+    <string name="meter_readings_line">Bill wali reading %1$s → nayi %2$s = %3$s units (bill ke baad se)</string>
+    <string name="meter_slab_left">Agli slab (%1$d) tak %2$s units baqi</string>
+    <string name="meter_slab_warn">Sirf %1$s units door! Agli slab %2$d par rate barh jayega</string>
+    <string name="meter_protected_warn">200 cross hua to Protected category khatam — bill mein bara izafa!</string>
+    <string name="meter_projection">📈 Is raftar se mahine ke akhir tak ~%1$d units</string>
+    <string name="meter_tax_real">bill ki asal sharah se andaza</string>
+    <string name="meter_tax_fallback">bill mein tax ki tafseel nahi — 18%% GST se andaza</string>
+    <string name="est_hero_sub">%1$s units \u00b7 %2$s</string>
+    <!-- v3.1.0 units-first hero + bill-mirror estimate -->
+    <string name="est_units_eyebrow">UNITS USED</string>
+    <string name="est_units_word">units</string>
+    <string name="est_hero_mirror">Pichle bill ke charges se andaza</string>
+    <string name="est_excluded_note">Purana baqaya, late fee aur installment is andaze mein shamil nahi</string>
+    <string name="andaza_rate_per_unit">%1$s / unit</string>
+    <string name="meter_disclaimer">Yeh ANDAZA hai — hatmi bill hamesha LESCO/PITC ki website wala hoga.</string>
+    <string name="meter_why_andaza_q">Ye ANDAZA kyun hai?</string>
+    <string name="meter_why_andaza_a">Asal bill LESCO banata hai — FPA har mahine badalta hai aur reading ki tareekh mukhtalif ho sakti hai. Hamara andaza pichle bill ke ASAL charges (FPA, taxes, fixed charges) ko tumhari nayi reading par lagata hai: jo line pichle bill mein thi wahi shamil hai, kuch banaya nahi gaya. Purana baqaya, late fee aur installment shamil nahi. Hatmi bill hamesha LESCO/PITC ki website wala hota hai.</string>
+    <string name="meter_bildekho_btn">BILL DEKHO</string>
+    <string name="meter_recheck_btn">DOBARA CHECK</string>
+    <!-- v2.6.0 Unit Check / Estimate design-system keys -->
+    <string name="step_bill_loaded">Bill</string>
+    <string name="step_record">Record</string>
+    <string name="step_analyze">Analyze</string>
+    <string name="step_estimate">Estimate</string>
+    <string name="nav_back">\u2190 BACK</string>
+    <string name="andaza_lbl_energy">Bijli \u00b7 slab rate</string>
+    <string name="andaza_subsidy_net_note">Protected subsidy ke baad (net)</string>
+    <string name="andaza_lbl_taxes">Taxes</string>
+    <string name="andaza_lbl_gst">GST</string>
+    <string name="andaza_lbl_fpa">FPA</string>
+    <string name="andaza_lbl_tax_fallback">Taxes (18%% GST se andaza)</string>
+    <string name="andaza_lbl_total">Kul andaza</string>
+    <string name="meter_readings_pair">%1$s \u2192 %2$s</string>
+    <string name="meter_units_since">= %1$s units (bill ke baad se ab tak)</string>
+    <string name="slab_card_title">Agli slab (%1$d) tak</string>
+    <string name="slab_card_suffix">units baqi</string>
+    <string name="meter_top_slab">Sab se unchi slab mein ho</string>
+
+    <string name="bill_sum_payable">Payable (is date tak)</string>
+    <string name="bill_sum_due">Due date</string>
+    <string name="bill_sum_late">Late surcharge</string>
+    <string name="bill_sum_late_full">Late hone par jurmana: Rs %1$s \u2014 kul Rs %2$s</string>
+    <string name="bill_sum_late_only">Late hone par jurmana: Rs %1$s</string>
+    <string name="bill_sum_after_only">Due date ke baad kul: Rs %1$s</string>
+    <string name="bill_sum_units">Units (is mahine)</string>
+    <!-- v2.6.0 design system: Bill Result screen -->
+    <string name="bill_ref_masked">Ref: %1$s</string>
+    <string name="bill_id_masked">ID: %1$s</string>
+    <string name="hero_payable">TOTAL PAYABLE</string>
+    <string name="hero_units_label">Is mahine ke units</string>
+    <string name="hero_units_value">%1$s units</string>
+    <string name="due_days_left">%1$d din baqi hain</string>
+    <string name="due_today">Aaj aakhri din hai</string>
+    <string name="due_chip">Due %1$s \u2022 %2$s</string>
+    <string name="late_row_label">Agar late hua</string>
+    <string name="late_card_title">Late hone par jurmana</string>
+    <string name="late_tier1">Pehli muddat tak</string>
+    <string name="late_tier2">Us ke baad</string>
+    <string name="late_tier_value">Rs %1$s (+%2$s)</string>
+    <string name="bill_month_label">Billing month</string>
+    <string name="bill_saved_pill">Saved \u2022 24h valid</string>
+    <!-- v3.1.1: automatic previous-dues status from the bill's Arrears
+         figure (never the current bill's paid state) -->
+    <string name="arrears_chip_has">PICHLA BAQAYA: Rs %1$s</string>
+    <string name="arrears_chip_none">KOI BAQAYA NAHI</string>
+    <string name="andaza_how_title">Andaza bill kaise bana?</string>
+    <string name="andaza_row_energy">Bijli: %1$s units \u00d7 slab rate = %2$s (aap ke slab ke hisab se)</string>
+    <string name="andaza_row_taxes">Taxes: %1$s (pichhle bill mein ~%2$s%% \u2014 andaza)</string>
+    <string name="andaza_row_gst">GST ~%1$s%%: %2$s (pichhle bill jaisa \u2014 andaza)</string>
+    <string name="andaza_row_fpa">FPA ~%1$s%%: %2$s (pichhle bill jaisa \u2014 andaza)</string>
+    <string name="andaza_row_tax_fallback">Tax: %1$s (bill mein tafseel nahi mili \u2014 18%% GST andaza)</string>
+    <string name="andaza_row_total">Kul andaza bill: %1$s</string>
+    <!-- v2.6.0 design system: home -->
+    <string name="home_greeting">Assalam-o-Alaikum \uD83D\uDC4B</string>
+    <string name="home_greeting_sub">Apna bijli bill check karein — sirf reference number chahiye.</string>
+    <string name="helper_ref">Bill par likha 14 hindson ka reference number darj karein — ye sirf is phone mein save hoga.</string>
+    <string name="helper_cid">Bill par likha 7 hindson ka customer ID darj karein — ye sirf is phone mein save hoga.</string>
+    <string name="paste">PASTE</string>
+    <string name="unit_check_sub">Video se reading, andaza bill</string>
+    <string name="see_all">See all \u2192</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_bills">Bills</string>
+    <string name="nav_unit">Unit Check</string>
+    <string name="nav_settings">Settings</string>
+    <string name="bills_title">Bills</string>
+    <!-- v3.2.0: 200-Unit Guard -->
+    <string name="guard_title">200-Unit Guard</string>
+    <string name="guard_anchor_title">Mahine ki shuruaat (anchor)</string>
+    <string name="guard_anchor_reading">Shuru wali reading (bill ke mutabiq)</string>
+    <string name="guard_anchor_date">Shuru ki tareekh</string>
+    <string name="guard_anchor_save">Anchor save karo</string>
+    <string name="guard_reading_title">Reading note karo</string>
+    <string name="guard_reading_hint">Aaj ki meter reading</string>
+    <string name="guard_reading_save">Reading save karo</string>
+    <string name="guard_history_title">Likhi hui readings</string>
+    <string name="guard_history_empty">Abhi koi reading nahi likhi.</string>
+    <string name="guard_no_anchor">Pehle shuru wali reading aur tareekh save karo.</string>
+    <string name="guard_projection">Mahine ke akhir tak: %1$s units</string>
+    <string name="guard_used_so_far">Ab tak %1$s units (%2$d din mein)</string>
+    <string name="guard_daily_budget">Rozana %1$s units se zyada mat use karo (%2$d din baqi)</string>
+    <string name="guard_over_limit">200 units cross ho chuke hain!</string>
+    <string name="guard_cycle_over">Mahina mukammal ho gaya hai.</string>
+    <string name="guard_daily_avg">Ab tak rozana ausat: %1$s units</string>
+    <string name="guard_status_safe">SAFE — 200 se neeche rahoge</string>
+    <string name="guard_status_warning">WARNING — 200 ke qareeb ho!</string>
+    <string name="guard_status_danger">KHATRA — 200 cross hone wala hai!</string>
+    <string name="guard_open_btn">200-Unit Guard</string>
+    <string name="guard_save_reading_btn">Guard mein reading save karo</string>
+    <string name="guard_notif_channel">200-Unit Guard warnings</string>
+    <string name="guard_notif_title">200-Unit Guard</string>
+    <string name="guard_notif_warning">Projection %1$s units — 200 ke qareeb ho, ehtiyat karo!</string>
+    <string name="guard_notif_danger">Projection %1$s units — 200 cross hone wala hai!</string>
+    <!-- v3.2.0: What-if Compare -->
+    <string name="whatif_title">What-if Compare</string>
+    <string name="whatif_hint">Units likho aur dekho har surat mein andaza bill kitna bane ga:</string>
+    <string name="whatif_compare_btn">Compare karo</string>
+    <string name="whatif_need_bill">Pehle bill fetch karo — phir usi ke charges se andaza lagega.</string>
+    <string name="whatif_fetch_btn">Bill fetch karo</string>
+    <string name="whatif_slot_title">%1$s units</string>
+    <string name="whatif_other_charges">Baqi charges (taxes waghera)</string>
+    <string name="whatif_jumps_title">Farq (aek se doosre tak)</string>
+    <string name="whatif_jump">%1$s \u2192 %2$s: +%3$s</string>
+    <string name="whatif_max_jump">Sab se bara jump: %1$s \u2192 %2$s (+%3$s) — yehi 200 wali deewar hai!</string>
+    <string name="whatif_cliff_banner">200 cross — is mahine subsidy khatam, poora bill NP rates par!</string>
+    <string name="whatif_note_estimate">Ye sab andaze hain — asal bill mein taxes/FPA thore mukhtalif ho sakte hain.</string>
+    <string name="whatif_open_btn">What-if Compare</string>
+    <!-- v3.2.0: cliff-crossed estimate banner (Meter Check) -->
+    <string name="crossed_cliff_banner">200 units cross! Is mahine subsidy khatam — poora bill Non-Protected rates par bane ga.</string>
+    <!-- v3.4.0: streak (v3.6.0: WEEKLY) -->
+    <string name="streak_line">🔥 %1$d haftay lagatar</string>
+    <string name="streak_milestone_4w">4 haftay! Zabardast — isi raftar se jari rakho!</string>
+    <string name="streak_milestone_12w">12 haftay! 3 mahine — tum legend ho!</string>
+    <string name="streak_home_card">🔥 %1$d haftay lagatar — Guard mein check-in karo</string>
+    <!-- v3.4.0: bill-day nudge -->
+    <string name="nudge_notif_channel">Bill yaad-dihani</string>
+    <string name="nudge_notif_title">Naya bill aya hoga</string>
+    <string name="nudge_notif_text">Naya bill aya hoga — fetch karo aur apna accuracy score dekho!</string>
+    <!-- v3.4.0: weekly usage report -->
+    <string name="weekly_notif_channel">Haftawar report</string>
+    <string name="weekly_notif_title">Is hafte ki report</string>
+    <string name="weekly_notif_text">Is hafte %1$s units — 200 se %2$s door</string>
+    <string name="weekly_notif_text_danger">Is hafte %1$s units — 200 se %2$s door. Guard kholo!</string>
+    <string name="weekly_notif_text_fallback">Is hafte %1$s units (andaza) — Guard mein reading likho</string>
+    <!-- v3.6.0: zero-input Guard + Sunday reminder -->
+    <string name="guard_estimate_note">⚠ Ye ANDAZA hai — pichhle bill ki raftar se. Reading likhne par exact hoga.</string>
+    <string name="weekly_notif_text_auto">Pichhle bill ki raftar se mahine ke akhir tak %1$s units ka andaza</string>
+    <string name="weekly_notif_text_auto_danger">Pichhle bill ki raftar se mahine ke akhir tak %1$s units ka andaza — 200 cross hone ka khatra!</string>
+    <string name="weekly_notif_nudge">Aaj ki reading daal do — sirf 10 second lagega</string>
+    <string name="notif_off_title">Sunday reminder ke liye notifications on karo</string>
+    <string name="notif_off_text">Notifications band hain — haftawar Guard reminder nahi ayega.</string>
+    <string name="notif_off_open">Settings kholo</string>
+    <string name="outside_pk_title">Are you outside Pakistan?</string>
+    <string name="outside_pk_msg">Bill fetch only works inside Pakistan (PITC blocks foreign connections). Outside Pakistan you can still use the bill predictor and calculator with manual entry.</string>
+    <string name="outside_pk_yes">Yes, I\'m outside</string>
+    <string name="outside_pk_no">No, I\'m in Pakistan</string>
+</resources>

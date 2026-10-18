@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v2.6.0: soft amber radial glow behind the splash bolt -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:centerX="0.5"
+        android:centerY="0.5"
+        android:gradientRadius="170dp"
+        android:startColor="#47F6A609"
+        android:endColor="#00F6A609" />
+</shape>

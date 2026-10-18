@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!-- ============================================================================
+  SYNTHETIC TEST FIXTURE — NOT real customer data.
+  Modeled on the LAYOUT of the PITC full-bill page
+  (https://bill.pitc.com.pk/lescobill/general?refno=<14digits>), mirroring the
+  label structure of a real LESCO consumer bill (consumer detail, billing,
+  meter info, charges breakdown, 12-row BILL HISTORY). All VALUES are
+  invented placeholders for parser testing only. Two labels (FEEDER,
+  TARIFF CATEGORY) are deliberately placed OUTSIDE <table> elements as
+  plain label: value lines so the line-scan phase of the parser is covered.
+============================================================================= -->
+<html>
+<head><title>LESCO Duplicate Bill - SYNTHETIC FULLPAGE</title></head>
+<body>
+<div id="ua"></div>
+<table>
+  <tr><td>REFERENCE NO</td><td>06113530462901</td></tr>
+  <tr><td>CONSUMER ID</td><td>7654321</td></tr>
+  <tr><td>NAME &amp; ADDRESS</td><td>SAMPLE CUSTOMER (SYNTHETIC), 12 SAMPLE STREET, LAHORE</td></tr>
+  <tr><td>SUB DIVISION</td><td>Sample Abad</td></tr>
+  <tr><td>CATEGORY</td><td>Protected</td></tr>
+  <tr><td>SAN LOAD</td><td>2</td></tr>
+  <tr><td>TARIFF</td><td>A-1A(01)</td></tr>
+  <tr><td>TRANSFORMER</td><td>TRF-007</td></tr>
+</table>
+<p>FEEDER: (012345) Samplefeeder</p>
+<p>TARIFF CATEGORY: Domestic</p>
+<table>
+  <tr><td>BILL MONTH</td><td>OCT 26</td></tr>
+  <tr><td>READING DATE</td><td>10 OCT 26</td></tr>
+  <tr><td>ISSUE DATE</td><td>13 OCT 26</td></tr>
+  <tr><td>DUE DATE</td><td>22 OCT 26</td></tr>
+  <tr><td>PAYABLE WITHIN DUE DATE</td><td>2,065</td></tr>
+  <tr><td>LP SURCHARGE</td><td>87 / 173</td></tr>
+  <tr><td>PAYABLE AFTER DUE DATE</td><td>Till 25-EP 2,152 / After 25-EP 2,238</td></tr>
+  <tr><td>METER NO</td><td>S-P 7654321</td></tr>
+  <tr><td>MF</td><td>1</td></tr>
+  <tr><td>PREVIOUS READING</td><td>652</td></tr>
+  <tr><td>PRESENT READING</td><td>765</td></tr>
+  <tr><td>UNITS</td><td>113</td></tr>
+</table>
+<table>
+  <tr><td>Total Electricity Charges</td><td>4280</td></tr>
+  <tr><td>Subsidies</td><td>2551</td></tr>
+  <tr><td>Net Electricity Charges 83.97 %</td><td>1729</td></tr>
+  <tr><td>Taxes 16.03 %</td><td>330</td></tr>
+  <tr><td>Current Bill</td><td>2060</td></tr>
+  <tr><td>Arrears</td><td>0</td></tr>
+  <tr><td>Installment</td><td>0</td></tr>
+  <tr><td>Adjustments</td><td>0</td></tr>
+  <tr><td>W.E Credit</td><td>0</td></tr>
+  <tr><td>Lock Open Credit</td><td>0</td></tr>
+  <tr><td>Total FPA</td><td>5</td></tr>
+  <tr><td>Grand Total</td><td>2065</td></tr>
+</table>
+<table>
+  <tr><th>MONTH</th><th>STATUS</th><th>UNITS</th><th>BILL (RS.)</th><th>PAYMENT (RS.)</th></tr>
+  <tr><td>SEP25</td><td></td><td>98</td><td>1066</td><td>1066</td></tr>
+  <tr><td>OCT25</td><td></td><td>65</td><td>712</td><td>712</td></tr>
+  <tr><td>NOV25</td><td></td><td>11</td><td>127</td><td>127</td></tr>
+  <tr><td>DEC25</td><td>SS</td><td>0</td><td>89</td><td>89</td></tr>
+  <tr><td>JAN26</td><td>SS</td><td>0</td><td>89</td><td>89</td></tr>
+  <tr><td>FEB26</td><td></td><td>14</td><td>189</td><td>189</td></tr>
+  <tr><td>MAR26</td><td></td><td>36</td><td>943</td><td>943</td></tr>
+  <tr><td>APR26</td><td></td><td>35</td><td>970</td><td>970</td></tr>
+  <tr><td>MAY26</td><td></td><td>60</td><td>2335</td><td>2335</td></tr>
+  <tr><td>JUN26</td><td></td><td>155</td><td>2895</td><td>3015</td></tr>
+  <tr><td>JUL26</td><td></td><td>2</td><td>518</td><td>518</td></tr>
+  <tr><td>AUG26</td><td></td><td>81</td><td>1482</td><td>1539</td></tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!-- SYNTHETIC error fixture: portal reports bill-not-found via <div id="ua">.
+     Message text mirrors the documented pattern ("The given input does not
+     belongs to LESCO"). Values invented for testing only. -->
+<html>
+<head><title>LESCO Bill - SYNTHETIC ERROR</title></head>
+<body>
+<form method="post" action="./lescobill">
+  <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="SYNTHETIC_VIEWSTATE_TOKEN" />
+  <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="SYNTHETIC_GENERATOR" />
+  <input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="SYNTHETIC_EVENTVALIDATION" />
+  <div id="ua">The given input does not belongs to LESCO</div>
+</form>
+</body>
+</html>

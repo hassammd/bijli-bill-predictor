@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- v2.5.0: NoActionBar — every screen draws its own teal header. -->
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/brand_teal</item>
+        <item name="android:colorPrimaryDark">@color/brand_teal_dark</item>
+        <item name="android:colorAccent">@color/accent_amber</item>
+        <item name="android:windowBackground">@color/page_bg</item>
+    </style>
+    <style name="AppTheme.Splash" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+    </style>
+</resources>
