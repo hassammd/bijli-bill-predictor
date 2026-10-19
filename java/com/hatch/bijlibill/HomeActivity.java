@@ -407,8 +407,9 @@ public class HomeActivity extends BaseActivity {
     private View greeting() {
         LinearLayout g = new LinearLayout(this);
         g.setOrientation(LinearLayout.VERTICAL);
+        // v3.6.83: more bottom space (user request).
         g.setPadding(Ui.dp(this, 20), Ui.dp(this, 6),
-                Ui.dp(this, 20), 0);
+                Ui.dp(this, 20), Ui.dp(this, 8));
 
         TextView h = new TextView(this);
         h.setText(getString(R.string.home_greeting));
@@ -445,7 +446,8 @@ public class HomeActivity extends BaseActivity {
         hsv.setHorizontalScrollBarEnabled(false);
         hsv.setClipToPadding(false);
         int hp = Ui.dp(this, 20);
-        hsv.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 4));
+        // v3.6.83: more bottom space (user request).
+        hsv.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
 
         discoRow = new LinearLayout(this);
         discoRow.setOrientation(LinearLayout.HORIZONTAL);
