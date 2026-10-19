@@ -724,7 +724,8 @@ public class HomeActivity extends BaseActivity {
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.setMargins(hm, Ui.dp(this, 20), hm, 0);
+        // v3.6.78: bottom margin 16dp (user: shadow was cut at bottom).
+        slp.setMargins(hm, Ui.dp(this, 20), hm, Ui.dp(this, 16));
         sec.setLayoutParams(slp);
 
         // Heading
