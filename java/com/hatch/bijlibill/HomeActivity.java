@@ -442,22 +442,72 @@ public class HomeActivity extends BaseActivity {
     // ---- disco chips (horizontal scroll) ----
 
     // v3.6.87: single-row carousel (user: no double row, 3-4 visible + scroll).
+    // v3.6.91: left/right arrows (user request).
+    private HorizontalScrollView discoHsv;
 
     private View discoChips() {
-        HorizontalScrollView hsv = new HorizontalScrollView(this);
-        hsv.setHorizontalScrollBarEnabled(false);
-        // v3.6.88: clip to container (user: list must stay inside container).
-        hsv.setClipToPadding(true);
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
         int hp = Ui.dp(this, 20);
-        // v3.6.83: more bottom space (user request).
-        hsv.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
+        row.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
+
+        // left arrow
+        android.widget.ImageView left = new android.widget.ImageView(this);
+        left.setImageResource(R.drawable.ic_caro_left);
+        left.setBackgroundResource(R.drawable.ds_avatar_light);
+        int as = Ui.dp(this, 36);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(as, as);
+        alp.rightMargin = Ui.dp(this, 8);
+        left.setLayoutParams(alp);
+        left.setClickable(true);
+        left.setFocusable(true);
+        left.setPadding(Ui.dp(this, 6), Ui.dp(this, 6),
+                Ui.dp(this, 6), Ui.dp(this, 6));
+        row.addView(left);
+
+        // scrollable chips (shows ~3)
+        discoHsv = new HorizontalScrollView(this);
+        discoHsv.setHorizontalScrollBarEnabled(false);
+        discoHsv.setClipToPadding(true);
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        discoHsv.setLayoutParams(hlp);
 
         discoRow = new LinearLayout(this);
         discoRow.setOrientation(LinearLayout.HORIZONTAL);
-        hsv.addView(discoRow, new ViewGroup.LayoutParams(
+        discoHsv.addView(discoRow, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        return hsv;
+        row.addView(discoHsv);
+
+        // right arrow
+        android.widget.ImageView right = new android.widget.ImageView(this);
+        right.setImageResource(R.drawable.ic_caro_right);
+        right.setBackgroundResource(R.drawable.ds_avatar_light);
+        LinearLayout.LayoutParams arp = new LinearLayout.LayoutParams(as, as);
+        arp.leftMargin = Ui.dp(this, 8);
+        right.setLayoutParams(arp);
+        right.setClickable(true);
+        right.setFocusable(true);
+        right.setPadding(Ui.dp(this, 6), Ui.dp(this, 6),
+                Ui.dp(this, 6), Ui.dp(this, 6));
+        row.addView(right);
+
+        // arrow click = scroll
+        final int scrollAmt = Ui.dp(this, 120);
+        left.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                discoHsv.smoothScrollBy(-scrollAmt, 0);
+            }
+        });
+        right.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                discoHsv.smoothScrollBy(scrollAmt, 0);
+            }
+        });
+
+        return row;
     }
 
     private void refreshChips() {

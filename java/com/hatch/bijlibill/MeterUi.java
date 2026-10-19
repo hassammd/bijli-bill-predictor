@@ -73,10 +73,23 @@ final class MeterUi {
         row.setLayoutParams(rlp);
 
         // avatar: light circle + person icon (v3.6.90, user request).
+        // v3.6.91: different light bg per card (user request).
         FrameLayout avatar = new FrameLayout(ctx);
         int as = Ui.dp(ctx, 44);
         avatar.setLayoutParams(new LinearLayout.LayoutParams(as, as));
-        avatar.setBackgroundResource(R.drawable.ds_avatar_light);
+        int[] bgs = {
+                R.drawable.ds_avatar_ddf5ef,  // mint
+                R.drawable.ds_avatar_e8e4f8,  // lavender
+                R.drawable.ds_avatar_fde8d8,  // peach
+                R.drawable.ds_avatar_d8eafd,  // blue
+                R.drawable.ds_avatar_fdd8e8,  // pink
+                R.drawable.ds_avatar_fdf3d8,  // yellow
+        };
+        int bi = 0;
+        if (m.holderName != null) {
+            bi = Math.abs(m.holderName.hashCode()) % bgs.length;
+        }
+        avatar.setBackgroundResource(bgs[bi]);
         android.widget.ImageView piv = new android.widget.ImageView(ctx);
         piv.setImageResource(R.drawable.ic_person);
         int ps = Ui.dp(ctx, 24);
