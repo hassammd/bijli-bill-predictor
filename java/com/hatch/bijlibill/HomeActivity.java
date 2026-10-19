@@ -472,7 +472,8 @@ public class HomeActivity extends BaseActivity {
             chip.setOrientation(LinearLayout.HORIZONTAL);
             chip.setGravity(Gravity.CENTER_VERTICAL);
             chip.setBackgroundResource(
-                    isSel ? R.drawable.ds_chip_on : R.drawable.ds_chip);
+                    // v3.6.80: selected = yellow (user request, like toggle).
+                    isSel ? R.drawable.ds_chip_yellow : R.drawable.ds_chip);
             int v = Ui.dp(this, 9), h = Ui.dp(this, 16);
             chip.setPadding(h, v, h, v);
             if (isSel && android.os.Build.VERSION.SDK_INT >= 21) {
@@ -482,7 +483,8 @@ public class HomeActivity extends BaseActivity {
             TextView t = new TextView(this);
             t.setText(d.displayName);
             t.setTextSize(13);
-            t.setTextColor(isSel ? Color.WHITE : Ds.muted());
+            // v3.6.80: dark text on yellow when selected (user request).
+            t.setTextColor(isSel ? Ds.amberDark() : Ds.muted());
             Ds.heading(this, t);
             chip.addView(t);
 
@@ -658,12 +660,14 @@ public class HomeActivity extends BaseActivity {
 
     private void tintSeg(TextView b, boolean active) {
         b.setBackgroundResource(
-                active ? R.drawable.ds_seg_on : 0);
+                // v3.6.80: active = yellow (user request, like toggle).
+                active ? R.drawable.ds_seg_yellow : 0);
         if (!active) b.setBackgroundColor(Color.TRANSPARENT);
         else if (android.os.Build.VERSION.SDK_INT >= 21) {
             b.setElevation(Ui.dp(this, 2));
         }
-        b.setTextColor(active ? Ds.g800() : Ds.muted());
+        // v3.6.80: dark text on yellow when active (user request).
+        b.setTextColor(active ? Ds.amberDark() : Ds.muted());
         Ds.heading(this, b);
     }
 
