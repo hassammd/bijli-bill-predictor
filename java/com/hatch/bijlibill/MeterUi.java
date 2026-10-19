@@ -72,24 +72,18 @@ final class MeterUi {
         rlp.bottomMargin = Ui.dp(ctx, 9);
         row.setLayoutParams(rlp);
 
-        // avatar
+        // avatar: light circle + person icon (v3.6.90, user request).
         FrameLayout avatar = new FrameLayout(ctx);
-        int as = Ui.dp(ctx, 40);
+        int as = Ui.dp(ctx, 44);
         avatar.setLayoutParams(new LinearLayout.LayoutParams(as, as));
-        boolean alt = (m.holderName != null
-                && (m.holderName.hashCode() & 1) == 1);
-        avatar.setBackgroundResource(
-                alt ? R.drawable.ds_avatar_alt : R.drawable.ds_avatar);
-        TextView ini = new TextView(ctx);
-        ini.setText(initials(m.holderName));
-        ini.setTextSize(13.5f);
-        ini.setTypeface(Fonts.archivo(ctx, 800));
-        ini.setTextColor(0xFFFFFFFF);
-        ini.setGravity(Gravity.CENTER);
-        ini.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        avatar.addView(ini);
+        avatar.setBackgroundResource(R.drawable.ds_avatar_light);
+        android.widget.ImageView piv = new android.widget.ImageView(ctx);
+        piv.setImageResource(R.drawable.ic_person);
+        int ps = Ui.dp(ctx, 24);
+        FrameLayout.LayoutParams pilp = new FrameLayout.LayoutParams(ps, ps);
+        pilp.gravity = Gravity.CENTER;
+        piv.setLayoutParams(pilp);
+        avatar.addView(piv);
         row.addView(avatar);
 
         // info column
