@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hatch.bijlibill"
-    android:versionCode="103"
-    android:versionName="3.6.71">
+    android:versionCode="104"
+    android:versionName="3.6.72">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
 

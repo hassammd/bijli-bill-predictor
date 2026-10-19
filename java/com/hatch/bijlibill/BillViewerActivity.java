@@ -65,10 +65,13 @@ public class BillViewerActivity extends Activity {
         if (android.os.Build.VERSION.SDK_INT >= 35) {
             getWindow().setDecorFitsSystemWindows(true);
         }
-        // v3.6.69: status bar light teal (user request).
+        // v3.6.72: status bar WHITE (user request — only this page),
+        // header stays light green #11998E below it (clear separation).
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(
-                    android.graphics.Color.parseColor("#11998E"));
+            getWindow().setStatusBarColor(Color.WHITE);
+            // Dark icons on the white status bar.
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
         // v3.6.35: ad-gate before viewing full bill.
         // v3.6.42: skip ad on recreate (e.g. language toggle) — the
