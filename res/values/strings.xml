@@ -143,13 +143,13 @@
     <string name="meter_check_sub">Read meter from video, estimate your bill</string>
     <string name="meter_no_bill">First get your bill via VIEW BILL — then use Unit Check</string>
     <string name="meter_need_prev">Bill se reading nahi mili — DOBARA LAO dabao</string>
-    <string name="meter_step1_title">Meter ki video banao</string>
-    <string name="meter_step1_text">60 second ki video — poora cycle capture karein, reading saaf nazar aaye.</string>
-    <string name="meter_bill_prev">🧾 Bill wali reading: %1$s</string>
-    <string name="meter_capture_btn">VIDEO BANAO</string>
-    <string name="meter_gallery_btn">GALLERY SE VIDEO CHUNO</string>
+    <string name="meter_step1_title">Record meter video</string>
+    <string name="meter_step1_text">60-second video — capture the full cycle, reading should be clear.</string>
+    <string name="meter_bill_prev">🧾 Bill reading: %1$s</string>
+    <string name="meter_capture_btn">RECORD VIDEO</string>
+    <string name="meter_gallery_btn">CHOOSE FROM GALLERY</string>
     <string name="meter_gallery_sub">Meter par internet na ho to video bana kar ghar aa kar upload karo</string>
-    <string name="meter_manual_btn">READING LIKHO</string>
+    <string name="meter_manual_btn">ENTER READING</string>
     <string name="meter_manual_title">Reading likho</string>
     <string name="meter_manual_sub">Bina video ke — meter ki maujooda reading seedha likhein, isharia wali bhi chalegi</string>
     <string name="meter_manual_prev_label">Pichli reading</string>
@@ -178,7 +178,7 @@
     <string name="meter_units_so_far">AB TAK</string>
     <string name="meter_units_unit">units</string>
     <string name="meter_andaza_bill">ESTIMATED BILL</string>
-    <string name="meter_readings_line">Bill wali reading %1$s → nayi %2$s = %3$s units (bill ke baad se)</string>
+    <string name="meter_readings_line">Bill reading %1$s → new %2$s = %3$s units (since bill)</string>
     <string name="meter_slab_left">Agli slab (%1$d) tak %2$s units baqi</string>
     <string name="meter_slab_warn">Sirf %1$s units door! Agli slab %2$d par rate barh jayega</string>
     <string name="meter_protected_warn">200 cross hua to Protected category khatam — bill mein bara izafa!</string>

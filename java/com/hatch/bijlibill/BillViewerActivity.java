@@ -98,16 +98,19 @@ public class BillViewerActivity extends Activity {
         // stuck to the top edge (user feedback).
         int sbh = getStatusBarHeight();
         bar.setPadding(dp(20), dp(14) + sbh, dp(20), dp(10));
+        // v3.6.68: dark green header (like other pages).
+        bar.setBackgroundColor(Ds.ndPrimaryDark());
 
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        back.setColorFilter(Ds.g800(),
+        // v3.6.68: dark arrow on mint (standardized).
+        back.setColorFilter(Ds.ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
-        int bs = dp(38);
+        int bs = dp(28);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.ds_back_btn);
-        back.setPadding(dp(10), dp(10), dp(10), dp(10));
+        back.setBackgroundResource(R.drawable.nd_back_btn_light);
+        back.setPadding(dp(8), dp(8), dp(8), dp(8));
         back.setClickable(true);
         back.setFocusable(true);
         back.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +122,8 @@ public class BillViewerActivity extends Activity {
         tt.setText(title != null ? title
                 : getString(R.string.bill_title));
         tt.setTextSize(18);
-        tt.setTextColor(Ds.ink());
+        // v3.6.68: white on dark green.
+        tt.setTextColor(Color.WHITE);
         Ds.heading(this, tt);
         LinearLayout.LayoutParams ttlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -147,12 +151,13 @@ public class BillViewerActivity extends Activity {
         // Download button (in header, properly placed)
         ImageView dl = new ImageView(this);
         dl.setImageResource(R.drawable.ic_download);
-        dl.setColorFilter(Ds.g800(),
+        // v3.6.68: dark on mint (standardized).
+        dl.setColorFilter(Ds.ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
-        int dls = dp(38);
+        int dls = dp(28);
         dl.setLayoutParams(new LinearLayout.LayoutParams(dls, dls));
-        dl.setBackgroundResource(R.drawable.ds_back_btn);
-        dl.setPadding(dp(9), dp(9), dp(9), dp(9));
+        dl.setBackgroundResource(R.drawable.nd_back_btn_light);
+        dl.setPadding(dp(8), dp(8), dp(8), dp(8));
         dl.setClickable(true);
         dl.setFocusable(true);
         dl.setOnClickListener(new View.OnClickListener() {

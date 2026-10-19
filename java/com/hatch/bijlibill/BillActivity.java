@@ -1326,7 +1326,7 @@ public class BillActivity extends BaseActivity {
         b.setOrientation(LinearLayout.HORIZONTAL);
         b.setGravity(Gravity.CENTER);
         // v3.6.58: gradient button (user request).
-        b.setBackgroundResource(R.drawable.nd_btn_gradient);
+        b.setBackgroundResource(R.drawable.nd_btn_solid);
         b.setMinimumHeight(dp(56));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1533,7 +1533,6 @@ public class BillActivity extends BaseActivity {
                 s, s);
         ilp.rightMargin = dp(6);
         ic.setLayoutParams(ilp);
-        pill.addView(ic);
 
         TextView t = new TextView(this);
         if (has) {
@@ -1544,7 +1543,18 @@ public class BillActivity extends BaseActivity {
         t.setTextSize(11.5f);
         t.setTextColor(tc);
         Ds.heading(this, t);
-        pill.addView(t);
+        // v3.6.68: tick on RIGHT in Urdu (RTL).
+        boolean isUrdu = LocaleHelper.isUrdu(this);
+        if (isUrdu) {
+            pill.addView(t);
+            LinearLayout.LayoutParams ilp2 = new LinearLayout.LayoutParams(s, s);
+            ilp2.leftMargin = dp(6);
+            ic.setLayoutParams(ilp2);
+            pill.addView(ic);
+        } else {
+            pill.addView(ic);
+            pill.addView(t);
+        }
         return pill;
     }
 

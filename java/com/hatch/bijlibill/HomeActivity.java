@@ -217,7 +217,7 @@ public class HomeActivity extends BaseActivity {
         LinearLayout btnNo = new LinearLayout(this);
         btnNo.setOrientation(LinearLayout.HORIZONTAL);
         btnNo.setGravity(Gravity.CENTER);
-        btnNo.setBackgroundResource(R.drawable.nd_btn_gradient);
+        btnNo.setBackgroundResource(R.drawable.nd_btn_solid);
         btnNo.setMinimumHeight(52 * d);
         btnNo.setClickable(true);
         btnNo.setFocusable(true);
@@ -667,7 +667,7 @@ public class HomeActivity extends BaseActivity {
         b.setOrientation(LinearLayout.HORIZONTAL);
         b.setGravity(Gravity.CENTER);
         // v3.6.62: gradient (was amber, user request).
-        b.setBackgroundResource(R.drawable.nd_btn_gradient);
+        b.setBackgroundResource(R.drawable.nd_btn_solid);
         b.setMinimumHeight(Ui.dp(this, 54));
         b.setPadding(Ui.dp(this, 16), 0,
                 Ui.dp(this, 16), 0);

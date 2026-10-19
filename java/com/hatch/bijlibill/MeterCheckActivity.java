@@ -135,7 +135,7 @@ public class MeterCheckActivity extends BaseActivity {
                     @Override public void onClick(View v) { finish(); }
                 },
                 getString(R.string.meter_check_title),
-                getString(R.string.meter_check_sub), false));
+                null, false));
 
         ScrollView scroll = new ScrollView(this);
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
@@ -384,7 +384,6 @@ public class MeterCheckActivity extends BaseActivity {
                         onGalleryClicked();
                     }
                 });
-        gallery.setBackgroundResource(R.drawable.nd_btn_gradient_rev);
         actions.addView(gallery);
         actions.addView(Ui.spacer(this, 10));
         // v3.1.1: manual reading entry — no video needed. Flows into

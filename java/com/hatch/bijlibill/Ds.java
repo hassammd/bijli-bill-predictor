@@ -173,7 +173,7 @@ final class Ds {
                 && !Fonts.isUrdu(text)) {
             b.setLetterSpacing(0.05f);
         }
-        b.setBackgroundResource(R.drawable.nd_btn_gradient);
+        b.setBackgroundResource(R.drawable.nd_btn_solid);
         b.setMinHeight(Ui.dp(ctx, 54));
         b.setGravity(android.view.Gravity.CENTER);
         if (iconRes != 0) {
@@ -684,12 +684,15 @@ final class Ds {
         heading(ctx, title);
         col.addView(title);
 
-        TextView sub = new TextView(ctx);
-        sub.setText(subText);
-        sub.setTextSize(12);
-        sub.setTextColor(android.graphics.Color.parseColor("#B0C4C4"));
-        if (subMono) mono(sub); else body(ctx, sub, 400);
-        col.addView(sub);
+        // v3.6.68: hide subtitle if null/empty.
+        if (subText != null && !subText.trim().isEmpty()) {
+            TextView sub = new TextView(ctx);
+            sub.setText(subText);
+            sub.setTextSize(12);
+            sub.setTextColor(android.graphics.Color.parseColor("#B0C4C4"));
+            if (subMono) mono(sub); else body(ctx, sub, 400);
+            col.addView(sub);
+        }
         bar.addView(col);
 
         android.widget.LinearLayout spacer =
