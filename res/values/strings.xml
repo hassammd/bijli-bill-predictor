@@ -21,15 +21,15 @@
     <string name="ref_hint">e.g. 02118240618604U</string>
     <string name="tab_ref">Reference No</string>
     <string name="tab_custid">Customer ID</string>
-    <string name="custid_hint">7-digit ID (bill par likhi hoti hai)</string>
-    <string name="fetch_btn">BILL DEKHO</string>
+    <string name="custid_hint">7-digit ID (as printed on bill)</string>
+    <string name="fetch_btn">VIEW BILL</string>
     <string name="ref_invalid">Reference number 14 digits ka ho — aakhir mein U/R ho sakta hai</string>
     <string name="custid_invalid">Customer ID exactly 7 digits ki honi chahiye</string>
     <string name="fetching">Bill la raha hun…</string>
     <string name="fetch_failed">Bill nahi mil saka — number check karo ya dobara try karo</string>
     <string name="fetch_network_down">LESCO ki website is waqt khul nahi rahi — thodi dair baad dobara try karo</string>
-    <string name="fetch_invalid_ref">Yeh reference number ghalat lagta hai — bill se dekh kar dobara likho</string>
-    <string name="fetch_not_found">Is number ka bill nahi mila — number bill se dekh kar dobara likho</string>
+    <string name="fetch_invalid_ref">This reference number looks wrong — check your bill and try again</string>
+    <string name="fetch_not_found">No bill found for this number — check your bill and try again</string>
     <string name="fetch_token_error">Website se rabta hua lekin form samajh nahi aaya — thodi dair baad dobara try karo</string>
     <string name="fetch_parse_empty">Website se jawab to mila lekin bill parha nahi gaya — agla update isay theek karega</string>
     <string name="fetch_antiforgery_error">Website ne security cookie manga jo bheja nahi ja saka — dobara koshish karo</string>
@@ -39,13 +39,13 @@
     <string name="debug_server">server: %1$s</string>
     <string name="cached_note">Mehfooz copy — 24 ghante tak valid</string>
     <string name="saved_title">Mehfooz References</string>
-    <string name="saved_empty">Abhi koi reference mehfooz nahi — upar number likh kar SAVE dabao</string>
+    <string name="saved_empty">No reference saved yet — enter the number above and tap SAVE</string>
     <string name="saved_cid_suffix">(Customer ID)</string>
-    <string name="save_name_hint">Naam likhein, misal: Ghar</string>
+    <string name="save_name_hint">Enter a name, e.g. Home</string>
     <string name="save_btn">SAVE</string>
-    <string name="save_need_ref">Pehle reference number likhein</string>
-    <string name="save_need_name">Naam likhein taake pehchana jaye</string>
-    <string name="saved_ok">Reference mehfooz ho gaya</string>
+    <string name="save_need_ref">Enter the reference number first</string>
+    <string name="save_need_name">Enter a name to identify it</string>
+    <string name="saved_ok">Reference saved</string>
     <string name="delete_title">Delete karna hai?</string>
     <string name="delete_msg">%1$s (%2$s) delete ho jayega.</string>
     <string name="deleted">Delete ho gaya</string>
@@ -70,8 +70,8 @@
     <string name="about_title">About</string>
     <string name="about_subtitle">Bill Fetcher v2.5.0</string>
     <string name="about_how">Kaise kaam karta hai</string>
-    <string name="about_step1">1. Apne LESCO bill se reference number lo (jaisa bill par likha hai, U/R samet)</string>
-    <string name="about_step2">2. App mein likh kar BILL DEKHO dabao</string>
+    <string name="about_step1">1. Get the reference number from your LESCO bill (as printed, with U/R)</string>
+    <string name="about_step2">2. Enter in the app and tap VIEW BILL</string>
     <string name="about_step3">3. Poora bill tafseel ke saath dekh lo — website kholne ki zaroorat nahi</string>
     <string name="about_source_title">Data kahan se aata hai</string>
     <string name="about_source_text">Bill ka data LESCO/PITC ki official website se liya jata hai. Rates aur taxes bill par chhapay huay hotay hain — app kuch calculate nahi karti, sirf tumhara asal bill dikhati hai.</string>
@@ -88,7 +88,7 @@
     <string name="feat_refs">✓  Unlimited saved references</string>
     <string name="feat_priority">✓  Priority support</string>
     <string name="buy_premium">BUY PREMIUM — Rs 499 (one-time)</string>
-    <string name="premium_note">Payment Google Play ke zariye mehfooz tareeqe se hogi. Billing Play Console par publish ke waqt enable hogi.</string>
+    <string name="premium_note">Payment will be processed securely via Google Play. Billing will be enabled at publish time.</string>
     <string name="billing_title">Go Premium</string>
     <string name="billing_msg">Google Play Billing will be enabled when this app is published on the Play Console.\n\nPublish ke baad yahan se premium khareeda ja sakega. (Product ID: %1$s)</string>
 
@@ -128,7 +128,7 @@
 
     <!-- v3.3.0: "Andaza vs Asal Bill" accuracy tracker -->
     <string name="acc_title">Andaza vs Asal Bill</string>
-    <string name="acc_est_line">Tumhara andaza: %1$s units / %2$s</string>
+    <string name="acc_est_line">Your estimate: %1$s units / %2$s</string>
     <string name="acc_bill_line">Asal bill: %1$s units / %2$s</string>
     <string name="acc_pct_line">Accuracy: %1$s</string>
     <string name="acc_units_delta">Units ka farq: %1$s</string>
@@ -140,8 +140,8 @@
     <!-- v2.1.0 METER CHECK -->
     <string name="meter_check_btn">UNIT CHECK</string>
     <string name="meter_check_title">Unit Check</string>
-    <string name="meter_check_sub">Video se reading, andaza bill</string>
-    <string name="meter_no_bill">Pehle BILL DEKHO se bill nikalo — phir Unit Check hoga</string>
+    <string name="meter_check_sub">Read meter from video, estimate your bill</string>
+    <string name="meter_no_bill">First get your bill via VIEW BILL — then use Unit Check</string>
     <string name="meter_need_prev">Bill se reading nahi mili — DOBARA LAO dabao</string>
     <string name="meter_step1_title">Meter ki video banao</string>
     <string name="meter_step1_text">60 second ki video — poora cycle capture karein, reading saaf nazar aaye.</string>
@@ -162,7 +162,7 @@
     <string name="meter_video_cancelled">Video nahi bani — dobara try karo</string>
     <string name="meter_frames_title">Frame chuno</string>
     <string name="meter_frames_hint">Woh frame tap karo jis mein reading sab se saaf hai</string>
-    <string name="meter_extracting">Video se frames nikal raha hun…</string>
+    <string name="meter_extracting">Extracting frames from video…</string>
     <string name="meter_ocr_reading">Reading parhi ja rahi hai…</string>
     <string name="meter_ocr_none">OCR se reading nahi parhi — khud likh dein</string>
     <string name="meter_ocr_fail_tips">Camera meter ke qareeb rakho, flash on karo, 20–30 second ki video banao, meter ka sheesha saaf karo — phir reading khud likh dein</string>
@@ -177,25 +177,25 @@
     <string name="meter_result_title">Unit Check — ANDAZA</string>
     <string name="meter_units_so_far">AB TAK</string>
     <string name="meter_units_unit">units</string>
-    <string name="meter_andaza_bill">ANDAZA BILL</string>
+    <string name="meter_andaza_bill">ESTIMATED BILL</string>
     <string name="meter_readings_line">Bill wali reading %1$s → nayi %2$s = %3$s units (bill ke baad se)</string>
     <string name="meter_slab_left">Agli slab (%1$d) tak %2$s units baqi</string>
     <string name="meter_slab_warn">Sirf %1$s units door! Agli slab %2$d par rate barh jayega</string>
     <string name="meter_protected_warn">200 cross hua to Protected category khatam — bill mein bara izafa!</string>
     <string name="meter_projection">📈 Is raftar se mahine ke akhir tak ~%1$d units</string>
-    <string name="meter_tax_real">bill ki asal sharah se andaza</string>
-    <string name="meter_tax_fallback">bill mein tax ki tafseel nahi — 18%% GST se andaza</string>
+    <string name="meter_tax_real">estimated from your bill\'s actual rates</string>
+    <string name="meter_tax_fallback">no tax breakdown in bill — estimated with 18% GST</string>
     <string name="est_hero_sub">%1$s units \u00b7 %2$s</string>
     <!-- v3.1.0 units-first hero + bill-mirror estimate -->
     <string name="est_units_eyebrow">UNITS USED</string>
     <string name="est_units_word">units</string>
-    <string name="est_hero_mirror">Pichle bill ke charges se andaza</string>
+    <string name="est_hero_mirror">Estimated from previous bill charges</string>
     <string name="est_excluded_note">Purana baqaya, late fee aur installment is andaze mein shamil nahi</string>
     <string name="andaza_rate_per_unit">%1$s / unit</string>
     <string name="meter_disclaimer">Yeh ANDAZA hai — hatmi bill hamesha LESCO/PITC ki website wala hoga.</string>
     <string name="meter_why_andaza_q">Ye ANDAZA kyun hai?</string>
     <string name="meter_why_andaza_a">Asal bill LESCO banata hai — FPA har mahine badalta hai aur reading ki tareekh mukhtalif ho sakti hai. Hamara andaza pichle bill ke ASAL charges (FPA, taxes, fixed charges) ko tumhari nayi reading par lagata hai: jo line pichle bill mein thi wahi shamil hai, kuch banaya nahi gaya. Purana baqaya, late fee aur installment shamil nahi. Hatmi bill hamesha LESCO/PITC ki website wala hota hai.</string>
-    <string name="meter_bildekho_btn">BILL DEKHO</string>
+    <string name="meter_bildekho_btn">VIEW BILL</string>
     <string name="meter_recheck_btn">DOBARA CHECK</string>
     <!-- v2.6.0 Unit Check / Estimate design-system keys -->
     <string name="step_bill_loaded">Bill</string>
@@ -256,7 +256,7 @@
     <string name="helper_ref">Bill par likha 14 hindson ka reference number darj karein — ye sirf is phone mein save hoga.</string>
     <string name="helper_cid">Bill par likha 7 hindson ka customer ID darj karein — ye sirf is phone mein save hoga.</string>
     <string name="paste">PASTE</string>
-    <string name="unit_check_sub">Video se reading, andaza bill</string>
+    <string name="unit_check_sub">Read meter from video, estimate your bill</string>
     <string name="see_all">See all \u2192</string>
     <string name="nav_home">Home</string>
     <string name="nav_bills">Bills</string>
