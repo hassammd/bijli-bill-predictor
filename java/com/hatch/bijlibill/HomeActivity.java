@@ -217,7 +217,7 @@ public class HomeActivity extends BaseActivity {
         LinearLayout btnNo = new LinearLayout(this);
         btnNo.setOrientation(LinearLayout.HORIZONTAL);
         btnNo.setGravity(Gravity.CENTER);
-        btnNo.setBackgroundResource(R.drawable.ds_btn_green);
+        btnNo.setBackgroundResource(R.drawable.nd_btn_gradient);
         btnNo.setMinimumHeight(52 * d);
         btnNo.setClickable(true);
         btnNo.setFocusable(true);

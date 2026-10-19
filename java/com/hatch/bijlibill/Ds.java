@@ -166,7 +166,7 @@ final class Ds {
                 && !Fonts.isUrdu(text)) {
             b.setLetterSpacing(0.05f);
         }
-        b.setBackgroundResource(R.drawable.ds_btn_green);
+        b.setBackgroundResource(R.drawable.nd_btn_gradient);
         b.setMinHeight(Ui.dp(ctx, 54));
         b.setGravity(android.view.Gravity.CENTER);
         if (iconRes != 0) {
