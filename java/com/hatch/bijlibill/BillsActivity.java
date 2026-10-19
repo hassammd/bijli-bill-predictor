@@ -60,9 +60,10 @@ public class BillsActivity extends BaseActivity {
         back.setRotation(180);
         back.setColorFilter(Ds.ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
-        int bs = Ui.dp(this, 38);
+        // v3.6.62: mint circular bg, 32dp (standardized, user request).
+        int bs = Ui.dp(this, 32);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.ds_back_btn);
+        back.setBackgroundResource(R.drawable.nd_back_btn_light);
         back.setPadding(Ui.dp(this, 10), Ui.dp(this, 10),
                 Ui.dp(this, 10), Ui.dp(this, 10));
         back.setClickable(true);

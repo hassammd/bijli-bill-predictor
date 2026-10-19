@@ -372,7 +372,8 @@ public class MeterCheckActivity extends BaseActivity {
         actions.addView(Ui.spacer(this, 10));
         // v2.2.0: pick a previously recorded video (no internet needed
         // at the meter — record there, upload at home).
-        Button gallery = Ds.outlineBtn(this,
+        // v3.6.62: gradient (was outline, user request).
+        Button gallery = Ds.greenBtn(this,
                 getString(R.string.meter_gallery_btn),
                 R.drawable.ic_folder,
                 new View.OnClickListener() {
@@ -384,7 +385,8 @@ public class MeterCheckActivity extends BaseActivity {
         actions.addView(Ui.spacer(this, 10));
         // v3.1.1: manual reading entry — no video needed. Flows into
         // the SAME estimate pipeline as the OCR route.
-        Button manual = Ds.outlineBtn(this,
+        // v3.6.62: gradient (was outline, user request).
+        Button manual = Ds.greenBtn(this,
                 getString(R.string.meter_manual_btn),
                 R.drawable.ic_edit,
                 new View.OnClickListener() {

@@ -677,7 +677,8 @@ public class HomeActivity extends BaseActivity {
         LinearLayout b = new LinearLayout(this);
         b.setOrientation(LinearLayout.HORIZONTAL);
         b.setGravity(Gravity.CENTER);
-        b.setBackgroundResource(R.drawable.ds_btn_amber);
+        // v3.6.62: gradient (was amber, user request).
+        b.setBackgroundResource(R.drawable.nd_btn_gradient);
         b.setMinimumHeight(Ui.dp(this, 54));
         b.setPadding(Ui.dp(this, 16), 0,
                 Ui.dp(this, 16), 0);

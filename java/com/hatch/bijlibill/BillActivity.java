@@ -197,7 +197,8 @@ public class BillActivity extends BaseActivity {
         back.setRotation(180);
         back.setColorFilter(Ds.ndPrimaryDark(), PorterDuff.Mode.SRC_IN);
         back.setBackgroundResource(R.drawable.nd_back_btn_light);
-        int bs = dp(44);
+        // v3.6.62: 32dp (was 44dp, user: normal mobile size).
+        int bs = dp(32);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
         back.setPadding(dp(12), dp(12), dp(12), dp(12));
         back.setClickable(true);

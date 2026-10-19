@@ -654,10 +654,11 @@ final class Ds {
         // v3.6.61: dark arrow on white bg (was white-on-white, invisible).
         back.setColorFilter(ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
-        int bs = Ui.dp(ctx, 38);
+        // v3.6.62: mint circular bg, 32dp (standardized, user request).
+        int bs = Ui.dp(ctx, 32);
         back.setLayoutParams(
                 new android.widget.LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.ds_back_btn);
+        back.setBackgroundResource(R.drawable.nd_back_btn_light);
         int bp = Ui.dp(ctx, 10);
         back.setPadding(bp, bp, bp, bp);
         back.setClickable(true);
