@@ -462,8 +462,13 @@ public class HomeActivity extends BaseActivity {
 
     private void refreshChips() {
         discoRow.removeAllViews();
-        for (int i = 0; i < Disco.values().length; i++) {
-            final Disco d = Disco.values()[i];
+        // v3.6.89: K-Electric removed (user request).
+        java.util.List<Disco> list = new java.util.ArrayList<Disco>();
+        for (Disco d : Disco.values()) {
+            if (!d.comingSoon) list.add(d);
+        }
+        for (int i = 0; i < list.size(); i++) {
+            final Disco d = list.get(i);
             final boolean isSel = d.code.equals(disco.code);
             LinearLayout chip = new LinearLayout(this);
             chip.setOrientation(LinearLayout.HORIZONTAL);
@@ -479,39 +484,28 @@ public class HomeActivity extends BaseActivity {
 
             TextView t = new TextView(this);
             t.setText(d.displayName);
-            // v3.6.87: K-Electric smaller font (user: was showing double line).
-            t.setTextSize(d.comingSoon ? 11 : 13);
+            t.setTextSize(13);
             t.setSingleLine(true);
             // v3.6.80: dark text on yellow when selected (user request).
             t.setTextColor(isSel ? Ds.amberDark() : Ds.muted());
             Ds.heading(this, t);
             chip.addView(t);
 
+            // v3.6.89: more spacing between chips (user request).
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = Ui.dp(this, 8);
+            lp.rightMargin = Ui.dp(this, 12);
             chip.setLayoutParams(lp);
             chip.setClickable(true);
             chip.setFocusable(true);
-            if (d.comingSoon) {
-                chip.setAlpha(0.55f);
-                chip.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        android.widget.Toast.makeText(HomeActivity.this,
-                                R.string.kelectric_soon,
-                                android.widget.Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
-                chip.setOnClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        disco = d;
-                        persistDisco();
-                        refreshChips();
-                    }
-                });
-            }
+            chip.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    disco = d;
+                    persistDisco();
+                    refreshChips();
+                }
+            });
             discoRow.addView(chip);
         }
     }
