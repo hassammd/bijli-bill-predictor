@@ -58,7 +58,7 @@ public class BillsActivity extends BaseActivity {
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        back.setColorFilter(android.graphics.Color.WHITE,
+        back.setColorFilter(Ds.ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
         int bs = Ui.dp(this, 38);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));

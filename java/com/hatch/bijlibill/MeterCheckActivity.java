@@ -357,7 +357,8 @@ public class MeterCheckActivity extends BaseActivity {
 
         // Actions (design: buttons live outside the card).
         LinearLayout actions = Ui.col(this);
-        actions.setPadding(Ui.dp(this, 20), Ui.dp(this, 2),
+        // v3.6.61: 10dp top to match button-to-button spacing (was 2dp).
+        actions.setPadding(Ui.dp(this, 20), Ui.dp(this, 10),
                 Ui.dp(this, 20), 0);
         Button capture = Ds.greenBtn(this,
                 getString(R.string.meter_capture_btn),

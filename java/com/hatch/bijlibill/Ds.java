@@ -651,7 +651,8 @@ final class Ds {
                 new android.widget.ImageView(ctx);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        back.setColorFilter(android.graphics.Color.WHITE,
+        // v3.6.61: dark arrow on white bg (was white-on-white, invisible).
+        back.setColorFilter(ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
         int bs = Ui.dp(ctx, 38);
         back.setLayoutParams(
