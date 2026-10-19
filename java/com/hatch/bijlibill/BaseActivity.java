@@ -18,6 +18,11 @@ public class BaseActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        // v3.6.69: status bar light teal on all pages (user request).
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(
+                    android.graphics.Color.parseColor("#11998E"));
+        }
         // v3.6.45: if language changed while this activity was in
         // background, recreate to apply it (global language sync).
         String current = LocaleHelper.get(this);

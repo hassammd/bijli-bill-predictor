@@ -97,6 +97,8 @@ public class MeterCheckActivity extends BaseActivity {
      */
     private boolean manualFromNoBill;
     private int noBillMsgRes;
+    // v3.6.69: track current page for language-toggle recreate.
+    private int currentPage = 0; // 0=capture, 1=manual entry, 2=no-bill
 
     private LinearLayout content;
     private LinearLayout bannerBox;
@@ -115,8 +117,19 @@ public class MeterCheckActivity extends BaseActivity {
     private EditText readingField;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // v3.6.69: save current page for language-toggle recreate.
+        outState.putInt("currentPage", currentPage);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // v3.6.69: restore page after language-toggle recreate.
+        if (savedInstanceState != null) {
+            currentPage = savedInstanceState.getInt("currentPage", 0);
+        }
         ref = getIntent().getStringExtra(EXTRA_REF);
         if (ref == null) ref = "";
         mode = getIntent().getStringExtra(EXTRA_MODE);
@@ -196,7 +209,12 @@ public class MeterCheckActivity extends BaseActivity {
                     && MeterCheckCalc.parseReading(base) >= 0) {
                 bill = p.info;
                 billBaseReading = base;
-                showCapture();
+                // v3.6.69: restore manual entry page after language toggle.
+                if (currentPage == 1) {
+                    showManualEntry();
+                } else {
+                    showCapture();
+                }
             } else {
                 showNoBill(R.string.meter_need_prev);
             }
@@ -284,6 +302,7 @@ public class MeterCheckActivity extends BaseActivity {
     // ------------------------------------------------------------------
 
     private void showCapture() {
+        currentPage = 0; // v3.6.69
         content.removeAllViews();
         content.addView(stepsView(new int[]{1, 2, 0}, new int[]{
                 R.string.step_bill_loaded, R.string.step_record,
@@ -416,6 +435,7 @@ public class MeterCheckActivity extends BaseActivity {
     // ------------------------------------------------------------------
 
     private void showManualEntry() {
+        currentPage = 1; // v3.6.69
         content.removeAllViews();
         // Step labels adapt: with a bill the flow is Bill -> Record ->
         // Estimate; without one it is just Record -> Estimate (there

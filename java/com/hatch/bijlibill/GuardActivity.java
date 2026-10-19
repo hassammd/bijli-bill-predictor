@@ -67,7 +67,7 @@ public class GuardActivity extends BaseActivity {
 
         Window w = getWindow();
         if (w != null) {
-            w.setStatusBarColor(Ds.bg());
+            w.setStatusBarColor(Ds.ndTealAccent()); // v3.6.69
             w.getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }

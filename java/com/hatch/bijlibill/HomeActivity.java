@@ -370,7 +370,7 @@ public class HomeActivity extends BaseActivity {
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         // v3.6.60: dark green header (matches BillActivity).
-        bar.setBackgroundColor(Ds.ndPrimaryDark());
+        bar.setBackgroundColor(Ds.ndTealAccent());
         bar.setPadding(Ui.dp(this, 18), Ui.dp(this, 12),
                 Ui.dp(this, 18), Ui.dp(this, 10));
 

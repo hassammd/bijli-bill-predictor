@@ -34,7 +34,7 @@ public class BillsActivity extends BaseActivity {
 
         Window w = getWindow();
         if (w != null) {
-            w.setStatusBarColor(Ds.bg());
+            w.setStatusBarColor(Ds.ndTealAccent()); // v3.6.69
             w.getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
@@ -51,7 +51,7 @@ public class BillsActivity extends BaseActivity {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setBackgroundColor(Ds.ndPrimaryDark());
+        bar.setBackgroundColor(Ds.ndTealAccent());
         bar.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
                 Ui.dp(this, 20), Ui.dp(this, 10));
 

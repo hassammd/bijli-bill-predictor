@@ -92,7 +92,7 @@ public class BillActivity extends BaseActivity {
         android.view.Window w = getWindow();
         if (w != null) {
             // v3.6.54: new design — dark teal status bar.
-            w.setStatusBarColor(Ds.ndPrimaryDark());
+            w.setStatusBarColor(Ds.ndTealAccent());
             w.getDecorView().setSystemUiVisibility(0);
         }
 
@@ -187,7 +187,7 @@ public class BillActivity extends BaseActivity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         // v3.6.55: standard app bar (reverted from v3.6.54 dark teal).
         // Uses new teal colors.
-        bar.setBackgroundColor(Ds.ndPrimaryDark());
+        bar.setBackgroundColor(Ds.ndTealAccent());
         bar.setPadding(dp(16), dp(16), dp(16), dp(16));
 
         // Back button.

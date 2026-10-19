@@ -644,8 +644,8 @@ final class Ds {
         bar.setGravity(android.view.Gravity.CENTER_VERTICAL);
         int p = Ui.dp(ctx, 20);
         bar.setPadding(p, Ui.dp(ctx, 14), p, Ui.dp(ctx, 10));
-        // v3.6.60: dark green header (matches BillActivity).
-        bar.setBackgroundColor(ndPrimaryDark());
+        // v3.6.69: light teal header (was dark green, user request).
+        bar.setBackgroundColor(ndTealAccent());
 
         android.widget.ImageView back =
                 new android.widget.ImageView(ctx);

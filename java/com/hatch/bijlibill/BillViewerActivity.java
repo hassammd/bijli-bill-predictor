@@ -60,6 +60,11 @@ public class BillViewerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // v3.6.69: status bar light teal (user request).
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(
+                    android.graphics.Color.parseColor("#11998E"));
+        }
         // v3.6.35: ad-gate before viewing full bill.
         // v3.6.42: skip ad on recreate (e.g. language toggle) — the
         // ad was breaking the toggle flow.
@@ -99,7 +104,7 @@ public class BillViewerActivity extends Activity {
         int sbh = getStatusBarHeight();
         bar.setPadding(dp(20), dp(14) + sbh, dp(20), dp(10));
         // v3.6.68: dark green header (like other pages).
-        bar.setBackgroundColor(Ds.ndPrimaryDark());
+        bar.setBackgroundColor(Ds.ndTealAccent());
 
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);
