@@ -797,8 +797,9 @@ public class HomeActivity extends BaseActivity {
         Ds.tealShadow(card);
 
         // Icon circle
+        // v3.6.76: smaller icon (user: make room for full headings).
         FrameLayout circle = new FrameLayout(this);
-        int cs = Ui.dp(this, 48);
+        int cs = Ui.dp(this, 40);
         circle.setLayoutParams(new LinearLayout.LayoutParams(cs, cs));
         android.graphics.drawable.GradientDrawable bg =
                 new android.graphics.drawable.GradientDrawable();
@@ -807,7 +808,7 @@ public class HomeActivity extends BaseActivity {
         circle.setBackground(bg);
         ImageView ic = new ImageView(this);
         ic.setImageResource(iconRes);
-        int is = Ui.dp(this, 26);
+        int is = Ui.dp(this, 22);
         FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(
                 is, is, Gravity.CENTER);
         ic.setLayoutParams(ilp);
@@ -825,9 +826,8 @@ public class HomeActivity extends BaseActivity {
 
         TextView t = new TextView(this);
         t.setText(title);
-        // v3.6.75: smaller + single-line (user: headings must fit one line,
-        // both cards exactly same size).
-        t.setTextSize(13);
+        // v3.6.76: 12sp single-line complete (user: full heading, icons smaller).
+        t.setTextSize(12);
         t.setSingleLine(true);
         t.setEllipsize(android.text.TextUtils.TruncateAt.END);
         t.setTextColor(Ds.ink());
@@ -836,7 +836,9 @@ public class HomeActivity extends BaseActivity {
 
         TextView s = new TextView(this);
         s.setText(sub);
-        s.setTextSize(12);
+        s.setTextSize(11);
+        // v3.6.76: subtitle allows 2 lines (user request).
+        s.setMaxLines(2);
         s.setTextColor(Ds.muted());
         Ds.body(this, s, 400);
         txt.addView(s);
