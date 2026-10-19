@@ -1559,8 +1559,9 @@ public class BillActivity extends BaseActivity {
         String due = BillSummary.value(fs, "due");
         String units = BillSummary.value(fs, "units");
         boolean urdu = LocaleHelper.isUrdu(this);
-        // v3.6.65: Urdu date format "27 اکتوبر" (was "27 OCT 26").
-        if (urdu && due != null) due = urduDate(due);
+        // v3.6.66: keep English for daysLeft parsing, Urdu for display.
+        String dueDisplay = due;
+        if (urdu && due != null) dueDisplay = urduDate(due);
 
         LinearLayout c = new LinearLayout(this);
         c.setOrientation(LinearLayout.VERTICAL);
@@ -1676,7 +1677,7 @@ public class BillActivity extends BaseActivity {
             String daysText = days == 0
                     ? getString(R.string.due_today)
                     : getString(R.string.due_days_left, days);
-            ct.setText(getString(R.string.due_chip, due.trim(),
+            ct.setText(getString(R.string.due_chip, dueDisplay.trim(),
                     daysText));
             ct.setTextSize(12.5f);
             ct.setTextColor(Ds.ndDarkText());
