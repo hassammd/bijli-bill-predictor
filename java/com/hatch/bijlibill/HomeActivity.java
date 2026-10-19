@@ -61,7 +61,7 @@ public class HomeActivity extends BaseActivity {
 
     private TextView segRefBtn;
     private TextView segCidBtn;
-    // v3.6.86: 2-row grid (replaces discoRow).
+    private LinearLayout discoRow;
     private TextView fieldLabel;
     private TextView refField;
     private TextView cidField;
@@ -441,48 +441,37 @@ public class HomeActivity extends BaseActivity {
 
     // ---- disco chips (horizontal scroll) ----
 
-    // v3.6.86: 2-row grid (user: all chips must fit in container, no scroll/cut).
-    private LinearLayout discoRow1, discoRow2;
+    // v3.6.87: single-row carousel (user: no double row, 3-4 visible + scroll).
 
     private View discoChips() {
-        LinearLayout grid = new LinearLayout(this);
-        grid.setOrientation(LinearLayout.VERTICAL);
+        HorizontalScrollView hsv = new HorizontalScrollView(this);
+        hsv.setHorizontalScrollBarEnabled(false);
+        // v3.6.87: no clip — chips peek to show scroll (user: carousel).
+        hsv.setClipToPadding(false);
         int hp = Ui.dp(this, 20);
-        grid.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
+        // v3.6.83: more bottom space (user request).
+        hsv.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
 
-        discoRow1 = new LinearLayout(this);
-        discoRow1.setOrientation(LinearLayout.HORIZONTAL);
-        discoRow2 = new LinearLayout(this);
-        discoRow2.setOrientation(LinearLayout.HORIZONTAL);
-
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        grid.addView(discoRow1, rlp);
-
-        LinearLayout.LayoutParams rlp2 = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        rlp2.topMargin = Ui.dp(this, 8);
-        grid.addView(discoRow2, rlp2);
-
-        return grid;
+        discoRow = new LinearLayout(this);
+        discoRow.setOrientation(LinearLayout.HORIZONTAL);
+        hsv.addView(discoRow, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        return hsv;
     }
 
     private void refreshChips() {
-        discoRow1.removeAllViews();
-        discoRow2.removeAllViews();
-        Disco[] all = Disco.values();
-        for (int i = 0; i < all.length; i++) {
-            final Disco d = all[i];
+        discoRow.removeAllViews();
+        for (int i = 0; i < Disco.values().length; i++) {
+            final Disco d = Disco.values()[i];
             final boolean isSel = d.code.equals(disco.code);
             LinearLayout chip = new LinearLayout(this);
             chip.setOrientation(LinearLayout.HORIZONTAL);
-            chip.setGravity(Gravity.CENTER);
+            chip.setGravity(Gravity.CENTER_VERTICAL);
             chip.setBackgroundResource(
                     // v3.6.80: selected = yellow (user request, like toggle).
                     isSel ? R.drawable.ds_chip_yellow : R.drawable.ds_chip);
-            int v = Ui.dp(this, 9), h = Ui.dp(this, 8);
+            int v = Ui.dp(this, 9), h = Ui.dp(this, 16);
             chip.setPadding(h, v, h, v);
             if (isSel && android.os.Build.VERSION.SDK_INT >= 21) {
                 chip.setElevation(Ui.dp(this, 3));
@@ -490,17 +479,18 @@ public class HomeActivity extends BaseActivity {
 
             TextView t = new TextView(this);
             t.setText(d.displayName);
-            t.setTextSize(12);
-            t.setGravity(Gravity.CENTER);
+            // v3.6.87: K-Electric smaller font (user: was showing double line).
+            t.setTextSize(d.comingSoon ? 11 : 13);
+            t.setSingleLine(true);
             // v3.6.80: dark text on yellow when selected (user request).
             t.setTextColor(isSel ? Ds.amberDark() : Ds.muted());
             Ds.heading(this, t);
             chip.addView(t);
 
-            // v3.6.86: equal weight so 5 chips fit per row.
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            if (i % 5 != 4) lp.rightMargin = Ui.dp(this, 8);
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = Ui.dp(this, 8);
             chip.setLayoutParams(lp);
             chip.setClickable(true);
             chip.setFocusable(true);
@@ -522,9 +512,7 @@ public class HomeActivity extends BaseActivity {
                     }
                 });
             }
-            // First 5 in row 1, next 5 in row 2.
-            if (i < 5) discoRow1.addView(chip);
-            else discoRow2.addView(chip);
+            discoRow.addView(chip);
         }
     }
 
