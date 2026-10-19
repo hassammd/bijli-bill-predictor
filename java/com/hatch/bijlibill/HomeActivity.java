@@ -307,13 +307,8 @@ public class HomeActivity extends BaseActivity {
         content.addView(discoChips());
         content.addView(inputCard());
 
-        // BILL DEKHO
-        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        // v3.6.77: BILL DEKHO button moved INSIDE inputCard (user request).
         int hm = Ui.dp(this, 20);
-        bp.setMargins(hm, Ui.dp(this, 8), hm, 0);
-        content.addView(billDekhoBtn(), bp);
 
         // v3.6.71: Quick Tools — Unit Check + Bill History cards.
         content.addView(quickToolsSection());
@@ -608,6 +603,15 @@ public class HomeActivity extends BaseActivity {
         wlp.topMargin = Ui.dp(this, 12);
         card.addView(wrap, wlp);
 
+        // v3.6.77: VIEW BILL button INSIDE the card (user request).
+        // Proper spacing between input field and button.
+        View dekho = billDekhoBtn();
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        dlp.topMargin = Ui.dp(this, 14);
+        card.addView(dekho, dlp);
+
         return card;
     }
 
@@ -791,8 +795,10 @@ public class HomeActivity extends BaseActivity {
         card.setBackgroundResource(R.drawable.ds_card);
         int p = Ui.dp(this, 12);
         card.setPadding(p, p, p, p);
+        // v3.6.77: 4dp elevation to match other cards (user: green shadow
+        // on all four sides like other cards).
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            card.setElevation(Ui.dp(this, 2));
+            card.setElevation(Ui.dp(this, 4));
         }
         Ds.tealShadow(card);
 
