@@ -23,21 +23,21 @@ final class Ds {
 
     private Ds() {}
 
-    static int bg()        { return Color.parseColor("#F5F8F6"); }
-    static int ink()       { return Color.parseColor("#12211B"); }
-    static int muted()     { return Color.parseColor("#6B7F74"); }
-    static int line()      { return Color.parseColor("#E6EDE9"); }
-    static int deepGreen() { return Color.parseColor("#0C5C46"); }
-    static int g800()      { return Color.parseColor("#0A4A38"); }
-    static int g900()      { return Color.parseColor("#06382B"); }
-    static int amber()     { return Color.parseColor("#F6A609"); }
+    static int bg()        { return Color.parseColor("#F3F8F7"); }
+    static int ink()       { return Color.parseColor("#123D46"); }
+    static int muted()     { return Color.parseColor("#71858B"); }
+    static int line()      { return Color.parseColor("#E1EFEC"); }
+    static int deepGreen() { return Color.parseColor("#0D766E"); }
+    static int g800()      { return Color.parseColor("#064E50"); }
+    static int g900()      { return Color.parseColor("#064E50"); }
+    static int amber()     { return Color.parseColor("#FFC83D"); }
     static int amberDark() { return Color.parseColor("#3A2700"); }
     static int navIdle()   { return Color.parseColor("#A9BCB2"); }
     static int red()       { return Color.parseColor("#D92D20"); }
-    static int g600()      { return Color.parseColor("#0E6D53"); }
-    static int stepTodo()  { return Color.parseColor("#E3EAE6"); }
-    static int greenBg()     { return Color.parseColor("#EAF5EE"); }
-    static int faint()       { return Color.parseColor("#93A79B"); }
+    static int g600()      { return Color.parseColor("#0D766E"); }
+    static int stepTodo()  { return Color.parseColor("#E1EFEC"); }
+    static int greenBg()     { return Color.parseColor("#DDF5EF"); }
+    static int faint()       { return Color.parseColor("#71858B"); }
     static int stepNum()   { return Color.parseColor("#3A2700"); }
     static int blueBg()    { return Color.parseColor("#EAF1FD"); }
     static int blueBorder(){ return Color.parseColor("#CCD9F5"); }
