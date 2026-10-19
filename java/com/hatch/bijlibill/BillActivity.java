@@ -191,10 +191,12 @@ public class BillActivity extends BaseActivity {
         bar.setPadding(dp(16), dp(16), dp(16), dp(16));
 
         // Back button.
+        // v3.6.60: light mint background, dark arrow (user feedback).
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        back.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        back.setColorFilter(Ds.ndPrimaryDark(), PorterDuff.Mode.SRC_IN);
+        back.setBackgroundResource(R.drawable.nd_back_btn_light);
         int bs = dp(44);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
         back.setPadding(dp(12), dp(12), dp(12), dp(12));
@@ -244,6 +246,7 @@ public class BillActivity extends BaseActivity {
         c.setBackgroundResource(R.drawable.ds_card);
         c.setPadding(dp(16), dp(16), dp(16), dp(16));
         if (Build.VERSION.SDK_INT >= 21) c.setElevation(dp(2));
+        Ds.tealShadow(c);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1764,8 +1767,33 @@ public class BillActivity extends BaseActivity {
         LinearLayout c = card();
         boolean urdu = LocaleHelper.isUrdu(this);
 
-        // v3.6.57: use BillInfo fields directly (BillSummary doesn't have them).
-        String month = b.issueDate;
+        // v3.6.60: billing month with fallbacks — row MUST show.
+        String month = b.billMonth;
+        if (month == null || month.isEmpty()) month = b.issueDate;
+        if ((month == null || month.isEmpty()) && b.dueDate != null) {
+            // Derive "MON YY" from due date.
+            try {
+                String[] parts = b.dueDate.trim().split("[\\s,]+");
+                if (parts.length >= 2) {
+                    String m = parts[0].toUpperCase();
+                    if (m.length() > 3) m = m.substring(0, 3);
+                    String y = parts[parts.length - 1];
+                    if (y.length() == 4) y = y.substring(2);
+                    month = m + " " + y;
+                } else {
+                    month = b.dueDate;
+                }
+            } catch (Exception e) {
+                month = b.dueDate;
+            }
+        }
+        if (month == null || month.isEmpty()) {
+            // Last resort: current month.
+            java.text.SimpleDateFormat sdf =
+                    new java.text.SimpleDateFormat("MMM yy",
+                            java.util.Locale.ENGLISH);
+            month = sdf.format(new java.util.Date()).toUpperCase();
+        }
         String reading = b.currReading;
         String late = compactLate(b, fs);
 

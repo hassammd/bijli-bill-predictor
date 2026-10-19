@@ -47,15 +47,19 @@ public class BillsActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         // ---- app bar: back + title + lang toggle ----
+        // v3.6.60: dark green header (matches BillActivity).
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.setBackgroundColor(Ds.ndPrimaryDark());
         bar.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
                 Ui.dp(this, 20), Ui.dp(this, 10));
 
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
+        back.setColorFilter(android.graphics.Color.WHITE,
+                android.graphics.PorterDuff.Mode.SRC_IN);
         int bs = Ui.dp(this, 38);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
         back.setBackgroundResource(R.drawable.ds_back_btn);
@@ -71,7 +75,7 @@ public class BillsActivity extends BaseActivity {
         TextView title = new TextView(this);
         title.setText(getString(R.string.bills_title));
         title.setTextSize(18);
-        title.setTextColor(Ds.ink());
+        title.setTextColor(android.graphics.Color.WHITE);
         Ds.heading(this, title);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);

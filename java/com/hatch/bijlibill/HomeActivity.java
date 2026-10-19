@@ -380,6 +380,8 @@ public class HomeActivity extends BaseActivity {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
+        // v3.6.60: dark green header (matches BillActivity).
+        bar.setBackgroundColor(Ds.ndPrimaryDark());
         bar.setPadding(Ui.dp(this, 18), Ui.dp(this, 12),
                 Ui.dp(this, 18), Ui.dp(this, 10));
 
@@ -398,7 +400,7 @@ public class HomeActivity extends BaseActivity {
         TextView name = new TextView(this);
         name.setText(getString(R.string.home_title));
         name.setTextSize(17);
-        name.setTextColor(Ds.ink());
+        name.setTextColor(android.graphics.Color.WHITE);
         Ds.heading(this, name);
         LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -537,6 +539,7 @@ public class HomeActivity extends BaseActivity {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             card.setElevation(Ui.dp(this, 4));
         }
+        Ds.tealShadow(card);
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);

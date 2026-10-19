@@ -90,6 +90,7 @@ public final class Ui {
         int p = dp(ctx, 16);
         c.setPadding(p, p, p, p);
         if (android.os.Build.VERSION.SDK_INT >= 21) c.setElevation(dp(ctx, 3));
+        Ds.tealShadow(c);
         return c;
     }
 
@@ -303,7 +304,8 @@ public final class Ui {
                                       int subtitleRes, final LangToggle toggle) {
         final Context ctx = act;
         LinearLayout h = col(ctx);
-        h.setBackgroundColor(teal());
+        // v3.6.60: dark green header (matches BillActivity).
+        h.setBackgroundColor(android.graphics.Color.parseColor("#064E50"));
         // v3.6.43: reduced padding — header was too tall (user feedback).
         h.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
 

@@ -65,6 +65,7 @@ final class MeterUi {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             row.setElevation(Ui.dp(ctx, 2));
         }
+        Ds.tealShadow(row);
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);

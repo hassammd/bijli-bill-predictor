@@ -38,6 +38,13 @@ final class Ds {
     static int stepTodo()  { return Color.parseColor("#E1EFEC"); }
     static int greenBg()     { return Color.parseColor("#DDF5EF"); }
     static int faint()       { return Color.parseColor("#71858B"); }
+
+    /** v3.6.60: teal-tinted shadow for cards (user feedback). API 28+. */
+    static void tealShadow(android.view.View v) {
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            v.setOutlineSpotShadowColor(Color.parseColor("#0D766E"));
+        }
+    }
     static int stepNum()   { return Color.parseColor("#3A2700"); }
     static int blueBg()    { return Color.parseColor("#EAF1FD"); }
     static int blueBorder(){ return Color.parseColor("#CCD9F5"); }
@@ -618,6 +625,7 @@ final class Ds {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             c.setElevation(Ui.dp(ctx, 2));
         }
+        tealShadow(c);
         return c;
     }
 
@@ -636,12 +644,14 @@ final class Ds {
         bar.setGravity(android.view.Gravity.CENTER_VERTICAL);
         int p = Ui.dp(ctx, 20);
         bar.setPadding(p, Ui.dp(ctx, 14), p, Ui.dp(ctx, 10));
+        // v3.6.60: dark green header (matches BillActivity).
+        bar.setBackgroundColor(ndPrimaryDark());
 
         android.widget.ImageView back =
                 new android.widget.ImageView(ctx);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        back.setColorFilter(g800(),
+        back.setColorFilter(android.graphics.Color.WHITE,
                 android.graphics.PorterDuff.Mode.SRC_IN);
         int bs = Ui.dp(ctx, 38);
         back.setLayoutParams(
@@ -667,14 +677,14 @@ final class Ds {
         TextView title = new TextView(ctx);
         title.setText(titleText);
         title.setTextSize(18);
-        title.setTextColor(ink());
+        title.setTextColor(android.graphics.Color.WHITE);
         heading(ctx, title);
         col.addView(title);
 
         TextView sub = new TextView(ctx);
         sub.setText(subText);
         sub.setTextSize(12);
-        sub.setTextColor(muted());
+        sub.setTextColor(android.graphics.Color.parseColor("#B0C4C4"));
         if (subMono) mono(sub); else body(ctx, sub, 400);
         col.addView(sub);
         bar.addView(col);
