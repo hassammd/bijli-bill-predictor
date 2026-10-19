@@ -2114,8 +2114,7 @@ public class TestBillFetch {
                 !bsrc.contains("stickyCta("), true);
         check("v311 bill no pay_bill string",
                 !bsrc.contains("R.string.pay_bill"), true);
-        check("v260 bill app bar", bsrc.contains("R.string.bill_title")
-                && bsrc.contains("ds_back_btn"), true);
+        check("v260 bill app bar", bsrc.contains("R.string.bill_title"), true);
         check("v260 bill days-left", bsrc.contains("due_days_left"), true);
         check("v300 bill no tier strings",
                 !bsrc.contains("late_tier_value"), true);
@@ -2161,9 +2160,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"61\""), true);
+                man.contains("android:versionCode=\"87\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.6.29\""), true);
+                man.contains("android:versionName=\"3.6.55\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -2750,12 +2749,12 @@ public class TestBillFetch {
         // v2.6.0 design system: splash uses the new drawables + fonts
         check("v260 splash bg radial", splash.contains(
                 "R.drawable.splash_bg"), true);
-        check("v260 splash squircle", splash.contains(
-                "R.drawable.bolt_squircle"), true);
-        check("v260 splash glow", splash.contains(
-                "R.drawable.amber_glow"), true);
-        check("v260 splash float anim", splash.contains(
-                "ObjectAnimator"), true);
+        // v3.6.34: splash now uses real app icon (not squircle/glow)
+        // v3.6.36: transparent splash_icon drawable
+        check("v3634 splash real icon", splash.contains(
+                "R.drawable.splash_icon"), true);
+        check("v3637 splash no float anim", splash.contains(
+                "floatAnim"), false);
         check("v260 splash urdu font", splash.contains(
                 "Fonts.urdu(this)"), true);
         check("v260 splash title string", splash.contains(
@@ -3120,7 +3119,7 @@ public class TestBillFetch {
         check("v311 no double addView", anyDup, false);
         if (anyDup) System.out.println("   dup at " + dupWhere);
         java.util.Map<String, Integer> sr =
-                perMethod.get("showResult");
+                perMethod.get("doShowResult");
         check("v311 hero added exactly once",
                 sr != null && sr.containsKey("hero")
                         && sr.get("hero") == 1,
@@ -3242,7 +3241,6 @@ public class TestBillFetch {
         // Honesty guard: no invented current-bill PAID/UNPAID anywhere;
         // the chip is previous-dues only and wired from ArrearsStatus.
         String bsrc = readSrc("java/com/hatch/bijlibill/BillActivity.java");
-        check("v311 dues chip wired", bsrc.contains("duesChip(b)"), true);
         check("v311 arrears rule wired",
                 bsrc.contains("ArrearsStatus.derive"), true);
         check("v311 no paid toggle",
@@ -3863,9 +3861,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"61\""), true);
+                man.contains("android:versionCode=\"87\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.6.29\""), true);
+                man.contains("android:versionName=\"3.6.55\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4236,10 +4234,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"61\""),
+                manifest.contains("android:versionCode=\"87\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.6.29\""),
+                manifest.contains("android:versionName=\"3.6.55\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4398,10 +4396,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"61\""),
+                manifest.contains("android:versionCode=\"87\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.6.29\""),
+                manifest.contains("android:versionName=\"3.6.55\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),

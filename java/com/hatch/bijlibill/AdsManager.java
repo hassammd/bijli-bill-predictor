@@ -3,6 +3,7 @@ package com.hatch.bijlibill;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -85,14 +86,68 @@ public final class AdsManager {
      * Call after every successful bill calculation. Shows an interstitial
      * every AdsConfig.INTERSTITIAL_EVERY_N_CALCULATIONS calculations.
      */
+    /** Minimum gap between interstitials (avoid spam on rapid fetches). */
+    private static final long INTERSTITIAL_MIN_GAP_MS = 2 * 60 * 1000;
+    private static final String KEY_LAST_INTERSTITIAL =
+            "last_interstitial_ms";
+
     public static void onCalculationDone(Activity activity) {
         if (!AdsConfig.ADS_ENABLED || BillingStub.isPremium(activity)) return;
-        SharedPreferences p = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        int n = p.getInt(KEY_CALC_COUNT, 0) + 1;
-        p.edit().putInt(KEY_CALC_COUNT, n).apply();
-        if (n % AdsConfig.INTERSTITIAL_EVERY_N_CALCULATIONS == 0) {
+        // v3.6.32: show after EVERY fetch (user: max revenue), but with
+        // a 2-min minimum gap so rapid back-to-back fetches don't spam.
+        SharedPreferences p = activity.getSharedPreferences(PREFS,
+                Context.MODE_PRIVATE);
+        long now = System.currentTimeMillis();
+        long last = p.getLong(KEY_LAST_INTERSTITIAL, 0);
+        if (now - last >= INTERSTITIAL_MIN_GAP_MS) {
+            p.edit().putLong(KEY_LAST_INTERSTITIAL, now).apply();
             showInterstitial(activity);
         }
+    }
+
+    /**
+     * v3.6.33: show interstitial BEFORE an action, run onClosed after user
+     * dismisses it. Used as ad-gate before bill fetch.
+     */
+    public static void showInterstitialBefore(final Activity activity,
+            final Runnable onClosed) {
+        if (!AdsConfig.ADS_ENABLED || BillingStub.isPremium(activity)) {
+            onClosed.run();
+            return;
+        }
+        // v3.6.36: no gap — user wants ad on EVERY step (fetch/view/check).
+        SharedPreferences p = activity.getSharedPreferences(PREFS,
+                Context.MODE_PRIVATE);
+        p.edit().putLong(KEY_LAST_INTERSTITIAL,
+                System.currentTimeMillis()).apply();
+        // PRODUCTION SWAP: real AdMob interstitial with
+        // FullScreenContentCallback.onAdDismissed -> onClosed.run()
+        TextView body = new TextView(activity);
+        body.setText("TEST INTERSTITIAL AD\n\n" +
+                AdsConfig.INTERSTITIAL_AD_UNIT_ID +
+                "\n\n(Production: real AdMob interstitial yahan show hoga.)");
+        body.setGravity(Gravity.CENTER);
+        body.setTypeface(Typeface.DEFAULT_BOLD);
+        int pad = (int) (24 * activity.getResources().getDisplayMetrics().density + 0.5f);
+        body.setPadding(pad, pad, pad, pad);
+        new AlertDialog.Builder(activity)
+                .setTitle("Sponsored")
+                .setView(body)
+                .setPositiveButton("Close",
+                        new DialogInterface.OnClickListener() {
+                            @Override public void onClick(
+                                    DialogInterface d, int which) {
+                                onClosed.run();
+                            }
+                        })
+                .setOnCancelListener(
+                        new DialogInterface.OnCancelListener() {
+                            @Override public void onCancel(
+                                    DialogInterface d) {
+                                onClosed.run();
+                            }
+                        })
+                .show();
     }
 
     private static void showInterstitial(final Activity activity) {

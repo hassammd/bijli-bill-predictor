@@ -8,9 +8,23 @@ import android.view.WindowInsets;
 
 /** All activities extend this so the saved app locale applies before UI build. */
 public class BaseActivity extends Activity {
+    private String resumeLang;
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleHelper.apply(newBase));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // v3.6.45: if language changed while this activity was in
+        // background, recreate to apply it (global language sync).
+        String current = LocaleHelper.get(this);
+        if (resumeLang != null && !resumeLang.equals(current)) {
+            recreate();
+        }
+        resumeLang = current;
     }
 
     /**

@@ -131,7 +131,8 @@ public class BillsActivity extends BaseActivity {
             list.addView(empty);
             return;
         }
-        for (final SavedMeters.Meter m : items) {
+        for (int idx = 0; idx < items.size(); idx++) {
+            final SavedMeters.Meter m = items.get(idx);
             final Disco md = Disco.fromCode(m.disco);
             list.addView(MeterUi.card(this, m,
                     new View.OnClickListener() {
@@ -151,7 +152,47 @@ public class BillsActivity extends BaseActivity {
                             return true;
                         }
                     }));
+            // v3.6.30: native ad every 3 bills (test placeholder).
+            // Production: real AdMob native ad here.
+            if ((idx + 1) % 3 == 0 && idx + 1 < items.size()) {
+                list.addView(nativeAdCard());
+            }
         }
+    }
+
+    /**
+     * v3.6.30: native ad placeholder for bills list. In production,
+     * replace with real AdMob NativeAd rendering.
+     */
+    private View nativeAdCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundResource(R.drawable.ds_card_24);
+        int p = Ui.dp(this, 16);
+        card.setPadding(p, Ui.dp(this, 12), p, Ui.dp(this, 12));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        int m = Ui.dp(this, 16);
+        lp.setMargins(m, Ui.dp(this, 8), m, Ui.dp(this, 8));
+        card.setLayoutParams(lp);
+
+        TextView label = new TextView(this);
+        label.setText("AD");
+        label.setTextSize(10);
+        label.setTextColor(android.graphics.Color.parseColor("#9E9E9E"));
+        card.addView(label);
+
+        TextView body = new TextView(this);
+        body.setText("TEST NATIVE AD\n" + AdsConfig.NATIVE_AD_UNIT_ID +
+                "\n(Production: real native ad here)");
+        body.setTextSize(12);
+        body.setTextColor(android.graphics.Color.parseColor("#616161"));
+        body.setGravity(Gravity.CENTER);
+        body.setPadding(0, Ui.dp(this, 16), 0, Ui.dp(this, 16));
+        card.addView(body);
+
+        return card;
     }
 
     private void openBill(Disco d, String mode, String value) {

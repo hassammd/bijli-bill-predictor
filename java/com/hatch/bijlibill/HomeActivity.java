@@ -312,7 +312,7 @@ public class HomeActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         int hm = Ui.dp(this, 20);
-        bp.setMargins(hm, Ui.dp(this, 14), hm, 0);
+        bp.setMargins(hm, Ui.dp(this, 8), hm, 0);
         content.addView(billDekhoBtn(), bp);
 
 
@@ -322,7 +322,7 @@ public class HomeActivity extends BaseActivity {
         LinearLayout.LayoutParams scp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        scp.setMargins(hm, Ui.dp(this, 9), hm, 0);
+        scp.setMargins(hm, Ui.dp(this, 8), hm, 0);
         content.addView(streakCard, scp);
 
         // v3.6.0: gentle banner when the user disabled
@@ -333,7 +333,7 @@ public class HomeActivity extends BaseActivity {
         LinearLayout.LayoutParams nbp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        nbp.setMargins(hm, Ui.dp(this, 9), hm, 0);
+        nbp.setMargins(hm, Ui.dp(this, 8), hm, 0);
         notifBanner.setVisibility(View.GONE);
         content.addView(notifBanner, nbp);
 
@@ -358,7 +358,7 @@ public class HomeActivity extends BaseActivity {
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.setMargins(hm, Ui.dp(this, 12), hm, 0);
+        slp.setMargins(hm, Ui.dp(this, 8), hm, 0);
         content.addView(savedList, slp);
 
         content.addView(Ui.spacer(this, 24));
@@ -541,7 +541,7 @@ public class HomeActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         int hm = Ui.dp(this, 20);
-        clp.setMargins(hm, Ui.dp(this, 14), hm, 0);
+        clp.setMargins(hm, Ui.dp(this, 8), hm, 0);
         card.setLayoutParams(clp);
 
         // segmented toggle
@@ -886,6 +886,12 @@ public class HomeActivity extends BaseActivity {
         LinearLayout h = new LinearLayout(this);
         h.setOrientation(LinearLayout.HORIZONTAL);
         h.setGravity(Gravity.CENTER_VERTICAL);
+        // v3.6.45: RTL for Urdu (separate left/right properly).
+        if (android.os.Build.VERSION.SDK_INT >= 17
+                && LocaleHelper.isUrdu(this)) {
+            h.setLayoutDirection(
+                    android.view.View.LAYOUT_DIRECTION_RTL);
+        }
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -909,6 +915,11 @@ public class HomeActivity extends BaseActivity {
         seeAll.setTextSize(12.5f);
         seeAll.setTextColor(Ds.deepGreen());
         Ds.heading(this, seeAll);
+        // v3.6.43: RTL support for Urdu text direction.
+        if (android.os.Build.VERSION.SDK_INT >= 17) {
+            seeAll.setTextDirection(
+                    android.view.View.TEXT_DIRECTION_LOCALE);
+        }
         seeAll.setClickable(true);
         seeAll.setFocusable(true);
         seeAll.setOnClickListener(new View.OnClickListener() {

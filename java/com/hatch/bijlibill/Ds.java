@@ -43,6 +43,18 @@ final class Ds {
     static int blueBorder(){ return Color.parseColor("#CCD9F5"); }
     static int blueText()  { return Color.parseColor("#243B6B"); }
     static int redBg()     { return Color.parseColor("#FDECEA"); }
+
+    // v3.6.54: New bill page design colors (2026-10-19)
+    static int ndPrimaryDark() { return Color.parseColor("#064E50"); }
+    static int ndPrimaryTeal() { return Color.parseColor("#0D766E"); }
+    static int ndTealAccent() { return Color.parseColor("#11998E"); }
+    static int ndAppBg()     { return Color.parseColor("#F3F8F7"); }
+    static int ndCardWhite() { return Color.parseColor("#FFFFFF"); }
+    static int ndMintGreen() { return Color.parseColor("#DDF5EF"); }
+    static int ndDarkText()  { return Color.parseColor("#123D46"); }
+    static int ndSecondary() { return Color.parseColor("#71858B"); }
+    static int ndAmber()     { return Color.parseColor("#FFC83D"); }
+    static int ndLightBorder(){ return Color.parseColor("#E1EFEC"); }
     static int redBorder() { return Color.parseColor("#F5C6C0"); }
     static int redText()   { return Color.parseColor("#7A271A"); }
     static int progTrack() { return Color.parseColor("#E7EDE9"); }

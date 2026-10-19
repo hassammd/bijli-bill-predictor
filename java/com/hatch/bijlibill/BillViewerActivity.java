@@ -60,6 +60,21 @@ public class BillViewerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // v3.6.35: ad-gate before viewing full bill.
+        // v3.6.42: skip ad on recreate (e.g. language toggle) — the
+        // ad was breaking the toggle flow.
+        if (savedInstanceState != null) {
+            doOnCreate(savedInstanceState);
+        } else {
+            AdsManager.showInterstitialBefore(this, new Runnable() {
+                @Override public void run() {
+                    doOnCreate(savedInstanceState);
+                }
+            });
+        }
+    }
+
+    private void doOnCreate(Bundle savedInstanceState) {
         // v3.6.13: don't null these — the activity recreates on language
         // toggle, and we need the bill HTML to survive.
         final String html = pendingHtml;

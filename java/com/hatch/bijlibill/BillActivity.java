@@ -91,15 +91,16 @@ public class BillActivity extends BaseActivity {
 
         android.view.Window w = getWindow();
         if (w != null) {
-            w.setStatusBarColor(Ds.bg());
-            w.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            // v3.6.54: new design — dark teal status bar.
+            w.setStatusBarColor(Ds.ndPrimaryDark());
+            w.getDecorView().setSystemUiVisibility(0);
         }
 
         // Root: app bar / scrolling content (weight 1) / banner.
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Ds.bg());
+        // v3.6.54: new design app background.
+        root.setBackgroundColor(Ds.ndAppBg());
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
@@ -114,8 +115,9 @@ public class BillActivity extends BaseActivity {
         // Banner ad slot (bottom).
         bannerBox = new LinearLayout(this);
         bannerBox.setOrientation(LinearLayout.VERTICAL);
-        bannerBox.setPadding(Ui.dp(this, 16), Ui.dp(this, 6),
-                Ui.dp(this, 16), Ui.dp(this, 6));
+        // v3.6.41: 8dp top to match card spacing.
+        bannerBox.setPadding(Ui.dp(this, 16), Ui.dp(this, 8),
+                Ui.dp(this, 16), Ui.dp(this, 8));
         root.addView(bannerBox);
 
         // v3.6.17: bottom nav (was missing — user feedback).
@@ -170,23 +172,32 @@ public class BillActivity extends BaseActivity {
     }
 
     // ------------------------------------------------------------------
-    // App bar (v2.6.0 design)
+    // App bar — v3.6.54 new design: dark teal, rounded bottom corners
     // ------------------------------------------------------------------
+
+
+
+    /** Creates a rounded-corner drawable programmatically. */
+
+    /** Dark teal header bg with rounded BOTTOM corners only. */
 
     private View appBar() {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(dp(20), dp(14), dp(20), dp(10));
+        // v3.6.55: standard app bar (reverted from v3.6.54 dark teal).
+        // Uses new teal colors.
+        bar.setBackgroundColor(Ds.ndPrimaryDark());
+        bar.setPadding(dp(16), dp(16), dp(16), dp(16));
 
+        // Back button.
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        back.setColorFilter(Ds.g800(), PorterDuff.Mode.SRC_IN);
-        int bs = dp(38);
+        back.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        int bs = dp(44);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.ds_back_btn);
-        back.setPadding(dp(10), dp(10), dp(10), dp(10));
+        back.setPadding(dp(12), dp(12), dp(12), dp(12));
         back.setClickable(true);
         back.setFocusable(true);
         back.setOnClickListener(new View.OnClickListener() {
@@ -197,15 +208,15 @@ public class BillActivity extends BaseActivity {
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         clp.leftMargin = dp(12);
+        clp.rightMargin = dp(12);
         col.setLayoutParams(clp);
 
         TextView title = new TextView(this);
         title.setText(getString(R.string.bill_title));
-        title.setTextSize(18);
-        title.setTextColor(Ds.ink());
+        title.setTextSize(20);
+        title.setTextColor(Color.WHITE);
         Ds.heading(this, title);
         col.addView(title);
 
@@ -214,15 +225,11 @@ public class BillActivity extends BaseActivity {
                 ? R.string.bill_id_masked : R.string.bill_ref_masked,
                 SavedMeters.maskId(ref)));
         sub.setTextSize(12);
-        sub.setTextColor(Ds.muted());
-        Ds.mono(sub);
+        sub.setTextColor(Color.parseColor("#B0C4C4"));
+        Ds.body(this, sub, 400);
         col.addView(sub);
         bar.addView(col);
 
-        LinearLayout spacer = new LinearLayout(this);
-        spacer.setLayoutParams(new LinearLayout.LayoutParams(
-                0, 1, 1f));
-        bar.addView(spacer);
         bar.addView(Ds.langToggle(this));
         return bar;
     }
@@ -230,7 +237,7 @@ public class BillActivity extends BaseActivity {
     // Small builders (v2.6.0 design)
     // ------------------------------------------------------------------
 
-    /** White 20dp card with the standard side margins. */
+    /** v3.6.55: standard white card (reverted from v3.6.54). */
     private LinearLayout card() {
         LinearLayout c = new LinearLayout(this);
         c.setOrientation(LinearLayout.VERTICAL);
@@ -240,7 +247,7 @@ public class BillActivity extends BaseActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(20), dp(14), dp(20), 0);
+        lp.setMargins(dp(16), dp(8), dp(16), 0);
         c.setLayoutParams(lp);
         return c;
     }
@@ -262,7 +269,7 @@ public class BillActivity extends BaseActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(18), dp(14), dp(18), 0);
+        lp.setMargins(dp(16), dp(8), dp(16), 0);
         c.setLayoutParams(lp);
 
         ImageView ic = new ImageView(this);
@@ -283,28 +290,33 @@ public class BillActivity extends BaseActivity {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
         r.setGravity(Gravity.CENTER_VERTICAL);
+        // v3.6.42: more breathing room — utilize space better.
         r.setPadding(0, dp(12), 0, dp(12));
 
         TextView k = new TextView(this);
         k.setText(label);
-        k.setTextSize(13.5f);
+        // v3.6.42: bigger text.
+        k.setTextSize(15f);
         k.setTextColor(Ds.muted());
         Ds.body(this, k, 400);
-        k.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        // v3.6.43: gap between label and value (were sticking together).
+        klp.rightMargin = dp(12);
+        k.setLayoutParams(klp);
+        // v3.6.43: RTL support.
+        if (android.os.Build.VERSION.SDK_INT >= 17) {
+            k.setTextDirection(
+                    android.view.View.TEXT_DIRECTION_LOCALE);
+        }
         r.addView(k);
 
         TextView v = new TextView(this);
         v.setText(value);
-        if (mutedSmall) {
-            v.setTextSize(12.5f);
-            v.setTextColor(Ds.muted());
-            Ds.body(this, v, 500);
-        } else {
-            v.setTextSize(13.5f);
-            v.setTextColor(Ds.ink());
-            if (valueMono) Ds.mono(v); else Ds.heading(this, v);
-        }
+        // v3.6.45: all values same style — bold black (user feedback).
+        v.setTextSize(15f);
+        v.setTextColor(Ds.ink());
+        Ds.heading(this, v);
         v.setGravity(Gravity.END);
         r.addView(v);
         return r;
@@ -409,6 +421,15 @@ public class BillActivity extends BaseActivity {
     // ------------------------------------------------------------------
 
     private void loadBill(final boolean forceRefresh) {
+        // v3.6.33: ad-gate — interstitial before fetch, then proceed.
+        AdsManager.showInterstitialBefore(this, new Runnable() {
+            @Override public void run() {
+                doLoadBill(forceRefresh);
+            }
+        });
+    }
+
+    private void doLoadBill(final boolean forceRefresh) {
         fromCache = false;
         showLoading();
         if (!forceRefresh) {
@@ -420,7 +441,6 @@ public class BillActivity extends BaseActivity {
                             cached.html, ref, cached.fetchPath);
                     fromCache = true;
                     showBillPage(p);
-                    AdsManager.onCalculationDone(this);
                     return;
                 } catch (Exception e) {
                     // Stale/unparseable cache — fall through to a fresh
@@ -446,7 +466,6 @@ public class BillActivity extends BaseActivity {
                     runOnUiThread(new Runnable() {
                         @Override public void run() {
                             showBillPage(p);
-                            AdsManager.onCalculationDone(BillActivity.this);
                         }
                     });
                 } catch (final BillErrorException e) {
@@ -951,7 +970,11 @@ public class BillActivity extends BaseActivity {
      * asks again after a denial). Anything else -> hidden.
      */
     private void updateDailyReminderLine(DailyReminder.ArmState st) {
+        // v3.6.53: line removed from bill page (user feedback).
         if (dailyRemLine == null) return;
+        dailyRemLine.setVisibility(View.GONE);
+        return;
+        /*
         try {
             if (st == DailyReminder.ArmState.ARMED) {
                 dailyRemLine.setText(
@@ -981,6 +1004,7 @@ public class BillActivity extends BaseActivity {
         } catch (Exception ignored) {
             // A status line must never break the bill screen.
         }
+        */
     }
 
     /**
@@ -1029,7 +1053,7 @@ public class BillActivity extends BaseActivity {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(dp(18), dp(14), dp(18), 0);
+            lp.setMargins(dp(16), dp(8), dp(16), 0);
             card.setLayoutParams(lp);
 
             LinearLayout titleRow = new LinearLayout(this);
@@ -1225,43 +1249,8 @@ public class BillActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // Status line: saved-copy pill + the REAL reminder text.
-        LinearLayout status = new LinearLayout(this);
-        status.setOrientation(LinearLayout.HORIZONTAL);
-        status.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.setMargins(dp(20), dp(12), dp(20), 0);
-        status.setLayoutParams(slp);
-        if (fromCache) status.addView(savedPill());
-        reminderLine = new TextView(this);
-        reminderLine.setTextSize(12);
-        reminderLine.setTextColor(Ds.muted());
-        Ds.body(this, reminderLine, 600);
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        if (fromCache) rlp.leftMargin = dp(10);
-        reminderLine.setLayoutParams(rlp);
-        reminderLine.setVisibility(View.GONE);
-        status.addView(reminderLine);
-        inner.addView(status);
-
-        // v3.1.2: daily-reminder arm-state line under the status row
-        // (confirmation when armed, tappable permission hint when
-        // the permission is missing).
-        dailyRemLine = new TextView(this);
-        dailyRemLine.setTextSize(12);
-        dailyRemLine.setTextColor(Ds.g600());
-        Ds.body(this, dailyRemLine, 600);
-        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        dlp.setMargins(dp(20), dp(6), dp(20), 0);
-        dailyRemLine.setLayoutParams(dlp);
-        dailyRemLine.setVisibility(View.GONE);
-        inner.addView(dailyRemLine);
+        // v3.6.53: "Rozana yaad-dihani ON" line REMOVED — do not re-add.
+        // (dailyRemLine kept null; updateDailyReminderLine is a no-op.)
 
         if (p.parseOk && p.info != null) {
             BillInfo b = p.info;
@@ -1271,9 +1260,9 @@ public class BillActivity extends BaseActivity {
             if (holder != null) inner.addView(holder);
             View pay = payCard(b, fs);
             if (pay != null) inner.addView(pay);
-            // v3.6.16: "View Full Bill" right after the amount — visible
-            // without scrolling (user feedback: button was below the fold).
-            inner.addView(viewBillBtn(p.html));
+            // v3.6.55: "View Full Bill" button BELOW pay card (v3.6.53 layout).
+            View vfb = viewBillBtn(p.html);
+            if (vfb != null) inner.addView(vfb);
             // v3.3.0: "Andaza vs Asal Bill" — compare the meter's
             // pending estimate against this fresh bill (no card when
             // the user never ran an estimate).
@@ -1282,13 +1271,9 @@ public class BillActivity extends BaseActivity {
             if (detail != null) inner.addView(detail);
 
             scheduleDueReminder(b);
-            // v3.1.1: DAILY 09:00 reminder while the bill counts as
-            // unpaid (the bill carries no paid-status signal, so a
-            // fetched bill counts as unpaid — see DailyReminder).
-            // v3.1.2: show the TRUE arm state on the bill screen —
-            // confirmation when armed, tappable permission hint when
-            // not (never a silent skip after a denial).
-            updateDailyReminderLine(scheduleDailyReminder(b, fs));
+            // v3.1.1: DAILY reminder — kept, but the status line is
+            // gone (v3.6.53 user feedback). Logic unchanged.
+            scheduleDailyReminder(b, fs);
             // v3.4.0: bill-day nudge — one-shot alarm ~2 days before
             // the next bill is expected, closing the monthly open
             // loop that feeds the accuracy tracker. Replaces any
@@ -1316,15 +1301,17 @@ public class BillActivity extends BaseActivity {
             inner.addView(nc);
         }
 
-        // Secondary actions: unit check + refresh (features preserved).
-        inner.addView(actionsRow());
-
-        // v3.6.16: viewBillBtn moved up (right after pay card) — removed
-        // from here to avoid duplication.
-        inner.addView(Ui.spacer(this, 8));
-
         AdsManager.loadBannerInto(this, bannerBox);
     }
+
+    /**
+     * v3.6.54: mint status bar — "Saved • 24h valid" + divider +
+     * "Reminder: ...". Matches the new design.
+     */
+
+    /**
+     * v3.6.54: trust badge — mint card with shield icon.
+     */
 
     /**
      * v3.6.9: prominent "View Full Bill" button — opens BillViewerActivity
@@ -1339,7 +1326,7 @@ public class BillActivity extends BaseActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(20), dp(14), dp(20), 0);
+        lp.setMargins(dp(16), dp(8), dp(16), 0);
         b.setLayoutParams(lp);
 
         ImageView dic = new ImageView(this);
@@ -1358,6 +1345,12 @@ public class BillActivity extends BaseActivity {
         t.setLetterSpacing(0.05f);
         t.setTextColor(Color.WHITE);
         Ds.heading(this, t);
+        // v3.6.43: single line (Urdu was wrapping to 2 lines).
+        t.setSingleLine(true);
+        if (android.os.Build.VERSION.SDK_INT >= 17) {
+            t.setTextDirection(
+                    android.view.View.TEXT_DIRECTION_LOCALE);
+        }
         b.addView(t);
 
         b.setClickable(true);
@@ -1413,9 +1406,10 @@ public class BillActivity extends BaseActivity {
     private String stripGuardian(String name) {
         if (name == null) return "";
         // Match " W/O ", " S/O ", " D/O ", " H/O " (case-insensitive) and
-        // everything after it.
+        // everything after it. v3.6.43: also " So ", " Wo ", " Do ", " Ho "
+        // (without slash, as seen in some bills).
         String[] parts = name.split(
-                "(?i)\\s+[WSDH]/O\\s+");
+                "(?i)\\s+[WSDH]/O\\s+|\\s+[WSDH]o\\s+");
         return parts.length > 0 ? parts[0].trim() : name.trim();
     }
 
@@ -1425,12 +1419,16 @@ public class BillActivity extends BaseActivity {
         // v3.6.16: show only the meter owner's name (strip W/O, S/O, D/O,
         // H/O guardian part) — saves a line of space (user feedback).
         name = stripGuardian(name);
+        boolean urdu = LocaleHelper.isUrdu(this);
+
         LinearLayout c = card();
+        c.setPadding(dp(16), dp(14), dp(16), dp(14));
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
 
+        // Name + address column.
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setLayoutParams(new LinearLayout.LayoutParams(
@@ -1438,11 +1436,14 @@ public class BillActivity extends BaseActivity {
 
         TextView nm = new TextView(this);
         nm.setText(name);
-        nm.setTextSize(15);
-        nm.setTextColor(Ds.ink());
-        nm.setLineSpacing(dp(2), 1.5f);
-        nm.setMaxLines(2);
+        // v3.6.55: 17sp bold (v3.6.53 spec).
+        nm.setTextSize(17);
+        nm.setTextColor(Ds.ndDarkText());
         Ds.heading(this, nm);
+        nm.setMaxLines(2);
+        if (urdu && Build.VERSION.SDK_INT >= 17) {
+            nm.setTextDirection(View.TEXT_DIRECTION_RTL);
+        }
         col.addView(nm);
 
         String addr = b.address == null ? "" : b.address.trim();
@@ -1454,33 +1455,31 @@ public class BillActivity extends BaseActivity {
         if (!addr.isEmpty()) {
             TextView ad = new TextView(this);
             ad.setText(addr);
-            ad.setTextSize(12.5f);
-            ad.setTextColor(Ds.muted());
-            ad.setLineSpacing(dp(2), 1.55f);
-            ad.setMaxLines(3);
+            ad.setTextSize(13);
+            ad.setTextColor(Ds.ndSecondary());
+            ad.setMaxLines(2);
             Ds.body(this, ad, 400);
-            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            alp.topMargin = dp(4);
-            ad.setLayoutParams(alp);
+            if (urdu && Build.VERSION.SDK_INT >= 17) {
+                ad.setTextDirection(View.TEXT_DIRECTION_RTL);
+            }
             col.addView(ad);
         }
         row.addView(col);
 
+        // LESCO pill on right.
         TextView pill = new TextView(this);
         pill.setText(disco.displayName);
-        pill.setTextSize(10);
-        if (Build.VERSION.SDK_INT >= 21) pill.setLetterSpacing(0.06f);
-        pill.setTextColor(Ds.deepGreen());
-        pill.setBackgroundResource(R.drawable.ds_copill);
-        int pp = dp(10);
-        pill.setPadding(pp, dp(4), pp, dp(4));
+        pill.setTextSize(12);
+        pill.setTextColor(Ds.ndPrimaryTeal());
         Ds.heading(this, pill);
+        pill.setBackgroundResource(R.drawable.ds_pill_green);
+        pill.setPadding(dp(12), dp(6), dp(12), dp(6));
         row.addView(pill);
+
         c.addView(row);
         return c;
     }
+
 
     /**
      * v3.0.0 white payable card: TOTAL PAYABLE eyebrow, green 44sp
@@ -1510,10 +1509,13 @@ public class BillActivity extends BaseActivity {
         LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        plp.bottomMargin = dp(10);
+        // v3.6.38: compact.
+        plp.bottomMargin = dp(6);
         // v3.6.6: align to START so RTL (Urdu) puts it on the right, matching
         // the "total payable" label below.
-        plp.gravity = Gravity.START;
+        // v3.6.46: explicit END in Urdu (parent is LTR, START=left).
+        plp.gravity = LocaleHelper.isUrdu(this)
+                ? Gravity.END : Gravity.START;
         pill.setLayoutParams(plp);
 
         ImageView ic = new ImageView(this);
@@ -1541,62 +1543,94 @@ public class BillActivity extends BaseActivity {
         return pill;
     }
 
+    /**
+     * v3.6.54: new design pay card — document icon + dues status,
+     * huge amount, illustration, due chip + units, View Full Bill
+     * button INSIDE the card.
+     */
     private View payCard(BillInfo b, List<BillSummary.Field> fs) {
         String payable = BillSummary.value(fs, "payable");
         if (payable == null || payable.isEmpty()) return null;
         String due = BillSummary.value(fs, "due");
         String units = BillSummary.value(fs, "units");
+        boolean urdu = LocaleHelper.isUrdu(this);
 
         LinearLayout c = new LinearLayout(this);
         c.setOrientation(LinearLayout.VERTICAL);
         c.setBackgroundResource(R.drawable.ds_card_24);
-        c.setPadding(dp(22), dp(22), dp(22), dp(22));
+        // v3.6.53: 30dp vertical, 18dp horizontal padding.
+        c.setPadding(dp(18), dp(30), dp(18), dp(30));
         if (Build.VERSION.SDK_INT >= 21) c.setElevation(dp(2));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(20), dp(12), dp(20), 0);
+        lp.setMargins(dp(16), dp(8), dp(16), 0);
         c.setLayoutParams(lp);
 
-        // v3.1.1: automatic previous-dues chip at the top of the pay
-        // card (from the bill's Arrears figure; absent when unknown).
+        // Dues chip at top.
         View dues = duesChip(b);
-        if (dues != null) c.addView(dues);
+        if (dues != null) {
+            LinearLayout.LayoutParams dlp =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            // v3.6.53: END in Urdu (right side).
+            dlp.gravity = urdu ? Gravity.END : Gravity.START;
+            dues.setLayoutParams(dlp);
+            c.addView(dues);
+        }
 
+        // "TOTAL PAYABLE" label.
         TextView eb = new TextView(this);
         eb.setText(getString(R.string.hero_payable));
         eb.setTextSize(11);
-        eb.setLetterSpacing(0.16f);
-        eb.setTextColor(Ds.faint());
+        eb.setLetterSpacing(0.08f);
+        eb.setTextColor(Ds.ndSecondary());
         Ds.heading(this, eb);
+        if (urdu) {
+            eb.setGravity(Gravity.END);
+            if (Build.VERSION.SDK_INT >= 17) {
+                eb.setTextDirection(View.TEXT_DIRECTION_RTL);
+            }
+        }
+        LinearLayout.LayoutParams elp =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+        elp.topMargin = dp(8);
+        eb.setLayoutParams(elp);
         c.addView(eb);
 
+        // Amount: "Rs 18827" HUGE, LEFT-aligned.
         LinearLayout amt = new LinearLayout(this);
         amt.setOrientation(LinearLayout.HORIZONTAL);
         amt.setGravity(Gravity.BOTTOM);
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        alp.topMargin = dp(6);
-        alp.bottomMargin = dp(12);
+        alp.topMargin = dp(4);
+        // v3.6.53: 16dp gap between amount and due chip.
+        alp.bottomMargin = dp(16);
         amt.setLayoutParams(alp);
 
         TextView rs = new TextView(this);
         rs.setText("Rs");
         rs.setTextSize(19);
-        rs.setTextColor(Ds.muted());
+        rs.setTextColor(Ds.ndSecondary());
         rs.setTypeface(Fonts.archivo(this, 700));
+        rs.setSingleLine(true);
         amt.addView(rs);
 
         TextView am = new TextView(this);
         am.setText("\u00a0" + payable.trim());
         am.setTextSize(44);
-        am.setTextColor(Ds.g800());
-        if (Build.VERSION.SDK_INT >= 21) am.setLetterSpacing(-0.02f);
-        Ds.amount(this, am);
+        am.setTextColor(Ds.ndDarkText());
+        am.setTypeface(Fonts.archivo(this, 800));
+        am.setSingleLine(true);
         amt.addView(am);
         c.addView(amt);
 
+        // Due chip row.
         LinearLayout prow = new LinearLayout(this);
         prow.setOrientation(LinearLayout.HORIZONTAL);
         prow.setGravity(Gravity.CENTER_VERTICAL);
@@ -1608,17 +1642,28 @@ public class BillActivity extends BaseActivity {
             chip.setGravity(Gravity.CENTER_VERTICAL);
             chip.setBackgroundResource(R.drawable.ds_due_chip);
             chip.setPadding(dp(14), dp(8), dp(14), dp(8));
+            // v3.6.53: full-width + centered in Urdu, wrap in English.
+            if (urdu) {
+                chip.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                chip.setGravity(Gravity.CENTER_VERTICAL
+                        | Gravity.CENTER_HORIZONTAL);
+            }
 
             ImageView cal = new ImageView(this);
             cal.setImageResource(R.drawable.ic_calendar);
-            cal.setColorFilter(Ds.amberDark(),
+            cal.setColorFilter(Ds.ndPrimaryTeal(),
                     PorterDuff.Mode.SRC_IN);
             int cs = dp(13);
             LinearLayout.LayoutParams clp =
                     new LinearLayout.LayoutParams(cs, cs);
-            clp.rightMargin = dp(6);
+            if (urdu) {
+                clp.leftMargin = dp(6);
+            } else {
+                clp.rightMargin = dp(6);
+            }
             cal.setLayoutParams(clp);
-            chip.addView(cal);
 
             TextView ct = new TextView(this);
             String daysText = days == 0
@@ -1627,27 +1672,52 @@ public class BillActivity extends BaseActivity {
             ct.setText(getString(R.string.due_chip, due.trim(),
                     daysText));
             ct.setTextSize(12.5f);
-            ct.setTextColor(Ds.amberDark());
+            ct.setTextColor(Ds.ndDarkText());
             Ds.heading(this, ct);
-            // v3.6.6: single line — long Urdu text was overlapping the units tag.
-            ct.setSingleLine(true);
-            chip.addView(ct);
+            // v3.6.53: letter spacing Urdu only.
+            if (urdu) {
+                ct.setLetterSpacing(0.12f);
+                ct.setSingleLine(false);
+                ct.setMaxLines(2);
+                ct.setLineSpacing(dp(3), 1.2f);
+                if (Build.VERSION.SDK_INT >= 17) {
+                    ct.setTextDirection(View.TEXT_DIRECTION_RTL);
+                }
+                // Icon on right in Urdu: text first, then icon.
+                chip.addView(ct);
+                chip.addView(cal);
+            } else {
+                ct.setSingleLine(true);
+                chip.addView(cal);
+                chip.addView(ct);
+            }
             prow.addView(chip);
         }
 
+        // Units: shown in English, HIDDEN in Urdu (v3.6.53).
         TextView unitsTag = new TextView(this);
         unitsTag.setText(units == null || units.isEmpty() ? ""
                 : getString(R.string.hero_units_value, units.trim()));
         unitsTag.setTextSize(13);
-        unitsTag.setTextColor(Ds.muted());
+        unitsTag.setTextColor(Ds.ndSecondary());
         unitsTag.setGravity(Gravity.END);
         Ds.body(this, unitsTag, 600);
+        unitsTag.setPadding(dp(8), 0, dp(4), 0);
         unitsTag.setLayoutParams(new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (urdu) {
+            unitsTag.setVisibility(View.GONE);
+        }
         prow.addView(unitsTag);
         c.addView(prow);
         return c;
     }
+
+
+    /**
+     * v3.6.54: dark teal "View Full Bill →" button for inside the
+     * pay card. Keeps the ad-gate (interstitial before opening).
+     */
 
     /** Whole days from now until the due date's local midnight. */
     private int daysLeft(String dueDate) {
@@ -1687,108 +1757,69 @@ public class BillActivity extends BaseActivity {
         return null;
     }
 
-    /** Detail card: billing month + meter reading + compact late row. */
+    /** v3.6.54: "Billing Details" card — header with calendar icon
+     * + month pill, icon rows with dashed dividers. */
     private View detailCard(BillInfo b, List<BillSummary.Field> fs) {
-        String month = trim(b.billMonth);
-        if (month.isEmpty()) month = trim(b.issueDate);
-        String reading = trim(b.currReading);
-        String late = compactLate(b, fs);
-        if (month.isEmpty() && reading.isEmpty() && late == null) {
-            return null;
-        }
-
         LinearLayout c = card();
-        c.setPadding(dp(16), dp(4), dp(16), dp(4));
+        boolean urdu = LocaleHelper.isUrdu(this);
+
+        String month = BillSummary.value(fs, "billMonth");
+        String reading = BillSummary.value(fs, "reading");
+        String late = compactLate(b, fs);
+
         boolean first = true;
-        if (!month.isEmpty()) {
-            c.addView(detailRow(getString(R.string.bill_month_label),
-                    month, false, false));
-            first = false;
-        }
-        if (!reading.isEmpty()) {
+        if (month != null && !month.isEmpty()) {
             if (!first) c.addView(dashDivider());
             c.addView(detailRow(
-                    getString(R.string.meter_reading_label),
-                    reading, true, false));
+                    getString(R.string.bill_month_label), month, urdu));
             first = false;
         }
-        if (late != null) {
+        if (reading != null && !reading.isEmpty()) {
             if (!first) c.addView(dashDivider());
-            c.addView(detailRow(getString(R.string.late_row_label),
-                    late, false, true));
+            c.addView(detailRow(
+                    getString(R.string.meter_reading_label), reading, urdu));
+            first = false;
         }
-        return c;
+        if (late != null && !late.isEmpty()) {
+            if (!first) c.addView(dashDivider());
+            c.addView(detailRow(
+                    getString(R.string.late_row_label), late, urdu));
+            first = false;
+        }
+        return first ? null : c;
     }
 
+    /** v3.6.55: simple detail row — label left, value right (bold). */
+    private View detailRow(String label, String value, boolean urdu) {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setPadding(dp(4), dp(10), dp(4), dp(10));
 
-    /**
-     * Secondary actions preserved from the old layout: UNIT CHECK
-     * (gated on a usable reading) + refresh.
-     */
-    private View actionsRow() {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        rlp.setMargins(dp(20), dp(14), dp(20), 0);
-        row.setLayoutParams(rlp);
+        TextView k = new TextView(this);
+        k.setText(label);
+        k.setTextSize(15f);
+        k.setTextColor(Ds.ndSecondary());
+        Ds.body(this, k, 400);
+        LinearLayout.LayoutParams klp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        klp.rightMargin = dp(12);
+        k.setLayoutParams(klp);
+        if (urdu && Build.VERSION.SDK_INT >= 17) {
+            k.setTextDirection(View.TEXT_DIRECTION_RTL);
+        }
+        r.addView(k);
 
-        LinearLayout uc = new LinearLayout(this);
-        uc.setOrientation(LinearLayout.HORIZONTAL);
-        uc.setGravity(Gravity.CENTER);
-        uc.setBackgroundResource(R.drawable.ds_btn_outline);
-        uc.setMinimumHeight(dp(54));
-        uc.setPadding(dp(16), 0, dp(16), 0);
-        uc.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-        ImageView vic = new ImageView(this);
-        vic.setImageResource(R.drawable.ic_video);
-        vic.setColorFilter(Ds.deepGreen(), PorterDuff.Mode.SRC_IN);
-        int vs = dp(18);
-        LinearLayout.LayoutParams vlp = new LinearLayout.LayoutParams(
-                vs, vs);
-        vlp.rightMargin = dp(8);
-        vic.setLayoutParams(vlp);
-        uc.addView(vic);
-
-        TextView ut = new TextView(this);
-        ut.setText(getString(R.string.meter_check_btn));
-        ut.setTextSize(14.5f);
-        ut.setLetterSpacing(0.05f);
-        ut.setTextColor(Ds.deepGreen());
-        Ds.heading(this, ut);
-        uc.addView(ut);
-
-        uc.setClickable(true);
-        uc.setFocusable(true);
-        uc.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { openMeterCheck(); }
-        });
-        row.addView(uc);
-
-        LinearLayout rf = new LinearLayout(this);
-        rf.setGravity(Gravity.CENTER);
-        rf.setBackgroundResource(R.drawable.ds_dl_btn);
-        int rs2 = dp(54);
-        LinearLayout.LayoutParams rflp = new LinearLayout.LayoutParams(
-                rs2, rs2);
-        rflp.leftMargin = dp(10);
-        rf.setLayoutParams(rflp);
-        ImageView ric = new ImageView(this);
-        ric.setImageResource(R.drawable.ic_refresh);
-        int is = dp(20);
-        ric.setLayoutParams(new LinearLayout.LayoutParams(is, is));
-        rf.addView(ric);
-        rf.setClickable(true);
-        rf.setFocusable(true);
-        rf.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { loadBill(true); }
-        });
-        row.addView(rf);
-        return row;
+        TextView v = new TextView(this);
+        v.setText(value);
+        v.setTextSize(15f);
+        v.setTextColor(Ds.ndDarkText());
+        Ds.heading(this, v);
+        if (urdu && Build.VERSION.SDK_INT >= 17) {
+            v.setTextDirection(View.TEXT_DIRECTION_RTL);
+        }
+        r.addView(v);
+        return r;
     }
 
     /** Grows the WebView to its full content height once loaded. */

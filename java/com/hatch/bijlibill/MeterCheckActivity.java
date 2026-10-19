@@ -245,11 +245,38 @@ public class MeterCheckActivity extends BaseActivity {
             labels[i] = getString(labelRes[i]);
         }
         LinearLayout steps = Ds.steps(this, labels, states);
+        // v3.6.35: make completed steps tappable to go back.
+        // Children: [col0, line, col1, line, col2...] — cols at even idx.
+        for (int i = 0; i < labels.length; i++) {
+            final int stepIdx = i;
+            int childIdx = i * 2;
+            if (childIdx < steps.getChildCount()
+                    && states[i] == 1) {
+                View col = steps.getChildAt(childIdx);
+                col.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        onStepTapped(stepIdx);
+                    }
+                });
+            }
+        }
         LinearLayout wrap = Ui.col(this);
         wrap.setPadding(Ui.dp(this, 16), Ui.dp(this, 18),
                 Ui.dp(this, 16), Ui.dp(this, 4));
         wrap.addView(steps);
         return wrap;
+    }
+
+    /**
+     * v3.6.35: navigate when a completed step is tapped.
+     * Step 0 = bill/capture, Step 1 = record/manual entry.
+     */
+    private void onStepTapped(int stepIdx) {
+        if (stepIdx == 0) {
+            showCapture();
+        } else if (stepIdx == 1) {
+            showManualEntry();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -368,20 +395,7 @@ public class MeterCheckActivity extends BaseActivity {
         actions.addView(manual);
         content.addView(actions);
 
-        // v3.0.0: the blue callout + back link are replaced by a
-        // small centered footnote.
-        LinearLayout footWrap = Ui.col(this);
-        footWrap.setPadding(Ui.dp(this, 20), 0, Ui.dp(this, 20),
-                Ui.dp(this, 8));
-        footWrap.addView(Ui.spacer(this, 12));
-        TextView foot = new TextView(this);
-        foot.setText(getString(R.string.meter_gallery_sub));
-        foot.setTextSize(12);
-        foot.setTextColor(Ds.faint());
-        Ds.body(this, foot, 400);
-        foot.setGravity(Gravity.CENTER);
-        footWrap.addView(foot);
-        content.addView(footWrap);
+        // v3.6.40: gallery footnote removed (user: unnecessary line).
         AdsManager.loadBannerInto(this, bannerBox);
     }
 
@@ -1050,7 +1064,16 @@ public class MeterCheckActivity extends BaseActivity {
     // Design: Estimate screen.
     // ------------------------------------------------------------------
 
-    private void showResult(Result r, String currReading) {
+    private void showResult(final Result r, final String currReading) {
+        // v3.6.35: ad-gate before showing unit-check result.
+        AdsManager.showInterstitialBefore(this, new Runnable() {
+            @Override public void run() {
+                doShowResult(r, currReading);
+            }
+        });
+    }
+
+    private void doShowResult(Result r, String currReading) {
         content.removeAllViews();
         content.addView(stepsView(new int[]{1, 1, 2}, new int[]{
                 R.string.step_record, R.string.step_analyze,
@@ -1299,7 +1322,6 @@ public class MeterCheckActivity extends BaseActivity {
         content.addView(actions);
 
         AdsManager.loadBannerInto(this, bannerBox);
-        AdsManager.onCalculationDone(this);
     }
 
     private View paddedAlert(View alert) {

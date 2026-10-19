@@ -304,7 +304,8 @@ public final class Ui {
         final Context ctx = act;
         LinearLayout h = col(ctx);
         h.setBackgroundColor(teal());
-        h.setPadding(dp(ctx, 16), dp(ctx, 20), dp(ctx, 16), dp(ctx, 20));
+        // v3.6.43: reduced padding — header was too tall (user feedback).
+        h.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
 
         LinearLayout top = row(ctx);
         top.setGravity(Gravity.CENTER_VERTICAL);

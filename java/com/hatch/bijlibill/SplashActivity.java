@@ -51,46 +51,23 @@ public class SplashActivity extends BaseActivity {
                 Gravity.CENTER);
         root.addView(center, clp);
 
-        // ---- icon: amber glow + squircle + bolt ----
-        int glowDp = 320;
-        int sqDp = 112;
-        FrameLayout iconWrap = new FrameLayout(this);
-        LinearLayout.LayoutParams iwp = new LinearLayout.LayoutParams(
-                Ui.dp(this, glowDp), Ui.dp(this, glowDp));
-        iwp.gravity = Gravity.CENTER_HORIZONTAL;
-
-        View glow = new View(this);
-        glow.setBackgroundResource(R.drawable.amber_glow);
-        glow.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        FrameLayout squircle = new FrameLayout(this);
-        squircle.setBackgroundResource(R.drawable.bolt_squircle);
-        int sqPx = Ui.dp(this, sqDp);
-        FrameLayout.LayoutParams sqp = new FrameLayout.LayoutParams(
-                sqPx, sqPx, Gravity.CENTER);
+        // ---- icon: real app icon (Play Store icon) ----
+        // v3.6.34: user wants the real icon on splash.
+        // v3.6.36: transparent-bg version for clean display.
+        int iconDp = 120;
+        ImageView appIcon = new ImageView(this);
+        appIcon.setImageResource(R.drawable.splash_icon);
+        int iconPx = Ui.dp(this, iconDp);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
+                iconPx, iconPx);
+        alp.gravity = Gravity.CENTER_HORIZONTAL;
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            squircle.setElevation(Ui.dp(this, 12));
+            appIcon.setElevation(Ui.dp(this, 12));
         }
-        ImageView bolt = new ImageView(this);
-        bolt.setImageResource(R.drawable.ic_bolt);
-        int boltPx = Ui.dp(this, 52);
-        bolt.setLayoutParams(new FrameLayout.LayoutParams(
-                boltPx, boltPx, Gravity.CENTER));
-        squircle.addView(bolt);
+        center.addView(appIcon, alp);
 
-        iconWrap.addView(glow);
-        iconWrap.addView(squircle, sqp);
-        center.addView(iconWrap, iwp);
-
-        // gentle float on the badge (design: 3.2s ease-in-out infinite)
-        ObjectAnimator floatAnim = ObjectAnimator.ofFloat(
-                squircle, "translationY", 0f, -Ui.dp(this, 8), 0f);
-        floatAnim.setDuration(3200);
-        floatAnim.setRepeatCount(ValueAnimator.INFINITE);
-        floatAnim.setRepeatMode(ValueAnimator.RESTART);
-        floatAnim.start();
+        // v3.6.37: float animation REMOVED — it was clipping the icon
+        // edges during up/down movement (user report 2026-10-18).
 
         // ---- Urdu headline (Nastaliq, 40sp) ----
         TextView title = new TextView(this);

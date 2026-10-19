@@ -333,4 +333,6 @@
     <string name="outside_pk_msg">بل صرف پاکستان کے اندر نکلتا ہے (PITC باہر کے کنکشن بلاک کرتا ہے)۔ پاکستان سے باہر آپ بل predictor اور calculator manual entry کے ساتھ استعمال کر سکتے ہیں۔</string>
     <string name="outside_pk_yes">جی ہاں، باہر ہوں</string>
     <string name="outside_pk_no">نہیں، پاکستان میں ہوں</string>
+
+    <!-- v3.6.54: new bill page design strings -->
 </resources>

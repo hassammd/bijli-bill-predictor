@@ -32,6 +32,9 @@ public final class AdsConfig {
     /** Google test INTERSTITIAL unit. Replace with your real interstitial ad unit ID. */
     public static final String INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"; // TEST
 
+    /** Google test NATIVE unit. Replace with your real native ad unit ID. */
+    public static final String NATIVE_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; // TEST
+
     /** Show an interstitial every Nth successful calculation. */
     public static final int INTERSTITIAL_EVERY_N_CALCULATIONS = 3;
 
