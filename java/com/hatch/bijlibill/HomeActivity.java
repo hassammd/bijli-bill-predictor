@@ -825,7 +825,11 @@ public class HomeActivity extends BaseActivity {
 
         TextView t = new TextView(this);
         t.setText(title);
-        t.setTextSize(15);
+        // v3.6.75: smaller + single-line (user: headings must fit one line,
+        // both cards exactly same size).
+        t.setTextSize(13);
+        t.setSingleLine(true);
+        t.setEllipsize(android.text.TextUtils.TruncateAt.END);
         t.setTextColor(Ds.ink());
         Ds.heading(this, t);
         txt.addView(t);
