@@ -29,6 +29,11 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // v3.6.70: keep splash fullscreen — BaseActivity opts out of
+        // edge-to-edge on API 35+, but the splash must stay edge-to-edge.
+        if (android.os.Build.VERSION.SDK_INT >= 35) {
+            getWindow().setDecorFitsSystemWindows(false);
+        }
 
         Window w = getWindow();
         if (w != null) {

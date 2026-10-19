@@ -60,6 +60,11 @@ public class BillViewerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // v3.6.70: opt out of edge-to-edge enforcement (API 35+) so the
+        // status bar color actually applies (user: status bar still white).
+        if (android.os.Build.VERSION.SDK_INT >= 35) {
+            getWindow().setDecorFitsSystemWindows(true);
+        }
         // v3.6.69: status bar light teal (user request).
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(
@@ -101,7 +106,9 @@ public class BillViewerActivity extends Activity {
         bar.setGravity(Gravity.CENTER_VERTICAL);
         // v3.6.15: top padding includes status bar height — header was
         // stuck to the top edge (user feedback).
-        int sbh = getStatusBarHeight();
+        // v3.6.70: with edge-to-edge opted out (API 35+), the system
+        // reserves the status bar space — no manual padding needed.
+        int sbh = (Build.VERSION.SDK_INT >= 35) ? 0 : getStatusBarHeight();
         bar.setPadding(dp(20), dp(14) + sbh, dp(20), dp(10));
         // v3.6.68: dark green header (like other pages).
         bar.setBackgroundColor(Ds.ndTealAccent());

@@ -3,12 +3,24 @@ package com.hatch.bijlibill;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 
 /** All activities extend this so the saved app locale applies before UI build. */
 public class BaseActivity extends Activity {
     private String resumeLang;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // v3.6.70: opt out of edge-to-edge enforcement (API 35+) so the
+        // status bar color set in onResume() actually applies instead of
+        // staying transparent (user: status bar still white).
+        if (android.os.Build.VERSION.SDK_INT >= 35) {
+            getWindow().setDecorFitsSystemWindows(true);
+        }
+    }
 
     @Override
     protected void attachBaseContext(Context newBase) {

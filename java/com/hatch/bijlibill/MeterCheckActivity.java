@@ -99,6 +99,12 @@ public class MeterCheckActivity extends BaseActivity {
     private int noBillMsgRes;
     // v3.6.69: track current page for language-toggle recreate.
     private int currentPage = 0; // 0=capture, 1=manual entry, 2=no-bill
+    // v3.6.70: preserve entered reading + result view across
+    // language-toggle recreate (user: reading reset to zero + back to
+    // entry tab on toggle).
+    private String savedReading = "";
+    private String savedPrevReading = "";
+    private boolean showingResult = false;
 
     private LinearLayout content;
     private LinearLayout bannerBox;
@@ -121,14 +127,24 @@ public class MeterCheckActivity extends BaseActivity {
         super.onSaveInstanceState(outState);
         // v3.6.69: save current page for language-toggle recreate.
         outState.putInt("currentPage", currentPage);
+        // v3.6.70: save reading + result state for language-toggle recreate.
+        outState.putString("savedReading", savedReading);
+        outState.putString("savedPrevReading", savedPrevReading);
+        outState.putBoolean("showingResult", showingResult);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // v3.6.69: restore page after language-toggle recreate.
+        // v3.6.70: also restore reading + result state.
         if (savedInstanceState != null) {
             currentPage = savedInstanceState.getInt("currentPage", 0);
+            savedReading = savedInstanceState.getString("savedReading", "");
+            savedPrevReading =
+                    savedInstanceState.getString("savedPrevReading", "");
+            showingResult =
+                    savedInstanceState.getBoolean("showingResult", false);
         }
         ref = getIntent().getStringExtra(EXTRA_REF);
         if (ref == null) ref = "";
@@ -193,7 +209,10 @@ public class MeterCheckActivity extends BaseActivity {
         BillCache.CachedPage cached =
                 BillCache.getHtml(this, disco.code + ":" + mode + ":" + ref);
         if (cached == null) {
-            showNoBill(R.string.meter_no_bill);
+            // v3.6.70: restore result view if user was viewing one.
+            if (!restoreResultIfNeeded()) {
+                showNoBill(R.string.meter_no_bill);
+            }
             return;
         }
         try {
@@ -209,23 +228,66 @@ public class MeterCheckActivity extends BaseActivity {
                     && MeterCheckCalc.parseReading(base) >= 0) {
                 bill = p.info;
                 billBaseReading = base;
-                // v3.6.69: restore manual entry page after language toggle.
-                if (currentPage == 1) {
-                    showManualEntry();
-                } else {
-                    showCapture();
+                // v3.6.70: restore exact view after language toggle —
+                // result first, then manual entry, then capture.
+                if (!restoreResultIfNeeded()) {
+                    // v3.6.69: restore manual entry page after language toggle.
+                    if (currentPage == 1) {
+                        showManualEntry();
+                    } else {
+                        showCapture();
+                    }
                 }
             } else {
-                showNoBill(R.string.meter_need_prev);
+                if (!restoreResultIfNeeded()) {
+                    showNoBill(R.string.meter_need_prev);
+                }
             }
         } catch (Exception e) {
-            showNoBill(R.string.meter_no_bill);
+            if (!restoreResultIfNeeded()) {
+                showNoBill(R.string.meter_no_bill);
+            }
         }
+    }
+
+    /**
+     * v3.6.70: if the user was viewing a result before the recreate
+     * (language toggle), recompute it from the saved readings and show
+     * the SAME result view — no ad-gate (already shown), no reset.
+     * Returns true if a result was restored.
+     */
+    private boolean restoreResultIfNeeded() {
+        if (!showingResult || savedReading == null
+                || savedReading.trim().isEmpty()) {
+            return false;
+        }
+        String base = (savedPrevReading != null
+                && !savedPrevReading.trim().isEmpty())
+                ? savedPrevReading
+                : billBaseReading;
+        int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        MeterCheckCalc.Result r = MeterCheckCalc.compute(
+                base, savedReading,
+                bill == null ? null : bill.category,
+                bill == null ? null : bill.taxes,
+                bill == null ? null : bill.gst,
+                bill == null ? null : bill.fpa,
+                bill == null ? null : bill.electricityCharges,
+                day);
+        if (r.error != null) {
+            // Recompute failed — fall back to the entry page.
+            showingResult = false;
+            showManualEntry();
+            return true;
+        }
+        doShowResult(r, savedReading);
+        return true;
     }
 
     /** No usable cached bill — honest prompt + manual-entry path. */
     private void showNoBill(int msgRes) {
         noBillMsgRes = msgRes;
+        showingResult = false; // v3.6.70
         content.removeAllViews();
         LinearLayout card = Ds.card(this);
         TextView t = new TextView(this);
@@ -303,6 +365,7 @@ public class MeterCheckActivity extends BaseActivity {
 
     private void showCapture() {
         currentPage = 0; // v3.6.69
+        showingResult = false; // v3.6.70
         content.removeAllViews();
         content.addView(stepsView(new int[]{1, 2, 0}, new int[]{
                 R.string.step_bill_loaded, R.string.step_record,
@@ -436,6 +499,7 @@ public class MeterCheckActivity extends BaseActivity {
 
     private void showManualEntry() {
         currentPage = 1; // v3.6.69
+        showingResult = false; // v3.6.70
         content.removeAllViews();
         // Step labels adapt: with a bill the flow is Bill -> Record ->
         // Estimate; without one it is just Record -> Estimate (there
@@ -583,6 +647,9 @@ public class MeterCheckActivity extends BaseActivity {
                 ? billBaseReading
                 : (prevField == null ? ""
                         : prevField.getText().toString().trim());
+        // v3.6.70: save for language-toggle restore.
+        savedReading = typed;
+        savedPrevReading = base;
         int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         MeterCheckCalc.Result r = MeterCheckCalc.compute(
                 base, typed,
@@ -1073,6 +1140,9 @@ public class MeterCheckActivity extends BaseActivity {
 
     private void onCalculate() {
         String typed = readingField.getText().toString().trim();
+        // v3.6.70: save for language-toggle restore.
+        savedReading = typed;
+        savedPrevReading = billBaseReading;
         int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         // v2.2.1: base = bill's PRESENT reading (bill ke baad se).
         Result r = MeterCheckCalc.compute(
@@ -1101,6 +1171,9 @@ public class MeterCheckActivity extends BaseActivity {
     }
 
     private void doShowResult(Result r, String currReading) {
+        // v3.6.70: mark result view — language toggle must restore it
+        // with the same data instead of resetting to the entry page.
+        showingResult = true;
         content.removeAllViews();
         content.addView(stepsView(new int[]{1, 1, 2}, new int[]{
                 R.string.step_record, R.string.step_analyze,
