@@ -1559,6 +1559,8 @@ public class BillActivity extends BaseActivity {
         String due = BillSummary.value(fs, "due");
         String units = BillSummary.value(fs, "units");
         boolean urdu = LocaleHelper.isUrdu(this);
+        // v3.6.65: Urdu date format "27 اکتوبر" (was "27 OCT 26").
+        if (urdu && due != null) due = urduDate(due);
 
         LinearLayout c = new LinearLayout(this);
         c.setOrientation(LinearLayout.VERTICAL);
@@ -1725,8 +1727,26 @@ public class BillActivity extends BaseActivity {
      */
 
     /** Whole days from now until the due date's local midnight. */
-    private int daysLeft(String dueDate) {
-        long dueMs = BillReminder.parseDueDate(dueDate);
+    /** v3.6.65: Convert "27 OCT 26" → "27 اکتوبر" (dynamic, all months). */
+    private String urduDate(String date) {
+        if (date == null) return date;
+        String[] months = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                           "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+        String[] urduMonths = {"جنوری", "فروری", "مارچ", "اپریل", "مئی", "جون",
+                               "جولائی", "اگست", "ستمبر", "اکتوبر", "نومبر", "دسمبر"};
+        String[] parts = date.trim().split("\\s+");
+        if (parts.length < 2) return date;
+        String day = parts[0];
+        String mon = parts[1].toUpperCase();
+        for (int i = 0; i < months.length; i++) {
+            if (mon.equals(months[i])) {
+                return day + " " + urduMonths[i];
+            }
+        }
+        return date;
+    }
+
+    private int daysLeft(String dueDate) {        long dueMs = BillReminder.parseDueDate(dueDate);
         if (dueMs < 0) return -1;
         double diffDays = (dueMs - System.currentTimeMillis())
                 / 86400000.0;
