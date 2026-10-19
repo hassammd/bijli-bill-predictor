@@ -349,18 +349,7 @@ public class HomeActivity extends BaseActivity {
         ep.setMargins(hm, Ui.dp(this, 8), hm, 0);
         content.addView(errorView, ep);
 
-        // MERE METER label + See all
-        content.addView(metersHeader());
-
-        // saved meter cards
-        savedList = new LinearLayout(this);
-        savedList.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.setMargins(hm, Ui.dp(this, 8), hm, 0);
-        content.addView(savedList, slp);
-
+        // v3.6.63: MERE METER section removed (user: separate Bills page exists).
         content.addView(Ui.spacer(this, 24));
         root.addView(scrollView);
         // v3.6.16: test banner ad (user request — see ad on all pages).
@@ -694,12 +683,16 @@ public class HomeActivity extends BaseActivity {
         t.setText(getString(R.string.fetch_btn));
         t.setTextSize(14.5f);
         t.setLetterSpacing(0.05f);
-        t.setTextColor(Ds.amberDark());
+        // v3.6.63: white on gradient (was amberDark for amber bg).
+        t.setTextColor(android.graphics.Color.WHITE);
         Ds.heading(this, t);
         b.addView(t);
 
         ImageView arrow = new ImageView(this);
         arrow.setImageResource(R.drawable.ic_arrow_right);
+        // v3.6.63: white arrow on gradient.
+        arrow.setColorFilter(android.graphics.Color.WHITE,
+                android.graphics.PorterDuff.Mode.SRC_IN);
         int as = Ui.dp(this, 18);
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
                 as, as);
@@ -937,6 +930,8 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void refreshSavedList() {
+        // v3.6.63: MERE METER removed from Home (user request).
+        if (savedList == null) return;
         savedList.removeAllViews();
         final List<SavedMeters.Meter> items =
                 SavedMeters.load(MeterUi.store(this));

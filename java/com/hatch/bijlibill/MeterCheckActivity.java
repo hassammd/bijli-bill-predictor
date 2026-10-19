@@ -373,6 +373,7 @@ public class MeterCheckActivity extends BaseActivity {
         // v2.2.0: pick a previously recorded video (no internet needed
         // at the meter — record there, upload at home).
         // v3.6.62: gradient (was outline, user request).
+        // v3.6.63: reversed gradient for 2nd button (user request).
         Button gallery = Ds.greenBtn(this,
                 getString(R.string.meter_gallery_btn),
                 R.drawable.ic_folder,
@@ -381,6 +382,7 @@ public class MeterCheckActivity extends BaseActivity {
                         onGalleryClicked();
                     }
                 });
+        gallery.setBackgroundResource(R.drawable.nd_btn_gradient_rev);
         actions.addView(gallery);
         actions.addView(Ui.spacer(this, 10));
         // v3.1.1: manual reading entry — no video needed. Flows into
