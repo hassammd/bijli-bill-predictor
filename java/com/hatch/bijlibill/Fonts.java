@@ -69,6 +69,37 @@ public final class Fonts {
         return urdu;
     }
 
+    // v3.6.57: Inter font for English (user request)
+    private static Typeface interBold;
+    private static Typeface interRegular;
+    private static Typeface interMedium;
+
+    public static Typeface inter(Context ctx, int weight) {
+        try {
+            if (weight >= 700) {
+                if (interBold == null) {
+                    interBold = Typeface.createFromAsset(ctx.getAssets(),
+                            "fonts/Inter-Bold.otf");
+                }
+                return interBold;
+            } else if (weight >= 500) {
+                if (interMedium == null) {
+                    interMedium = Typeface.createFromAsset(ctx.getAssets(),
+                            "fonts/Inter-Medium.otf");
+                }
+                return interMedium;
+            } else {
+                if (interRegular == null) {
+                    interRegular = Typeface.createFromAsset(ctx.getAssets(),
+                            "fonts/Inter-Regular.otf");
+                }
+                return interRegular;
+            }
+        } catch (Exception e) {
+            return Typeface.DEFAULT;
+        }
+    }
+
     /** True if the text contains any Urdu/Arabic-script character. */
     public static boolean isUrdu(CharSequence s) {
         if (s == null) return false;

@@ -1763,8 +1763,9 @@ public class BillActivity extends BaseActivity {
         LinearLayout c = card();
         boolean urdu = LocaleHelper.isUrdu(this);
 
-        String month = BillSummary.value(fs, "billMonth");
-        String reading = BillSummary.value(fs, "reading");
+        // v3.6.57: use BillInfo fields directly (BillSummary doesn't have them).
+        String month = b.issueDate;
+        String reading = b.currReading;
         String late = compactLate(b, fs);
 
         boolean first = true;
