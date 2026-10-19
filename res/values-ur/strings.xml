@@ -341,4 +341,5 @@
     <string name="quick_unit_check_sub">اپنے یونٹ چیک کریں</string>
     <string name="quick_bill_history">بل ہسٹری</string>
     <string name="quick_bill_history_sub">پچھلے بل دیکھیں</string>
+    <string name="ref_empty">براہ کرم اپنا ریفرنس نمبر درج کریں</string>
 </resources>

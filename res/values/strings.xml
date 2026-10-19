@@ -341,4 +341,5 @@
     <string name="quick_unit_check_sub">Check your units</string>
     <string name="quick_bill_history">Bill History</string>
     <string name="quick_bill_history_sub">View previous bills</string>
+    <string name="ref_empty">Please enter your reference number</string>
 </resources>

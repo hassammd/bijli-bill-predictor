@@ -335,17 +335,8 @@ public class HomeActivity extends BaseActivity {
         notifBanner.setVisibility(View.GONE);
         content.addView(notifBanner, nbp);
 
-        // error line
-        errorView = new TextView(this);
-        errorView.setTextSize(13);
-        errorView.setTextColor(Ds.red());
-        Ds.body(this, errorView, 600);
-        errorView.setVisibility(View.GONE);
-        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        ep.setMargins(hm, Ui.dp(this, 8), hm, 0);
-        content.addView(errorView, ep);
+        // v3.6.82: errorView now inside inputCard (user request).
+        // (removed from here)
 
         // v3.6.63: MERE METER section removed (user: separate Bills page exists).
         content.addView(Ui.spacer(this, 24));
@@ -613,6 +604,18 @@ public class HomeActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         dlp.topMargin = Ui.dp(this, 14);
         card.addView(dekho, dlp);
+
+        // v3.6.82: error INSIDE the card (user request).
+        errorView = new TextView(this);
+        errorView.setTextSize(13);
+        errorView.setTextColor(Ds.red());
+        Ds.body(this, errorView, 600);
+        errorView.setVisibility(View.GONE);
+        LinearLayout.LayoutParams elp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        elp.topMargin = Ui.dp(this, 8);
+        card.addView(errorView, elp);
 
         return card;
     }
@@ -1169,6 +1172,12 @@ public class HomeActivity extends BaseActivity {
     private void onFetchClicked() {
         String[] e = currentEntry();
         String mode = e[0], value = e[1];
+        // v3.6.82: empty → simple message (user: "Please enter your reference
+        // number" only, nothing else).
+        if (value == null || value.trim().isEmpty()) {
+            showError(getString(R.string.ref_empty));
+            return;
+        }
         boolean ok = MODE_CID.equals(mode)
                 ? LescoBillFetcher.isValidCustomerId(value)
                 : LescoBillFetcher.isValidReference(value);
