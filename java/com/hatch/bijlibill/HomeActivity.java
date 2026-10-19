@@ -720,6 +720,9 @@ public class HomeActivity extends BaseActivity {
     private View quickToolsSection() {
         LinearLayout sec = new LinearLayout(this);
         sec.setOrientation(LinearLayout.VERTICAL);
+        // v3.6.79: don't clip card shadows.
+        sec.setClipChildren(false);
+        sec.setClipToPadding(false);
         int hm = Ui.dp(this, 20);
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -749,6 +752,12 @@ public class HomeActivity extends BaseActivity {
         row.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
+        // v3.6.79: don't clip shadows (user: shadow cut at bottom).
+        row.setClipChildren(false);
+        row.setClipToPadding(false);
+        // Padding for shadow room on all sides.
+        int shp = Ui.dp(this, 6);
+        row.setPadding(shp, shp, shp, shp);
 
         View card1 = quickToolCard(
                 R.drawable.icon_gauge,
