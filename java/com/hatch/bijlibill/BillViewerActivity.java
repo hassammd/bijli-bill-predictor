@@ -46,6 +46,33 @@ public class BillViewerActivity extends Activity {
         return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
     }
 
+    /** v3.6.73: white status bar for Bill Viewer (user request). */
+    private void applyWhiteStatusBar() {
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            // Opt out of edge-to-edge (API 35+) so color applies.
+            if (android.os.Build.VERSION.SDK_INT >= 35) {
+                getWindow().setDecorFitsSystemWindows(true);
+            }
+            getWindow().setStatusBarColor(Color.WHITE);
+            // Dark icons on white (API 23+; API 30+ uses controller).
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                getWindow().getInsetsController().setSystemBarsAppearance(
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+            } else if (android.os.Build.VERSION.SDK_INT >= 23) {
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // v3.6.73: re-apply (system may reset on return).
+        applyWhiteStatusBar();
+    }
+
     /** v3.6.15: status bar height for top padding. */
     private int getStatusBarHeight() {
         int h = 0;
@@ -60,19 +87,9 @@ public class BillViewerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // v3.6.70: opt out of edge-to-edge enforcement (API 35+) so the
-        // status bar color actually applies (user: status bar still white).
-        if (android.os.Build.VERSION.SDK_INT >= 35) {
-            getWindow().setDecorFitsSystemWindows(true);
-        }
-        // v3.6.72: status bar WHITE (user request — only this page),
-        // header stays light green #11998E below it (clear separation).
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(Color.WHITE);
-            // Dark icons on the white status bar.
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        // v3.6.73: status bar WHITE (user request — only this page).
+        // Apply in onCreate AND onResume to be safe on all APIs.
+        applyWhiteStatusBar();
         // v3.6.35: ad-gate before viewing full bill.
         // v3.6.42: skip ad on recreate (e.g. language toggle) — the
         // ad was breaking the toggle flow.
@@ -111,7 +128,9 @@ public class BillViewerActivity extends Activity {
         // stuck to the top edge (user feedback).
         // v3.6.70: with edge-to-edge opted out (API 35+), the system
         // reserves the status bar space — no manual padding needed.
-        int sbh = (Build.VERSION.SDK_INT >= 35) ? 0 : getStatusBarHeight();
+        // v3.6.73: ALWAYS add status bar height padding (user: header
+        // stuck under status bar). The API 35+ exemption was wrong.
+        int sbh = getStatusBarHeight();
         // v3.6.71: padding matches Home header (18/12/18/10).
         bar.setPadding(dp(18), dp(12) + sbh, dp(18), dp(10));
         // v3.6.68: dark green header (like other pages).
