@@ -109,20 +109,20 @@ public class BillViewerActivity extends Activity {
         // v3.6.70: with edge-to-edge opted out (API 35+), the system
         // reserves the status bar space — no manual padding needed.
         int sbh = (Build.VERSION.SDK_INT >= 35) ? 0 : getStatusBarHeight();
-        bar.setPadding(dp(20), dp(14) + sbh, dp(20), dp(10));
+        // v3.6.71: padding matches Home header (18/12/18/10).
+        bar.setPadding(dp(18), dp(12) + sbh, dp(18), dp(10));
         // v3.6.68: dark green header (like other pages).
         bar.setBackgroundColor(Ds.ndTealAccent());
 
+        // v3.6.71: match Home header style — dark green rounded square
+        // (like Home logo), white arrow.
         ImageView back = new ImageView(this);
-        back.setImageResource(R.drawable.ic_chev_right);
+        back.setImageResource(R.drawable.ic_chev_white);
         back.setRotation(180);
-        // v3.6.68: dark arrow on mint (standardized).
-        back.setColorFilter(Ds.ndPrimaryDark(),
-                android.graphics.PorterDuff.Mode.SRC_IN);
-        int bs = dp(28);
+        int bs = dp(38);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.nd_back_btn_light);
-        back.setPadding(dp(8), dp(8), dp(8), dp(8));
+        back.setBackgroundResource(R.drawable.ds_logo_bg);
+        back.setPadding(dp(9), dp(9), dp(9), dp(9));
         back.setClickable(true);
         back.setFocusable(true);
         back.setOnClickListener(new View.OnClickListener() {
@@ -133,7 +133,8 @@ public class BillViewerActivity extends Activity {
         TextView tt = new TextView(this);
         tt.setText(title != null ? title
                 : getString(R.string.bill_title));
-        tt.setTextSize(18);
+        // v3.6.71: 17sp to match Home header.
+        tt.setTextSize(17);
         // v3.6.68: white on dark green.
         tt.setTextColor(Color.WHITE);
         Ds.heading(this, tt);
@@ -161,15 +162,13 @@ public class BillViewerActivity extends Activity {
         bar.addView(toggle);
 
         // Download button (in header, properly placed)
+        // v3.6.71: match Home style — dark green rounded square, white icon.
         ImageView dl = new ImageView(this);
-        dl.setImageResource(R.drawable.ic_download);
-        // v3.6.68: dark on mint (standardized).
-        dl.setColorFilter(Ds.ndPrimaryDark(),
-                android.graphics.PorterDuff.Mode.SRC_IN);
-        int dls = dp(28);
+        dl.setImageResource(R.drawable.ic_download_white);
+        int dls = dp(38);
         dl.setLayoutParams(new LinearLayout.LayoutParams(dls, dls));
-        dl.setBackgroundResource(R.drawable.nd_back_btn_light);
-        dl.setPadding(dp(8), dp(8), dp(8), dp(8));
+        dl.setBackgroundResource(R.drawable.ds_logo_bg);
+        dl.setPadding(dp(9), dp(9), dp(9), dp(9));
         dl.setClickable(true);
         dl.setFocusable(true);
         dl.setOnClickListener(new View.OnClickListener() {

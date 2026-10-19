@@ -2136,7 +2136,7 @@ public class TestBillFetch {
         // settings replaced by ZoomableImageView.
         check("v369 viewer activity",
                 vsrc.contains("class BillViewerActivity"), true);
-        check("v369 viewer back", vsrc.contains("ic_chev_right"), true);
+        check("v369 viewer back", vsrc.contains("ic_chev_white"), true);
         check("v367 pinch zoom", new java.io.File(
                 "java/com/hatch/bijlibill/ZoomableImageView.java").exists(),
                 true);
@@ -2160,9 +2160,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"102\""), true);
+                man.contains("android:versionCode=\"103\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.6.70\""), true);
+                man.contains("android:versionName=\"3.6.71\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3861,9 +3861,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"102\""), true);
+                man.contains("android:versionCode=\"103\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.6.70\""), true);
+                man.contains("android:versionName=\"3.6.71\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4234,10 +4234,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"102\""),
+                manifest.contains("android:versionCode=\"103\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.6.70\""),
+                manifest.contains("android:versionName=\"3.6.71\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4396,10 +4396,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"102\""),
+                manifest.contains("android:versionCode=\"103\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.6.70\""),
+                manifest.contains("android:versionName=\"3.6.71\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
