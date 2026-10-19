@@ -60,8 +60,9 @@ public final class Fonts {
     public static Typeface urdu(Context ctx) {
         if (urdu == null) {
             try {
+                // v3.6.58: Noto Sans Arabic (user request, was Nastaliq).
                 urdu = Typeface.createFromAsset(ctx.getAssets(),
-                        "fonts/NotoNastaliqUrdu.ttf");
+                        "fonts/NotoSansArabic.ttf");
             } catch (Exception e) {
                 urdu = Typeface.DEFAULT;
             }

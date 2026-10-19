@@ -1321,7 +1321,8 @@ public class BillActivity extends BaseActivity {
         LinearLayout b = new LinearLayout(this);
         b.setOrientation(LinearLayout.HORIZONTAL);
         b.setGravity(Gravity.CENTER);
-        b.setBackgroundResource(R.drawable.ds_btn_green);
+        // v3.6.58: gradient button (user request).
+        b.setBackgroundResource(R.drawable.nd_btn_gradient);
         b.setMinimumHeight(dp(56));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
