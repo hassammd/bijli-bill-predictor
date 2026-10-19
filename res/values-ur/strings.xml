@@ -251,7 +251,7 @@
     <string name="andaza_row_tax_fallback">ٹیکس: %1$s (بل میں تفصیل نہیں ملی \u2014 18%% جی ایس ٹی تخمینہ)</string>
     <string name="andaza_row_total">کل تخمینہ بل: %1$s</string>
     <!-- v2.6.0 design system: home -->
-    <string name="home_greeting">Assalam-o-Alaikum \uD83D\uDC4B</string>
+    <string name="home_greeting">السلام علیکم \uD83D\uDC4B</string>
     <string name="home_greeting_sub">اپنا بجلی بل چیک کریں — صرف ریفرنس نمبر چاہیے۔</string>
     <string name="helper_ref">بل پر لکھا 14 ہندسوں کا ریفرنس نمبر درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
     <string name="helper_cid">بل پر لکھا 7 ہندسوں کا کسٹمر آئی ڈی درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>

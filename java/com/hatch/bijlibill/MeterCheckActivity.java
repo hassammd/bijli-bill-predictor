@@ -362,7 +362,8 @@ public class MeterCheckActivity extends BaseActivity {
                 Ui.dp(this, 20), 0);
         Button capture = Ds.greenBtn(this,
                 getString(R.string.meter_capture_btn),
-                R.drawable.ic_video,
+                // v3.6.64: white icon on gradient.
+                R.drawable.ic_video_white,
                 new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         onCaptureClicked();
@@ -376,7 +377,8 @@ public class MeterCheckActivity extends BaseActivity {
         // v3.6.63: reversed gradient for 2nd button (user request).
         Button gallery = Ds.greenBtn(this,
                 getString(R.string.meter_gallery_btn),
-                R.drawable.ic_folder,
+                // v3.6.64: white icon on gradient.
+                R.drawable.ic_folder_white,
                 new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         onGalleryClicked();
@@ -390,7 +392,8 @@ public class MeterCheckActivity extends BaseActivity {
         // v3.6.62: gradient (was outline, user request).
         Button manual = Ds.greenBtn(this,
                 getString(R.string.meter_manual_btn),
-                R.drawable.ic_edit,
+                // v3.6.64: white icon on gradient.
+                R.drawable.ic_edit_white,
                 new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         manualFromNoBill = false;

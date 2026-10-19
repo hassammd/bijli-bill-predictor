@@ -655,11 +655,12 @@ final class Ds {
         back.setColorFilter(ndPrimaryDark(),
                 android.graphics.PorterDuff.Mode.SRC_IN);
         // v3.6.62: mint circular bg, 32dp (standardized, user request).
-        int bs = Ui.dp(ctx, 32);
+        // v3.6.64: 28dp, 8dp padding (proportioned with BillActivity).
+        int bs = Ui.dp(ctx, 28);
         back.setLayoutParams(
                 new android.widget.LinearLayout.LayoutParams(bs, bs));
         back.setBackgroundResource(R.drawable.nd_back_btn_light);
-        int bp = Ui.dp(ctx, 10);
+        int bp = Ui.dp(ctx, 8);
         back.setPadding(bp, bp, bp, bp);
         back.setClickable(true);
         back.setFocusable(true);
