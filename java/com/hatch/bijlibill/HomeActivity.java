@@ -315,6 +315,9 @@ public class HomeActivity extends BaseActivity {
         bp.setMargins(hm, Ui.dp(this, 8), hm, 0);
         content.addView(billDekhoBtn(), bp);
 
+        // v3.6.71: Quick Tools — Unit Check + Bill History cards.
+        content.addView(quickToolsSection());
+
 
         // v3.4.0: streak card — flame + consecutive check-in days;
         // tapping opens the Guard. Hidden while no streak exists.
@@ -706,6 +709,154 @@ public class HomeActivity extends BaseActivity {
             @Override public void onClick(View v) { onFetchClicked(); }
         });
         return b;
+    }
+
+    // ---- QUICK TOOLS (v3.6.71) ----
+
+    private View quickToolsSection() {
+        LinearLayout sec = new LinearLayout(this);
+        sec.setOrientation(LinearLayout.VERTICAL);
+        int hm = Ui.dp(this, 20);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        slp.setMargins(hm, Ui.dp(this, 20), hm, 0);
+        sec.setLayoutParams(slp);
+
+        // Heading
+        TextView h = new TextView(this);
+        h.setText(getString(R.string.quick_tools_title));
+        h.setTextSize(19);
+        h.setTextColor(Ds.ink());
+        Ds.heading(this, h);
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        hlp.bottomMargin = Ui.dp(this, 12);
+        // RTL: heading aligns right in Urdu
+        if (isUrdu()) h.setGravity(Gravity.END);
+        h.setLayoutParams(hlp);
+        sec.addView(h);
+
+        // Two cards side by side
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        View card1 = quickToolCard(
+                R.drawable.icon_gauge,
+                "#DDF5EF", // mint circle
+                getString(R.string.quick_unit_check),
+                getString(R.string.quick_unit_check_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(HomeActivity.this,
+                                MeterCheckActivity.class));
+                    }
+                });
+        LinearLayout.LayoutParams c1lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        c1lp.rightMargin = Ui.dp(this, 4);
+        card1.setLayoutParams(c1lp);
+        row.addView(card1);
+
+        View card2 = quickToolCard(
+                R.drawable.icon_document,
+                "#E8E4F8", // lavender circle
+                getString(R.string.quick_bill_history),
+                getString(R.string.quick_bill_history_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(HomeActivity.this,
+                                BillsActivity.class));
+                    }
+                });
+        LinearLayout.LayoutParams c2lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        c2lp.leftMargin = Ui.dp(this, 4);
+        card2.setLayoutParams(c2lp);
+        row.addView(card2);
+
+        sec.addView(row);
+        return sec;
+    }
+
+    private View quickToolCard(int iconRes, String circleColor,
+            String title, String sub, View.OnClickListener onClick) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setBackgroundResource(R.drawable.ds_card);
+        int p = Ui.dp(this, 12);
+        card.setPadding(p, p, p, p);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            card.setElevation(Ui.dp(this, 2));
+        }
+        Ds.tealShadow(card);
+
+        // Icon circle
+        FrameLayout circle = new FrameLayout(this);
+        int cs = Ui.dp(this, 48);
+        circle.setLayoutParams(new LinearLayout.LayoutParams(cs, cs));
+        android.graphics.drawable.GradientDrawable bg =
+                new android.graphics.drawable.GradientDrawable();
+        bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        bg.setColor(Color.parseColor(circleColor));
+        circle.setBackground(bg);
+        ImageView ic = new ImageView(this);
+        ic.setImageResource(iconRes);
+        int is = Ui.dp(this, 26);
+        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(
+                is, is, Gravity.CENTER);
+        ic.setLayoutParams(ilp);
+        circle.addView(ic);
+        card.addView(circle);
+
+        // Text (title + subtitle)
+        LinearLayout txt = new LinearLayout(this);
+        txt.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        tlp.leftMargin = Ui.dp(this, 10);
+        tlp.rightMargin = Ui.dp(this, 6);
+        txt.setLayoutParams(tlp);
+
+        TextView t = new TextView(this);
+        t.setText(title);
+        t.setTextSize(15);
+        t.setTextColor(Ds.ink());
+        Ds.heading(this, t);
+        txt.addView(t);
+
+        TextView s = new TextView(this);
+        s.setText(sub);
+        s.setTextSize(12);
+        s.setTextColor(Ds.muted());
+        Ds.body(this, s, 400);
+        txt.addView(s);
+        card.addView(txt);
+
+        // Chevron
+        ImageView chev = new ImageView(this);
+        chev.setImageResource(R.drawable.ic_chev_right);
+        chev.setColorFilter(Ds.muted(),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+        int chs = Ui.dp(this, 18);
+        chev.setLayoutParams(new LinearLayout.LayoutParams(chs, chs));
+        // RTL: flip chevron in Urdu
+        if (isUrdu()) chev.setRotation(180);
+        card.addView(chev);
+
+        card.setClickable(true);
+        card.setFocusable(true);
+        card.setOnClickListener(onClick);
+        return card;
+    }
+
+    private boolean isUrdu() {
+        return "ur".equals(LocaleHelper.get(this));
     }
 
     // ---- UNIT CHECK (v3.0.0 list row) ----

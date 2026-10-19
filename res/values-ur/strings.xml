@@ -335,4 +335,10 @@
     <string name="outside_pk_no">نہیں، پاکستان میں ہوں</string>
 
     <!-- v3.6.54: new bill page design strings -->
+    <!-- v3.6.71: Quick Tools section -->
+    <string name="quick_tools_title">فوری ٹولز</string>
+    <string name="quick_unit_check">یونٹ چیک</string>
+    <string name="quick_unit_check_sub">اپنے یونٹ چیک کریں</string>
+    <string name="quick_bill_history">بل ہسٹری</string>
+    <string name="quick_bill_history_sub">پچھلے بل دیکھیں</string>
 </resources>
