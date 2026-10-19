@@ -48,21 +48,29 @@ public class BillViewerActivity extends Activity {
 
     /** v3.6.73: white status bar for Bill Viewer (user request). */
     private void applyWhiteStatusBar() {
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            // Opt out of edge-to-edge (API 35+) so color applies.
-            if (android.os.Build.VERSION.SDK_INT >= 35) {
-                getWindow().setDecorFitsSystemWindows(true);
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                // Opt out of edge-to-edge (API 35+) so color applies.
+                if (android.os.Build.VERSION.SDK_INT >= 35) {
+                    getWindow().setDecorFitsSystemWindows(true);
+                }
+                getWindow().setStatusBarColor(Color.WHITE);
+                // Dark icons on white (API 23+; API 30+ uses controller).
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    android.view.WindowInsetsController c =
+                            getWindow().getInsetsController();
+                    if (c != null) {
+                        c.setSystemBarsAppearance(
+                                android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                                android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                    }
+                } else if (android.os.Build.VERSION.SDK_INT >= 23) {
+                    getWindow().getDecorView().setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
             }
-            getWindow().setStatusBarColor(Color.WHITE);
-            // Dark icons on white (API 23+; API 30+ uses controller).
-            if (android.os.Build.VERSION.SDK_INT >= 30) {
-                getWindow().getInsetsController().setSystemBarsAppearance(
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
-            } else if (android.os.Build.VERSION.SDK_INT >= 23) {
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }
+        } catch (Exception ignored) {
+            // v3.6.74: never crash on status bar (was breaking View Full Bill).
         }
     }
 
