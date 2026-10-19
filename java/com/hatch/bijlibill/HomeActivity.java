@@ -444,7 +444,9 @@ public class HomeActivity extends BaseActivity {
     private View discoChips() {
         HorizontalScrollView hsv = new HorizontalScrollView(this);
         hsv.setHorizontalScrollBarEnabled(false);
-        hsv.setClipToPadding(false);
+        // v3.6.85: clip to padding (user: chips were touching screen edge,
+        // must stay within container width).
+        hsv.setClipToPadding(true);
         int hp = Ui.dp(this, 20);
         // v3.6.83: more bottom space (user request).
         hsv.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
