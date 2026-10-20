@@ -2160,9 +2160,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"123\""), true);
+                man.contains("android:versionCode=\"132\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.6.91\""), true);
+                man.contains("android:versionName=\"3.7.0\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -2747,16 +2747,20 @@ public class TestBillFetch {
         check("v260 splash no fixed px icon",
                 !splash.contains("Ui.px("), true);
         // v2.6.0 design system: splash uses the new drawables + fonts
-        check("v260 splash bg radial", splash.contains(
-                "R.drawable.splash_bg"), true);
+        // v3.6.99: splash redesigned — light bg + illustration band
+        // (user: English text, current color, professional look).
+        check("v3699 splash light bg + illus", splash.contains(
+                "R.drawable.splash_illus")
+                && splash.contains("Ds.bg()"), true);
         // v3.6.34: splash now uses real app icon (not squircle/glow)
         // v3.6.36: transparent splash_icon drawable
         check("v3634 splash real icon", splash.contains(
                 "R.drawable.splash_icon"), true);
         check("v3637 splash no float anim", splash.contains(
                 "floatAnim"), false);
-        check("v260 splash urdu font", splash.contains(
-                "Fonts.urdu(this)"), true);
+        check("v3699 splash english heading", splash.contains(
+                "Ds.heading(this, title)")
+                && !splash.contains("Fonts.urdu"), true);
         check("v260 splash title string", splash.contains(
                 "R.string.splash_title"), true);
         String sbg = new String(java.nio.file.Files.readAllBytes(
@@ -3861,9 +3865,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"123\""), true);
+                man.contains("android:versionCode=\"132\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.6.91\""), true);
+                man.contains("android:versionName=\"3.7.0\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4234,10 +4238,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"123\""),
+                manifest.contains("android:versionCode=\"132\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.6.91\""),
+                manifest.contains("android:versionName=\"3.7.0\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4396,10 +4400,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"123\""),
+                manifest.contains("android:versionCode=\"132\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.6.91\""),
+                manifest.contains("android:versionName=\"3.7.0\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),

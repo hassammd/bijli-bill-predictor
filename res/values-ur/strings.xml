@@ -3,9 +3,9 @@
     <!-- v2.0 BILL FETCHER ONLY — calculator removed -->
     <string name="app_name">بجلی بل کیلکولیٹر</string>
     <string name="app_tagline">LESCO کا بل — ریفرنس نمبر سے!</string>
-    <string name="splash_tagline">بجلی کا بل، اب آپ کی مٹھی میں</string>
+    <string name="splash_tagline">Your bill, before it arrives.</string>
     <!-- v2.6.0 design system: splash headline + foot always in Urdu (design-faithful) -->
-    <string name="splash_title">بجلی بل کیلکولیٹر</string>
+    <string name="splash_title">Bijli Bill</string>
     <string name="for_pakistan_urdu">پاکستان کے لیے</string>
     <string name="made_for_pakistan">پاکستان کے لیے</string>
     <string name="lang_urdu">اردو</string>
@@ -18,7 +18,7 @@
     <string name="meters_title">میرے میٹر</string>
     <string name="meters_empty">ابھی کوئی میٹر save نہیں ہے — پہلا بل دیکھیں، خود save ہو جائے گا</string>
     <string name="ref_label">ریفرنس نمبر</string>
-    <string name="ref_hint">جیسا بل پر لکھا ہے، مثلاً: 12345678901234U</string>
+    <string name="ref_hint"></string>
     <string name="tab_ref">ریفرنس نمبر</string>
     <string name="tab_custid">کسٹمر آئی ڈی</string>
     <string name="custid_hint">7 ہندسوں کی آئی ڈی (بل پر لکھی ہوتی ہے)</string>

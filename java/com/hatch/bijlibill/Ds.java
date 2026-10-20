@@ -828,10 +828,13 @@ final class Ds {
 
         ImageView icon = new ImageView(ctx);
         icon.setImageResource(iconRes);
-        int is = Ui.dp(ctx, 22);
+        // v3.6.98: active icon = amber + slightly larger (bold effect, user:
+        // "thoda sa bold taake active pata chale"); active LABEL stays
+        // green, idle icons keep their own stroke color.
+        int is = Ui.dp(ctx, active ? 25 : 22);
         icon.setLayoutParams(new LinearLayout.LayoutParams(is, is));
         if (active) {
-            icon.setColorFilter(Ds.deepGreen(), PorterDuff.Mode.SRC_IN);
+            icon.setColorFilter(Ds.amber(), PorterDuff.Mode.SRC_IN);
         }
         item.addView(icon);
 

@@ -81,7 +81,7 @@ public class BillsActivity extends BaseActivity {
         Ds.heading(this, title);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        tlp.leftMargin = Ui.dp(this, 4);
+        tlp.leftMargin = Ui.dp(this, 12);
         // v3.6.11: space between title and language toggle
         tlp.rightMargin = Ui.dp(this, 12);
         title.setLayoutParams(tlp);

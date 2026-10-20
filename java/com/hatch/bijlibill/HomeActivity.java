@@ -295,6 +295,16 @@ public class HomeActivity extends BaseActivity {
         scrollView.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         scrollView.setFillViewport(false);
+        // v3.6.95: Home screen FIXED — no vertical scroll at all (user:
+        // "scroll nahi hona chahiye, screen still/fix rehni chahiye").
+        // Content is trimmed to fit; this listener eats page drags while
+        // child taps (buttons, field, chips carousel) still work normally.
+        scrollView.setOnTouchListener(new View.OnTouchListener() {
+            @Override public boolean onTouch(View v,
+                    android.view.MotionEvent e) {
+                return true;
+            }
+        });
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         scrollView.addView(content, new ViewGroup.LayoutParams(
@@ -303,7 +313,7 @@ public class HomeActivity extends BaseActivity {
 
         content.addView(topBar());
         content.addView(greeting());
-        content.addView(secLabel(R.string.disco_label, 4));
+        content.addView(secLabel(R.string.disco_label, 10));
         content.addView(discoChips());
         content.addView(inputCard());
 
@@ -339,7 +349,9 @@ public class HomeActivity extends BaseActivity {
         // (removed from here)
 
         // v3.6.63: MERE METER section removed (user: separate Bills page exists).
-        content.addView(Ui.spacer(this, 24));
+        // v3.6.93: end spacer 24dp→6dp — absorbs the +18dp air added at the
+        // top (greeting/label/chips), total height unchanged, no new scroll.
+        // v3.6.95: spacer removed entirely (Home fit-without-scroll trims).
         root.addView(scrollView);
         // v3.6.16: test banner ad (user request — see ad on all pages).
         LinearLayout bannerBox = new LinearLayout(this);
@@ -408,7 +420,8 @@ public class HomeActivity extends BaseActivity {
         LinearLayout g = new LinearLayout(this);
         g.setOrientation(LinearLayout.VERTICAL);
         // v3.6.83: more bottom space (user request).
-        g.setPadding(Ui.dp(this, 20), Ui.dp(this, 6),
+        // v3.6.93: more top air — topBar→greeting gap 16dp→24dp (user QA).
+        g.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
                 Ui.dp(this, 20), Ui.dp(this, 8));
 
         TextView h = new TextView(this);
@@ -433,8 +446,9 @@ public class HomeActivity extends BaseActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+        // v3.6.93: bottom margin 10dp→14dp (label→chips gap 12dp→16dp, user QA).
         lp.setMargins(Ui.dp(this, 20), Ui.dp(this, topMarginDp),
-                Ui.dp(this, 20), Ui.dp(this, 10));
+                Ui.dp(this, 20), Ui.dp(this, 14));
         l.setLayoutParams(lp);
         return l;
     }
@@ -450,7 +464,8 @@ public class HomeActivity extends BaseActivity {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         int hp = Ui.dp(this, 20);
-        row.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 12));
+        // v3.6.95: bottom padding 12dp→8dp (Home fit-without-scroll trims).
+        row.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 8));
 
         // left arrow
         android.widget.ImageView left = new android.widget.ImageView(this);
@@ -494,20 +509,44 @@ public class HomeActivity extends BaseActivity {
                 Ui.dp(this, 6), Ui.dp(this, 6));
         row.addView(right);
 
-        // arrow click = scroll
+        // arrow click = scroll (v3.6.97: ValueAnimator glide, buttery smooth,
+        // 450ms decelerate; cancels in-flight animation on rapid taps)
         final int scrollAmt = Ui.dp(this, 120);
         left.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                discoHsv.smoothScrollBy(-scrollAmt, 0);
+                glideChipsBy(-scrollAmt);
             }
         });
         right.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                discoHsv.smoothScrollBy(scrollAmt, 0);
+                glideChipsBy(scrollAmt);
             }
         });
 
         return row;
+    }
+
+    private android.animation.ValueAnimator discoGlide;
+
+    private void glideChipsBy(int delta) {
+        if (discoHsv == null || discoRow == null) return;
+        if (discoGlide != null && discoGlide.isRunning()) discoGlide.cancel();
+        int from = discoHsv.getScrollX();
+        int max = Math.max(0, discoRow.getWidth() - discoHsv.getWidth());
+        int to = Math.max(0, Math.min(max, from + delta));
+        if (to == from) return;
+        discoGlide = android.animation.ValueAnimator.ofInt(from, to);
+        discoGlide.setDuration(450);
+        discoGlide.setInterpolator(
+                new android.view.animation.DecelerateInterpolator(1.5f));
+        discoGlide.addUpdateListener(
+                new android.animation.ValueAnimator.AnimatorUpdateListener() {
+            @Override public void onAnimationUpdate(
+                    android.animation.ValueAnimator a) {
+                discoHsv.setScrollX((Integer) a.getAnimatedValue());
+            }
+        });
+        discoGlide.start();
     }
 
     private void refreshChips() {
@@ -566,8 +605,10 @@ public class HomeActivity extends BaseActivity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setBackgroundResource(R.drawable.ds_card);
-        card.setPadding(Ui.dp(this, 20), Ui.dp(this, 20),
-                Ui.dp(this, 20), Ui.dp(this, 22));
+        // v3.6.95: tighter vertical padding (20/22 → 14/16) — Home must
+        // fit without scrolling (user: screen bilkul fixed rehni chahiye).
+        card.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
+                Ui.dp(this, 20), Ui.dp(this, 16));
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             card.setElevation(Ui.dp(this, 4));
         }
@@ -787,7 +828,13 @@ public class HomeActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         // v3.6.78: bottom margin 16dp (user: shadow was cut at bottom).
-        slp.setMargins(hm, Ui.dp(this, 20), hm, Ui.dp(this, 16));
+        // v3.6.95: margins 20/16 → 12/10 — Home must fit without scrolling
+        // (user: screen bilkul fixed rehni chahiye). Shadows safe: row
+        // keeps its own 6dp padding + clipToPadding=false.
+        // v3.6.96: top margin +6dp (12→18, user QA: Quick Tools ko thodi
+        // si space) — still within the v3.6.95 trim headroom.
+        // v3.6.97: top margin 18→24dp (user QA: thodi si aur).
+        slp.setMargins(hm, Ui.dp(this, 24), hm, Ui.dp(this, 10));
         sec.setLayoutParams(slp);
 
         // Heading

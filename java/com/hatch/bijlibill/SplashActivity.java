@@ -1,10 +1,7 @@
 package com.hatch.bijlibill;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -17,10 +14,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * v2.6.0 design-system splash: rich radial green gradient + dot pattern,
- * amber glow behind an amber-gradient squircle with the bolt, Urdu Nastaliq
- * headline + tagline, version foot anchored at the bottom. Gentle float
- * animation on the badge. Layout is truly centered on every screen size.
+ * Splash — v3.6.99 redesign (user request 2026-10-20):
+ *  - English-only short text ("Bijli Bill" / "Your bill, before it
+ *    arrives." / "Made for Pakistan") in BOTH locales (brand splash).
+ *  - Current palette: light bg #F3F8F7 (Ds.bg), teal/ink text — the old
+ *    dark-green gradient (splash_bg, #04271E) is gone.
+ *  - Custom flat illustration (transmission towers + poles + houses,
+ *    app palette) as a top band for a professional look.
+ *  - App icon (Play Store icon, transparent) stays, 96dp.
  */
 public class SplashActivity extends BaseActivity {
 
@@ -37,16 +38,29 @@ public class SplashActivity extends BaseActivity {
 
         Window w = getWindow();
         if (w != null) {
-            w.setStatusBarColor(Color.parseColor("#04271E"));
+            // Light splash → light status bar with dark icons.
+            w.setStatusBarColor(Ds.bg());
+            w.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundResource(R.drawable.splash_bg);
+        root.setBackgroundColor(Ds.bg());
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // ---- centered column ----
+        // ---- illustration band (top) ----
+        ImageView illus = new ImageView(this);
+        illus.setImageResource(R.drawable.splash_illus);
+        illus.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Ui.dp(this, 250));
+        ilp.gravity = Gravity.TOP;
+        root.addView(illus, ilp);
+
+        // ---- centered column: icon + title + tagline ----
         LinearLayout center = new LinearLayout(this);
         center.setOrientation(LinearLayout.VERTICAL);
         center.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -54,15 +68,14 @@ public class SplashActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER);
+        // Nudge below true center so the column clears the illustration.
+        clp.topMargin = Ui.dp(this, 110);
         root.addView(center, clp);
 
-        // ---- icon: real app icon (Play Store icon) ----
-        // v3.6.34: user wants the real icon on splash.
-        // v3.6.36: transparent-bg version for clean display.
-        int iconDp = 120;
+        // ---- icon: real app icon (Play Store icon, transparent) ----
         ImageView appIcon = new ImageView(this);
         appIcon.setImageResource(R.drawable.splash_icon);
-        int iconPx = Ui.dp(this, iconDp);
+        int iconPx = Ui.dp(this, 96);
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
                 iconPx, iconPx);
         alp.gravity = Gravity.CENTER_HORIZONTAL;
@@ -71,46 +84,38 @@ public class SplashActivity extends BaseActivity {
         }
         center.addView(appIcon, alp);
 
-        // v3.6.37: float animation REMOVED — it was clipping the icon
-        // edges during up/down movement (user report 2026-10-18).
-
-        // ---- Urdu headline (Nastaliq, 40sp) ----
+        // ---- title: "Bijli Bill" (English, heading font) ----
         TextView title = new TextView(this);
         title.setText(getString(R.string.splash_title));
-        title.setTextSize(38);
-        title.setTypeface(Fonts.urdu(this));
-        title.setLineSpacing(0, 2.0f);
-        title.setTextColor(Color.WHITE);
+        title.setTextSize(30);
+        Ds.heading(this, title);
+        title.setTextColor(Ds.ink());
         title.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         tlp.gravity = Gravity.CENTER_HORIZONTAL;
-        tlp.topMargin = Ui.dp(this, 22);
+        tlp.topMargin = Ui.dp(this, 18);
         center.addView(title, tlp);
 
-        // ---- Urdu tagline (Nastaliq, 21sp, #CFE3D7) ----
+        // ---- tagline: short English ----
         TextView tag = new TextView(this);
         tag.setText(getString(R.string.splash_tagline));
-        tag.setTextSize(20);
-        tag.setTypeface(Fonts.urdu(this));
-        tag.setLineSpacing(0, 2.0f);
-        tag.setTextColor(Color.parseColor("#CFE3D7"));
+        tag.setTextSize(15);
+        tag.setTextColor(Ds.muted());
         tag.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams glp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         glp.gravity = Gravity.CENTER_HORIZONTAL;
-        glp.topMargin = Ui.dp(this, 8);
+        glp.topMargin = Ui.dp(this, 6);
         center.addView(tag, glp);
 
-        // ---- foot anchored at bottom: "پاکستان کے لیے • v2.6.0" ----
+        // ---- foot anchored at bottom: "Made for Pakistan • vX.Y.Z" ----
         TextView foot = new TextView(this);
-        foot.setText(getString(R.string.for_pakistan_urdu)
-                + "  •  v" + versionName());
+        foot.setText("Made for Pakistan  •  v" + versionName());
         foot.setTextSize(12.5f);
-        foot.setTypeface(Fonts.urdu(this));
-        foot.setTextColor(Color.parseColor("#8FB3A1"));
+        foot.setTextColor(Ds.faint());
         foot.setGravity(Gravity.CENTER);
         FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

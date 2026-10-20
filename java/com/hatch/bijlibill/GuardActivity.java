@@ -155,7 +155,7 @@ public class GuardActivity extends BaseActivity {
         Ds.heading(this, title);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        tlp.leftMargin = Ui.dp(this, 4);
+        tlp.leftMargin = Ui.dp(this, 12);
         title.setLayoutParams(tlp);
         bar.addView(title);
         bar.addView(Ds.langToggle(this));

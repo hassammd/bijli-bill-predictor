@@ -3,9 +3,9 @@
     <!-- v2.0 BILL FETCHER ONLY — calculator removed -->
     <string name="app_name">Bijli Bill Calculator</string>
     <string name="app_tagline">LESCO bill — reference number se!</string>
-    <string name="splash_tagline">بجلی کا بل، اب آپ کی مٹھی میں</string>
+    <string name="splash_tagline">Your bill, before it arrives.</string>
     <!-- v2.6.0 design system: splash headline + foot always in Urdu (design-faithful) -->
-    <string name="splash_title">بجلی بل کیلکولیٹر</string>
+    <string name="splash_title">Bijli Bill</string>
     <string name="for_pakistan_urdu">پاکستان کے لیے</string>
     <string name="made_for_pakistan">Made for Pakistan</string>
     <string name="lang_urdu">اردو</string>
