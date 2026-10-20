@@ -67,9 +67,9 @@ public class GuardActivity extends BaseActivity {
 
         Window w = getWindow();
         if (w != null) {
-            w.setStatusBarColor(Ds.ndTealAccent()); // v3.6.69
-            w.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            // v3.7.26: teal status bar like the other pages (white icons).
+            w.setStatusBarColor(Ds.ndTealAccent());
+            w.getDecorView().setSystemUiVisibility(0);
         }
 
         LinearLayout root = new LinearLayout(this);
@@ -78,18 +78,34 @@ public class GuardActivity extends BaseActivity {
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        root.addView(appBar());
+        // v3.7.26: standard teal app bar + banner + bottom nav, same
+        // as the other pages (was a plain private appBar, no nav).
+        root.addView(Ds.appBar(this, new View.OnClickListener() {
+            @Override public void onClick(View v) { finish(); }
+        }, getString(R.string.guard_title),
+                (ref == null || ref.isEmpty()) ? null : getString(
+                        "cid".equals(mode) ? R.string.bill_id_masked
+                                : R.string.bill_ref_masked,
+                        SavedMeters.maskId(ref)), false));
 
         ScrollView sv = new ScrollView(this);
-        sv.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        sv.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         sv.addView(content, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         root.addView(sv);
+
+        LinearLayout bannerBox = new LinearLayout(this);
+        bannerBox.setOrientation(LinearLayout.VERTICAL);
+        bannerBox.setPadding(Ui.dp(this, 16), Ui.dp(this, 8),
+                Ui.dp(this, 16), Ui.dp(this, 8));
+        root.addView(bannerBox);
+        AdsManager.loadBannerInto(this, bannerBox);
+
+        root.addView(Ds.bottomNav(this, Ds.TAB_UNIT));
         setContentView(root);
 
         // Prefill from the Meter Check result when supplied.
@@ -125,42 +141,6 @@ public class GuardActivity extends BaseActivity {
     // ------------------------------------------------------------------
     // UI
     // ------------------------------------------------------------------
-
-    private View appBar() {
-        LinearLayout bar = new LinearLayout(this);
-        bar.setOrientation(LinearLayout.HORIZONTAL);
-        bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
-                Ui.dp(this, 20), Ui.dp(this, 10));
-
-        ImageView back = new ImageView(this);
-        back.setImageResource(R.drawable.ic_chev_right);
-        back.setRotation(180);
-        int bs = Ui.dp(this, 38);
-        back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.ds_back_btn);
-        back.setPadding(Ui.dp(this, 10), Ui.dp(this, 10),
-                Ui.dp(this, 10), Ui.dp(this, 10));
-        back.setClickable(true);
-        back.setFocusable(true);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { finish(); }
-        });
-        bar.addView(back);
-
-        TextView title = new TextView(this);
-        title.setText(getString(R.string.guard_title));
-        title.setTextSize(18);
-        title.setTextColor(Ds.ink());
-        Ds.heading(this, title);
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        tlp.leftMargin = Ui.dp(this, 12);
-        title.setLayoutParams(tlp);
-        bar.addView(title);
-        bar.addView(Ds.langToggle(this));
-        return bar;
-    }
 
     private void buildUi(double anchorDef, String prefillReading) {
         content.removeAllViews();
