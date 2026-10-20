@@ -107,53 +107,95 @@ final class Ds {
     static android.view.View langToggle(
             final android.app.Activity activity) {
         final boolean isUrdu = LocaleHelper.isUrdu(activity);
-        android.widget.LinearLayout seg =
-                new android.widget.LinearLayout(activity);
-        seg.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-        seg.setBackgroundResource(R.drawable.ds_lang_bg);
-        int p3 = Ui.dp(activity, 3);
-        seg.setPadding(p3, p3, p3, p3);
+        final int segW = Ui.dp(activity, 58);
+        final int trackH = Ui.dp(activity, 38);
+        final int pad = Ui.dp(activity, 3);
 
-        android.view.View.OnClickListener toggle =
+        // v3.7.7: SLIDING pill toggle (user: toggle jerk karta hai, pill
+        // left-right liquid flow ki tarah smooth move kare). Before: two
+        // static buttons — bg swap + instant recreate = hard jerk.
+        // Now: one amber pill glides under the labels (320ms overshoot =
+        // liquid settle), THEN language switches with a fade transition.
+        final android.widget.FrameLayout track =
+                new android.widget.FrameLayout(activity);
+        track.setBackgroundResource(R.drawable.ds_lang_bg);
+        track.setLayoutDirection(android.view.View.LAYOUT_DIRECTION_LTR);
+        // Minimum sizes (not LayoutParams): some parents override the
+        // toggle's LayoutParams with WRAP_CONTENT — the pill math must
+        // survive that.
+        track.setMinimumWidth(segW * 2 + pad * 2);
+        track.setMinimumHeight(trackH);
+
+        final android.view.View pill = new android.view.View(activity);
+        android.widget.FrameLayout.LayoutParams plp =
+                new android.widget.FrameLayout.LayoutParams(
+                        segW, trackH - pad * 2);
+        plp.leftMargin = pad;
+        plp.topMargin = pad;
+        pill.setLayoutParams(plp);
+        pill.setBackgroundResource(R.drawable.ds_lang_on);
+        pill.setTranslationX(isUrdu ? segW : 0);
+        track.addView(pill);
+
+        android.widget.LinearLayout labels =
+                new android.widget.LinearLayout(activity);
+        labels.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        labels.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT, trackH));
+        final TextView en = langLabel(activity, "EN", !isUrdu);
+        final TextView ur = langLabel(activity, "اردو", isUrdu);
+        labels.addView(en);
+        labels.addView(ur);
+        track.addView(labels);
+
+        final boolean[] busy = {false};
+        android.view.View.OnClickListener onTap =
                 new android.view.View.OnClickListener() {
             @Override public void onClick(android.view.View v) {
-                LocaleHelper.set(activity,
-                        LocaleHelper.isUrdu(activity)
-                                ? LocaleHelper.LANG_EN
-                                : LocaleHelper.LANG_UR);
-                activity.recreate();
+                if (busy[0]) return;
+                final boolean targetUrdu = (v == ur);
+                if (targetUrdu == LocaleHelper.isUrdu(activity)) return;
+                busy[0] = true;
+                // Label colors swap at animation start (instant feedback).
+                en.setTextColor(targetUrdu ? muted() : amberDark());
+                ur.setTextColor(targetUrdu ? amberDark() : muted());
+                pill.animate()
+                        .translationX(targetUrdu ? segW : 0)
+                        .setDuration(320)
+                        .setInterpolator(
+                                new android.view.animation.OvershootInterpolator(0.9f))
+                        .withEndAction(new Runnable() {
+                            @Override public void run() {
+                                LocaleHelper.set(activity,
+                                        targetUrdu ? LocaleHelper.LANG_UR
+                                                : LocaleHelper.LANG_EN);
+                                activity.recreate();
+                                activity.overridePendingTransition(
+                                        android.R.anim.fade_in,
+                                        android.R.anim.fade_out);
+                            }
+                        })
+                        .start();
             }
         };
-        seg.addView(langBtn(activity, "EN", !isUrdu, toggle));
-        seg.addView(langBtn(activity, "اردو", isUrdu, toggle));
-        return seg;
+        en.setOnClickListener(onTap);
+        ur.setOnClickListener(onTap);
+        return track;
     }
 
-    private static TextView langBtn(Context ctx, String text,
-            boolean active, android.view.View.OnClickListener toggle) {
+    private static TextView langLabel(Context ctx, String text,
+            boolean active) {
         TextView b = new TextView(ctx);
         b.setText(text);
         b.setTextSize(12.5f);
         b.setTypeface(Fonts.archivo(ctx, 800));
         b.setGravity(android.view.Gravity.CENTER);
-        // v3.7.1: both segments SAME fixed height + no font padding —
-        // EN (Latin) and اردو (Urdu script) have different intrinsic text
-        // heights, which made the toggle look off-center (user QA).
         b.setIncludeFontPadding(false);
         b.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                Ui.dp(ctx, 32)));
-        int px = Ui.dp(ctx, 14);
-        b.setPadding(px, 0, px, 0);
-        if (active) {
-            b.setBackgroundResource(R.drawable.ds_lang_on);
-        } else {
-            b.setBackgroundColor(Color.TRANSPARENT);
-        }
+                0, android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1f));
         b.setTextColor(active ? amberDark() : muted());
         b.setClickable(true);
         b.setFocusable(true);
-        b.setOnClickListener(toggle);
         return b;
     }
 
