@@ -108,10 +108,10 @@ final class Ds {
             final android.app.Activity activity) {
         final boolean isUrdu = LocaleHelper.isUrdu(activity);
         // v3.7.12: smaller still (user on v3.7.11: width kam mehsoos
-        // nahi hui). Segment 50→42dp, height 34→30dp; total track
-        // 106→90dp.
+        // nahi hui). Segment 50→42dp; total track 106→90dp.
+        // v3.7.13: height back to 34dp (user: 34 hi rehne do, 30 na karo).
         final int segW = Ui.dp(activity, 42);
-        final int trackH = Ui.dp(activity, 30);
+        final int trackH = Ui.dp(activity, 34);
         final int pad = Ui.dp(activity, 3);
 
         // v3.7.7: SLIDING pill toggle (user: toggle jerk karta hai, pill
