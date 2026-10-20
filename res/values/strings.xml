@@ -340,6 +340,9 @@
     <string name="pop_out_title">I\'m outside Pakistan</string>
     <string name="pop_out_sub">View connection instructions and try again.</string>
     <string name="pop_info">Our official electricity bill service is designed for users in Pakistan.</string>
+    <string name="guide_title">Quick Guide for You</string>
+    <string name="guide_body">Live bill fetch only works inside Pakistan — the official bill service blocks connections from other countries.\n\nTo fetch your bill from abroad:\n1. Turn on any VPN app\n2. Select Pakistan as the location\n3. Come back and fetch your bill again\n\nYou can still use Bill Estimate, Unit Check and the other tools without a VPN.</string>
+    <string name="guide_btn">Got It</string>
 
     <!-- v3.6.54: new bill page design strings -->
     <!-- v3.6.71: Quick Tools section -->

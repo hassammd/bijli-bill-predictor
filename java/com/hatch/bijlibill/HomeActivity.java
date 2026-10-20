@@ -288,6 +288,11 @@ public class HomeActivity extends BaseActivity {
             @Override public void onClick(View v) {
                 sp.edit().putBoolean("outside_pk", true).apply();
                 dlg.dismiss();
+                // v3.7.14 (user flow): outside select → VPN guide popup.
+                // App band NAHI hoti — sirf guide; user baqi tools use
+                // kar sakta hai aur VPN laga kar bill dobara fetch kar
+                // sakta hai.
+                showOutsideGuide();
             }
         }));
 
@@ -323,6 +328,93 @@ public class HomeActivity extends BaseActivity {
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         info.addView(iTx);
         card.addView(info);
+
+        dlg.setContentView(card);
+        if (dlg.getWindow() != null) {
+            int w = (int) (getResources().getDisplayMetrics().widthPixels
+                    * 0.9);
+            dlg.getWindow().setLayout(w,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        dlg.show();
+    }
+
+    /** v3.7.14: VPN guide popup — outside-Pakistan select ke baad.
+     *  App band nahi hoti; sirf guide milti hai ke VPN par Pakistan
+     *  location select karke bill dobara fetch karein. */
+    private void showOutsideGuide() {
+        final android.app.Dialog dlg = new android.app.Dialog(this);
+        dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        if (dlg.getWindow() != null) {
+            dlg.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(
+                            android.graphics.Color.TRANSPARENT));
+        }
+        dlg.setCancelable(true);
+
+        int d = (int) (getResources().getDisplayMetrics().density + 0.5f);
+
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundResource(R.drawable.ds_card_24);
+        card.setPadding(24 * d, 24 * d, 24 * d, 24 * d);
+        card.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        android.widget.FrameLayout icBox = new android.widget.FrameLayout(this);
+        icBox.setBackgroundResource(R.drawable.pop_circle_mint);
+        icBox.setLayoutParams(new LinearLayout.LayoutParams(64 * d, 64 * d));
+        ImageView ic = new ImageView(this);
+        ic.setImageResource(R.drawable.ic_globe_teal);
+        android.widget.FrameLayout.LayoutParams ilp =
+                new android.widget.FrameLayout.LayoutParams(36 * d, 36 * d);
+        ilp.gravity = Gravity.CENTER;
+        ic.setLayoutParams(ilp);
+        icBox.addView(ic);
+        card.addView(icBox);
+
+        TextView title = new TextView(this);
+        title.setText(R.string.guide_title);
+        title.setTextSize(19);
+        title.setTextColor(Ds.ink());
+        title.setGravity(Gravity.CENTER);
+        Ds.heading(this, title);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = 14 * d; tlp.bottomMargin = 10 * d;
+        title.setLayoutParams(tlp);
+        card.addView(title);
+
+        TextView body = new TextView(this);
+        body.setText(R.string.guide_body);
+        body.setTextSize(14);
+        body.setTextColor(android.graphics.Color.parseColor("#41605A"));
+        body.setLineSpacing(3 * d, 1.3f);
+        Ds.body(this, body, 400);
+        card.addView(body);
+
+        LinearLayout btn = new LinearLayout(this);
+        btn.setOrientation(LinearLayout.HORIZONTAL);
+        btn.setGravity(Gravity.CENTER);
+        btn.setBackgroundResource(R.drawable.nd_btn_solid);
+        btn.setMinimumHeight(50 * d);
+        btn.setClickable(true);
+        btn.setFocusable(true);
+        TextView tb = new TextView(this);
+        tb.setText(R.string.guide_btn);
+        tb.setTextSize(15);
+        tb.setTextColor(Color.WHITE);
+        Ds.heading(this, tb);
+        btn.addView(tb);
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        blp.topMargin = 20 * d;
+        btn.setLayoutParams(blp);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { dlg.dismiss(); }
+        });
+        card.addView(btn);
 
         dlg.setContentView(card);
         if (dlg.getWindow() != null) {
