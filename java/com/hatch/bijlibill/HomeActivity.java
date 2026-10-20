@@ -899,7 +899,8 @@ public class HomeActivity extends BaseActivity {
         flp.bottomMargin = Ui.dp(this, 10);
         card.addView(fieldLabel, flp);
 
-        // input wrap: link icon + field + PASTE
+        // input wrap: hash icon + field + PASTE (v3.7.23: chain icon
+        // hata kar hash — chain link ke liye hota hai, ye number field hai)
         LinearLayout wrap = new LinearLayout(this);
         wrap.setOrientation(LinearLayout.HORIZONTAL);
         wrap.setGravity(Gravity.CENTER_VERTICAL);
@@ -908,7 +909,7 @@ public class HomeActivity extends BaseActivity {
                 Ui.dp(this, 8), Ui.dp(this, 6));
 
         ImageView link = new ImageView(this);
-        link.setImageResource(R.drawable.ic_link);
+        link.setImageResource(R.drawable.ic_hash);
         int lsz = Ui.dp(this, 18);
         link.setLayoutParams(new LinearLayout.LayoutParams(lsz, lsz));
         wrap.addView(link);

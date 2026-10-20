@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hash icon (Feather style) — reference input, replaces chain/link
+     icon (user v3.7.23: chain link ke liye hota hai, reference number
+     ke liye hash lagega). Same stroke color/weight as ic_link. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000"
+        android:strokeColor="#5D6F66" android:strokeWidth="2"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M4,9 L20,9" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#5D6F66" android:strokeWidth="2"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M4,15 L20,15" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#5D6F66" android:strokeWidth="2"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M10,3 L8,21" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#5D6F66" android:strokeWidth="2"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M16,3 L14,21" />
+</vector>
