@@ -8,6 +8,12 @@
         <item name="android:windowBackground">@color/page_bg</item>
     </style>
     <style name="AppTheme.Splash" parent="android:Theme.Material.NoActionBar.Fullscreen">
-        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <!-- v3.7.21 (user): splash se pehle green flash aa raha tha —
+             theme ka windowBackground purana dark-green splash_bg
+             gradient tha (v3.0.0 ka leftover). Ab wahi halka rang jo
+             splash screen asal mein draw karti hai (#F3F8F7 = Ds.bg()),
+             to pre-draw background aur splash ek hi rang = flash khatam. -->
+        <item name="android:windowBackground">@color/splash_window_bg</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_window_bg</item>
     </style>
 </resources>

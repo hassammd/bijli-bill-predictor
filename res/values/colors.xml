@@ -15,6 +15,8 @@
     <color name="error_red">#C62828</color>
     <color name="error_bg">#FFEBEE</color>
     <color name="ic_launcher_background">#00695C</color>
+    <!-- v3.7.21: splash window bg = Ds.bg() exact, no green flash -->
+    <color name="splash_window_bg">#F3F8F7</color>
     <!-- legacy aliases (kept for safety) -->
     <color name="brand_green">#00695C</color>
     <color name="brand_green_dark">#004D40</color>
