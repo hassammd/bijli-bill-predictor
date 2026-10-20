@@ -42,6 +42,8 @@ import java.util.Set;
 public class HomeActivity extends BaseActivity {
 
     private static final String PREFS = "bijli_bill_refs";
+    /** v3.7.15: location popup ek launch mein ek hi dafa (recreate-safe). */
+    private static boolean popupShownThisLaunch = false;
     private static final String KEY_TAB = "tab_mode";   // "ref" or "cid"
     private static final String KEY_DISCO = "disco_code"; // Disco.code
     /** v2.1.0: last bill fetched — Unit Check entry needs a cached bill. */
@@ -152,7 +154,13 @@ public class HomeActivity extends BaseActivity {
      * Custom designed dialog (not the plain system AlertDialog).
      */
     private void maybeAskOutsidePakistan(final SharedPreferences sp) {
-        if (sp.contains("outside_pk")) return;
+        // v3.7.15 (user: popup har dafa app open karne par aana
+        // chahiye, sirf ek dafa nahi): one-time gate HATA diya — har
+        // cold start par popup aayega. Static flag sirf isi launch ke
+        // andar recreate (language switch / rotation) par dobara
+        // aane se rokta hai; naya process = naya launch = popup phir.
+        if (popupShownThisLaunch) return;
+        popupShownThisLaunch = true;
 
         final android.app.Dialog dlg = new android.app.Dialog(this);
         dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
