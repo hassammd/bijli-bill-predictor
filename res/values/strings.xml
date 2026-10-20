@@ -68,18 +68,18 @@
 
     <!-- About -->
     <string name="about_title">About</string>
-    <string name="about_subtitle">Bill Fetcher v2.5.0</string>
-    <string name="about_how">Kaise kaam karta hai</string>
+    <string name="about_subtitle">Bill Fetcher</string>
+    <string name="about_how">How it works</string>
     <string name="about_step1">1. Get the reference number from your LESCO bill (as printed, with U/R)</string>
     <string name="about_step2">2. Enter in the app and tap VIEW BILL</string>
-    <string name="about_step3">3. Poora bill tafseel ke saath dekh lo — website kholne ki zaroorat nahi</string>
-    <string name="about_source_title">Data kahan se aata hai</string>
-    <string name="about_source_text">Bill ka data LESCO/PITC ki official website se liya jata hai. Rates aur taxes bill par chhapay huay hotay hain — app kuch calculate nahi karti, sirf tumhara asal bill dikhati hai.</string>
+    <string name="about_step3">3. See your full bill in complete detail — no need to open the website</string>
+    <string name="about_source_title">Where the data comes from</string>
+    <string name="about_source_text">Bill data is fetched from the official LESCO / PITC website. Rates and taxes are printed on the bill itself — the app does not calculate anything; it simply shows your real bill.</string>
     <string name="about_disclaimer_title">Official Sources &amp; Disclaimer</string>
     <string name="about_disclaimer_text">Tariff slabs: NEPRA (nepra.org.pk). Bill records: official PITC billing portal used by Pakistani DISCOs — PITC operates under Pakistan\'s Ministry of Energy, Power Division (power.gov.pk). This is an independent app — NOT affiliated with, endorsed by, or representing NEPRA, WAPDA, PITC, or any DISCO (LESCO, IESCO, GEPCO, FESCO, MEPCO, etc.). Predictions are estimates for guidance only.</string>
     <string name="about_update_btn">CHECK FOR UPDATES</string>
-    <string name="about_update_msg">Update check jald aa raha hai.</string>
-    <string name="about_version">Version 2.5.0</string>
+    <string name="about_update_msg">Update check coming soon.</string>
+    <string name="about_version">Version</string>
 
     <!-- Premium -->
     <string name="premium_title">★ Go Premium</string>

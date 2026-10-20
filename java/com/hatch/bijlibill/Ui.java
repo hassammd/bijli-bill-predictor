@@ -305,7 +305,9 @@ public final class Ui {
         final Context ctx = act;
         LinearLayout h = col(ctx);
         // v3.6.60: dark green header (matches BillActivity).
-        h.setBackgroundColor(android.graphics.Color.parseColor("#064E50"));
+        // v3.7.1: SAME bright teal as Home topBar (Ds.ndTealAccent #11998E)
+        // — user: Settings header ka color different aa raha hai, same karo.
+        h.setBackgroundColor(Ds.ndTealAccent());
         // v3.6.43: reduced padding — header was too tall (user feedback).
         h.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
 
@@ -323,7 +325,8 @@ public final class Ui {
         top.addView(Ds.langToggle(act));
         h.addView(top);
 
-        TextView sub = tvRes(ctx, subtitleRes, 12, false, tealLight());
+        TextView sub = tvRes(ctx, subtitleRes, 12, false,
+                android.graphics.Color.parseColor("#E6F4F1"));
         sub.setPadding(0, dp(ctx, 4), 0, 0);
         h.addView(sub);
         h.setTag(new HeaderViews(title, sub));

@@ -136,8 +136,15 @@ final class Ds {
         b.setTextSize(12.5f);
         b.setTypeface(Fonts.archivo(ctx, 800));
         b.setGravity(android.view.Gravity.CENTER);
+        // v3.7.1: both segments SAME fixed height + no font padding —
+        // EN (Latin) and اردو (Urdu script) have different intrinsic text
+        // heights, which made the toggle look off-center (user QA).
+        b.setIncludeFontPadding(false);
+        b.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                Ui.dp(ctx, 32)));
         int px = Ui.dp(ctx, 14);
-        b.setPadding(px, Ui.dp(ctx, 7), px, Ui.dp(ctx, 7));
+        b.setPadding(px, 0, px, 0);
         if (active) {
             b.setBackgroundResource(R.drawable.ds_lang_on);
         } else {

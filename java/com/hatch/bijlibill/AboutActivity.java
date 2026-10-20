@@ -75,7 +75,9 @@ public class AboutActivity extends BaseActivity {
         // Actions.
         LinearLayout actions = Ui.col(this);
         actions.setPadding(Ui.dp(this, 16), Ui.dp(this, 4), Ui.dp(this, 16), 0);
-        Button upd = Ui.outlineButton(this, R.string.about_update_btn);
+        // v3.7.1: primary green button (same as app buttons, user QA) —
+        // was outlineButton.
+        Button upd = Ui.primaryButton(this, R.string.about_update_btn);
         upd.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 new AlertDialog.Builder(AboutActivity.this)
