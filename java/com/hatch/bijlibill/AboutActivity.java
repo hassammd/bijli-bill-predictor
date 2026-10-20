@@ -75,20 +75,34 @@ public class AboutActivity extends BaseActivity {
         // Actions.
         LinearLayout actions = Ui.col(this);
         // v3.7.2: a little more space above the buttons (user QA).
-        actions.setPadding(Ui.dp(this, 16), Ui.dp(this, 12),
+        // v3.7.6: 12→16dp — user: card aur button ke darmiyan space
+        // bohot kam hai, ~12dp do (card shadow ke baad saaf ~12dp dikhe).
+        actions.setPadding(Ui.dp(this, 16), Ui.dp(this, 16),
                 Ui.dp(this, 16), 0);
         // v3.7.1: primary green button (same as app buttons, user QA) —
         // was outlineButton.
         // v3.7.2: Ds.greenBtn — the CURRENT button style (nd_btn_solid
         // #11998E light teal-green, same as VIEW BILL). Ui.primaryButton
         // was the old dark green.
+        // v3.7.5: FUNCTIONAL (user request) — tap opens this app's Play
+        // Store page so the user can update from there. Play Store app
+        // first (market://), web listing as fallback.
         Button upd = Ds.greenBtn(this, getString(R.string.about_update_btn),
                 0, new View.OnClickListener() {
             @Override public void onClick(View v) {
-                new AlertDialog.Builder(AboutActivity.this)
-                        .setMessage(R.string.about_update_msg)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
+                String pkg = getPackageName();
+                try {
+                    Intent i = new Intent(Intent.ACTION_VIEW,
+                            android.net.Uri.parse(
+                                    "market://details?id=" + pkg));
+                    i.setPackage("com.android.vending");
+                    startActivity(i);
+                } catch (Exception e) {
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            android.net.Uri.parse(
+                                    "https://play.google.com/store/apps/details?id="
+                                            + pkg)));
+                }
             }
         });
         actions.addView(upd);
