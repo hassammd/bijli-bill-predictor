@@ -41,10 +41,10 @@ public final class MeterCheckCalc {
 
     /** Exact validation message (spec, v2.2.1 wording). */
     public static final String ERR_READING_ORDER =
-            "Nayi reading bill wali reading se kam hai \u2014 dobara check karo";
+            "The new reading is lower than the bill reading \u2014 please check again";
     /** When a reading cannot be parsed at all. */
     public static final String ERR_READING_UNPARSEABLE =
-            "Reading parhi nahi ja saki \u2014 dobara check karo";
+            "The reading could not be read \u2014 please check again";
 
     /** Slab boundaries for the alert ladder. */
     public static final int[] SLAB_BOUNDS = {100, 200, 300, 400, 500, 700};

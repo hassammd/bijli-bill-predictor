@@ -1448,7 +1448,7 @@ public class TestBillFetch {
         check("v210 current<base rejected", bad.error,
                 MeterCheckCalc.ERR_READING_ORDER);
         check("v210 current<base exact string", bad.error,
-                "Nayi reading bill wali reading se kam hai \u2014 dobara check karo");
+                "The new reading is lower than the bill reading \u2014 please check again");
         MeterCheckCalc.Result eq = MeterCheckCalc.compute(
                 "765", "765", "Protected", "330", null, "5", "4280", 12);
         check("v210 current==base rejected", eq.error,
@@ -1569,7 +1569,7 @@ public class TestBillFetch {
         check("v250 en meter_check_title", en.get("meter_check_title"),
                 "Unit Check");
         check("v250 en meter_result_title", en.get("meter_result_title"),
-                "Unit Check — ANDAZA");
+                "Unit Check — ESTIMATE");
         check("v250 ur meter_result_title", ur.get("meter_result_title"),
                 "یونٹ چیک — تخمینہ");
         check("v250 en meter_no_bill", en.get("meter_no_bill"),
@@ -2161,9 +2161,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"151\""), true);
+                man.contains("android:versionCode=\"152\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.19\""), true);
+                man.contains("android:versionName=\"3.7.20\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3866,9 +3866,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"151\""), true);
+                man.contains("android:versionCode=\"152\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.19\""), true);
+                man.contains("android:versionName=\"3.7.20\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4239,10 +4239,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"151\""),
+                manifest.contains("android:versionCode=\"152\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.19\""),
+                manifest.contains("android:versionName=\"3.7.20\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4401,10 +4401,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"151\""),
+                manifest.contains("android:versionCode=\"152\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.19\""),
+                manifest.contains("android:versionName=\"3.7.20\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
