@@ -142,8 +142,11 @@ final class Ds {
         labels.setOrientation(android.widget.LinearLayout.HORIZONTAL);
         labels.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT, trackH));
-        final TextView en = langLabel(activity, "EN", !isUrdu);
-        final TextView ur = langLabel(activity, "اردو", isUrdu);
+        // v3.7.9: row padding = pill inset, so each label sits exactly
+        // over its pill zone (3..61 / 61..119).
+        labels.setPadding(pad, 0, pad, 0);
+        final TextView en = langLabel(activity, "EN", !isUrdu, segW);
+        final TextView ur = langLabel(activity, "اردو", isUrdu, segW);
         labels.addView(en);
         labels.addView(ur);
         track.addView(labels);
@@ -184,15 +187,20 @@ final class Ds {
     }
 
     private static TextView langLabel(Context ctx, String text,
-            boolean active) {
+            boolean active, int widthPx) {
         TextView b = new TextView(ctx);
         b.setText(text);
         b.setTextSize(12.5f);
         b.setTypeface(Fonts.archivo(ctx, 800));
         b.setGravity(android.view.Gravity.CENTER);
         b.setIncludeFontPadding(false);
+        b.setSingleLine(true);
+        // v3.7.9: FIXED width — weight-based columns inside a
+        // wrap-content FrameLayout collapsed the اردو label to ~0 width
+        // and wrapped it glyph-by-glyph (user screenshot). Every size in
+        // this toggle is now an explicit dp; nothing depends on weights.
         b.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
-                0, android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+                widthPx, android.view.ViewGroup.LayoutParams.MATCH_PARENT));
         b.setTextColor(active ? amberDark() : muted());
         b.setClickable(true);
         b.setFocusable(true);
