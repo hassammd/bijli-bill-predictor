@@ -13,10 +13,10 @@
     <!-- Home -->
     <string name="home_title">Bijli Bill</string>
     <string name="home_subtitle">Bijli company chuno, reference dalo, bill dekho</string>
-    <string name="disco_label">Bijli Company</string>
+    <string name="disco_label">Electricity Providers</string>
     <string name="kelectric_soon">K-Electric jald aa raha hai!</string>
     <string name="meters_title">Mere Meter</string>
-    <string name="meters_empty">Abhi koi meter save nahi — pehla bill dekho, khud save ho jayega</string>
+    <string name="meters_empty">No meter saved yet — view your first bill and it will be saved automatically</string>
     <string name="ref_label">Reference Number</string>
     <string name="ref_hint">e.g. 02118240618604U</string>
     <string name="tab_ref">Reference No</string>
@@ -251,7 +251,7 @@
     <string name="andaza_row_tax_fallback">Tax: %1$s (bill mein tafseel nahi mili \u2014 18%% GST andaza)</string>
     <string name="andaza_row_total">Kul andaza bill: %1$s</string>
     <!-- v2.6.0 design system: home -->
-    <string name="home_greeting">Assalam-o-Alaikum \uD83D\uDC4B</string>
+    <string name="home_greeting">Asalamualaikum</string>
     <string name="home_greeting_sub">Apna bijli bill check karein — sirf reference number chahiye.</string>
     <string name="helper_ref">Bill par likha 14 hindson ka reference number darj karein — ye sirf is phone mein save hoga.</string>
     <string name="helper_cid">Bill par likha 7 hindson ka customer ID darj karein — ye sirf is phone mein save hoga.</string>

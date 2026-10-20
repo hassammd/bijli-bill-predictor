@@ -540,8 +540,8 @@ public class HomeActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
         content.addView(topBar());
-        // v3.7.17 (user): greeting ("Assalam-o-Alaikum") aur
-        // "ELECTRICITY PROVIDER" label Home se REMOVE kar diye.
+        content.addView(greeting());
+        content.addView(secLabel(R.string.disco_label, 10));
         content.addView(discoChips());
         content.addView(inputCard());
 
@@ -642,6 +642,26 @@ public class HomeActivity extends BaseActivity {
         return bar;
     }
 
+    // ---- greeting ----
+
+    private View greeting() {
+        LinearLayout g = new LinearLayout(this);
+        g.setOrientation(LinearLayout.VERTICAL);
+        // v3.6.83: more bottom space (user request).
+        // v3.6.93: more top air — topBar→greeting gap 16dp→24dp (user QA).
+        g.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
+                Ui.dp(this, 20), Ui.dp(this, 8));
+
+        TextView h = new TextView(this);
+        h.setText(getString(R.string.home_greeting));
+        h.setTextSize(25);
+        h.setTextColor(Ds.ink());
+        Ds.heading(this, h);
+        g.addView(h);
+
+        return g;
+    }
+
     /** Small caps section label, e.g. "BIJLI COMPANY". */
     private View secLabel(int resId, int topMarginDp) {
         TextView l = new TextView(this);
@@ -673,8 +693,7 @@ public class HomeActivity extends BaseActivity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         int hp = Ui.dp(this, 20);
         // v3.6.95: bottom padding 12dp→8dp (Home fit-without-scroll trims).
-        // v3.7.17: top padding 2→14dp (greeting/label removed — top gap).
-        row.setPadding(hp, Ui.dp(this, 14), hp, Ui.dp(this, 8));
+        row.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 8));
 
         // left arrow
         android.widget.ImageView left = new android.widget.ImageView(this);
