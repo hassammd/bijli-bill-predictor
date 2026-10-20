@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- v2.0 BILL FETCHER ONLY — calculator removed -->
-    <string name="app_name">Bijli Bill Calculator</string>
+    <string name="app_name">Bijli Bill</string>
     <string name="app_tagline">LESCO bill — just your reference number!</string>
     <string name="splash_tagline">Your bill, before it arrives.</string>
     <!-- v2.6.0 design system: splash headline + foot always in Urdu (design-faithful) -->
