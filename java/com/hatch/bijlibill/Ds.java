@@ -107,11 +107,11 @@ final class Ds {
     static android.view.View langToggle(
             final android.app.Activity activity) {
         final boolean isUrdu = LocaleHelper.isUrdu(activity);
-        // v3.7.10: compact size (user: toggle width zyada hai, overall
-        // bara hai — thoda sa chhota karo). Segment 58→50dp, height
-        // 38→34dp; total track 122→106dp.
-        final int segW = Ui.dp(activity, 50);
-        final int trackH = Ui.dp(activity, 34);
+        // v3.7.12: smaller still (user on v3.7.11: width kam mehsoos
+        // nahi hui). Segment 50→42dp, height 34→30dp; total track
+        // 106→90dp.
+        final int segW = Ui.dp(activity, 42);
+        final int trackH = Ui.dp(activity, 30);
         final int pad = Ui.dp(activity, 3);
 
         // v3.7.7: SLIDING pill toggle (user: toggle jerk karta hai, pill
@@ -146,7 +146,7 @@ final class Ds {
         labels.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT, trackH));
         // v3.7.9: row padding = pill inset, so each label sits exactly
-        // over its pill zone (v3.7.10 sizes: 3..53 / 53..103).
+        // over its pill zone (v3.7.12 sizes: 3..45 / 45..87).
         labels.setPadding(pad, 0, pad, 0);
         final TextView en = langLabel(activity, "EN", !isUrdu, segW);
         final TextView ur = langLabel(activity, "اردو", isUrdu, segW);
