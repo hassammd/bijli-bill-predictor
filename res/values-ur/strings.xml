@@ -18,7 +18,7 @@
     <string name="meters_title">میرے میٹر</string>
     <string name="meters_empty">ابھی کوئی میٹر save نہیں ہے — پہلا بل دیکھیں، خود save ہو جائے گا</string>
     <string name="ref_label">ریفرنس نمبر</string>
-    <string name="ref_hint"></string>
+    <string name="ref_hint">e.g. 02118240618604U</string>
     <string name="tab_ref">ریفرنس نمبر</string>
     <string name="tab_custid">کسٹمر آئی ڈی</string>
     <string name="custid_hint">7 ہندسوں کی آئی ڈی (بل پر لکھی ہوتی ہے)</string>
