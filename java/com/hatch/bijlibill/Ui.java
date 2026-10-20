@@ -303,32 +303,34 @@ public final class Ui {
     public static LinearLayout header(final Activity act, int titleRes,
                                       int subtitleRes, final LangToggle toggle) {
         final Context ctx = act;
-        LinearLayout h = col(ctx);
-        // v3.6.60: dark green header (matches BillActivity).
-        // v3.7.1: SAME bright teal as Home topBar (Ds.ndTealAccent #11998E)
-        // — user: Settings header ka color different aa raha hai, same karo.
+        // v3.7.2: horizontal header — title/subtitle column (left) + toggle
+        // CENTERED against the full header height. Before, the toggle sat
+        // in the title row only, so with the subtitle below it looked
+        // off-center (user QA: upar space kam, neeche zyada). Same teal as
+        // every other page header.
+        LinearLayout h = row(ctx);
+        h.setGravity(Gravity.CENTER_VERTICAL);
         h.setBackgroundColor(Ds.ndTealAccent());
-        // v3.6.43: reduced padding — header was too tall (user feedback).
         h.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
 
-        LinearLayout top = row(ctx);
-        top.setGravity(Gravity.CENTER_VERTICAL);
-
-        TextView title = tvRes(ctx, titleRes, 20, true, Color.WHITE);
-        title.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout left = col(ctx);
+        left.setLayoutParams(new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         // v3.6.11: right margin for spacing
-        ((LinearLayout.LayoutParams) title.getLayoutParams()).rightMargin =
+        ((LinearLayout.LayoutParams) left.getLayoutParams()).rightMargin =
                 dp(ctx, 12);
-        top.addView(title);
-        // v3.6.11: same toggle as other pages (was langPill)
-        top.addView(Ds.langToggle(act));
-        h.addView(top);
+
+        TextView title = tvRes(ctx, titleRes, 20, true, Color.WHITE);
+        left.addView(title);
 
         TextView sub = tvRes(ctx, subtitleRes, 12, false,
                 android.graphics.Color.parseColor("#E6F4F1"));
         sub.setPadding(0, dp(ctx, 4), 0, 0);
-        h.addView(sub);
+        left.addView(sub);
+        h.addView(left);
+
+        // v3.6.11: same toggle as other pages (was langPill)
+        h.addView(Ds.langToggle(act));
         h.setTag(new HeaderViews(title, sub));
         return h;
     }

@@ -74,11 +74,16 @@ public class AboutActivity extends BaseActivity {
 
         // Actions.
         LinearLayout actions = Ui.col(this);
-        actions.setPadding(Ui.dp(this, 16), Ui.dp(this, 4), Ui.dp(this, 16), 0);
+        // v3.7.2: a little more space above the buttons (user QA).
+        actions.setPadding(Ui.dp(this, 16), Ui.dp(this, 12),
+                Ui.dp(this, 16), 0);
         // v3.7.1: primary green button (same as app buttons, user QA) —
         // was outlineButton.
-        Button upd = Ui.primaryButton(this, R.string.about_update_btn);
-        upd.setOnClickListener(new View.OnClickListener() {
+        // v3.7.2: Ds.greenBtn — the CURRENT button style (nd_btn_solid
+        // #11998E light teal-green, same as VIEW BILL). Ui.primaryButton
+        // was the old dark green.
+        Button upd = Ds.greenBtn(this, getString(R.string.about_update_btn),
+                0, new View.OnClickListener() {
             @Override public void onClick(View v) {
                 new AlertDialog.Builder(AboutActivity.this)
                         .setMessage(R.string.about_update_msg)
