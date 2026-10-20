@@ -146,13 +146,18 @@ public class BillViewerActivity extends Activity {
 
         // v3.6.71: match Home header style — dark green rounded square
         // (like Home logo), white arrow.
+        // v3.7.4: SAME standard as other pages (user QA — viewer icons
+        // purane thay): mint circle bg (nd_back_btn_light), dark teal
+        // chevron, 28dp, 8dp padding — identical to BillsActivity.
         ImageView back = new ImageView(this);
-        back.setImageResource(R.drawable.ic_chev_white);
+        back.setImageResource(R.drawable.ic_chev_right);
         back.setRotation(180);
-        int bs = dp(38);
+        back.setColorFilter(Ds.ndPrimaryDark(),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+        int bs = dp(28);
         back.setLayoutParams(new LinearLayout.LayoutParams(bs, bs));
-        back.setBackgroundResource(R.drawable.ds_logo_bg);
-        back.setPadding(dp(9), dp(9), dp(9), dp(9));
+        back.setBackgroundResource(R.drawable.nd_back_btn_light);
+        back.setPadding(dp(8), dp(8), dp(8), dp(8));
         back.setClickable(true);
         back.setFocusable(true);
         back.setOnClickListener(new View.OnClickListener() {
@@ -193,12 +198,16 @@ public class BillViewerActivity extends Activity {
 
         // Download button (in header, properly placed)
         // v3.6.71: match Home style — dark green rounded square, white icon.
+        // v3.7.4: same light-circle standard as the back button (user QA:
+        // background change karo taake consistency same rahe).
         ImageView dl = new ImageView(this);
-        dl.setImageResource(R.drawable.ic_download_white);
-        int dls = dp(38);
+        dl.setImageResource(R.drawable.ic_download);
+        dl.setColorFilter(Ds.ndPrimaryDark(),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+        int dls = dp(28);
         dl.setLayoutParams(new LinearLayout.LayoutParams(dls, dls));
-        dl.setBackgroundResource(R.drawable.ds_logo_bg);
-        dl.setPadding(dp(9), dp(9), dp(9), dp(9));
+        dl.setBackgroundResource(R.drawable.nd_back_btn_light);
+        dl.setPadding(dp(8), dp(8), dp(8), dp(8));
         dl.setClickable(true);
         dl.setFocusable(true);
         dl.setOnClickListener(new View.OnClickListener() {
