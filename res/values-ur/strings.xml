@@ -68,18 +68,20 @@
 
     <!-- About -->
     <string name="about_title">تعارف</string>
-    <string name="about_subtitle">بل فیچر v2.5.0</string>
+    <string name="about_subtitle">بل فیچر</string>
     <string name="about_how">یہ کیسے کام کرتا ہے</string>
-    <string name="about_step1">1۔ اپنے LESCO بل سے ریفرنس نمبر نوٹ کریں (بل پر جیسا لکھا ہے، U/R سمیت)</string>
-    <string name="about_step2">2۔ ایپ میں لکھ کر "بل دیکھیں" دبائیں</string>
-    <string name="about_step3">3۔ پورا بل تفصیل کے ساتھ دیکھیں — ویب سائٹ کھولنے کی ضرورت نہیں</string>
+    <string name="about_step1">• اپنے بل سے ریفرنس نمبر لیں (U/R سمیت)</string>
+    <string name="about_step2">• نمبر لکھ کر «بل دیکھیں» دبائیں</string>
+    <string name="about_step3">• پورا بل فوراً دیکھیں — ویب سائٹ کی ضرورت نہیں</string>
     <string name="about_source_title">ڈیٹا کہاں سے آتا ہے</string>
+    <string name="about_source1">• بل کا ڈیٹا LESCO/PITC کی آفیشل ویب سائٹ سے آتا ہے</string>
+    <string name="about_source2">• ریٹس و ٹیکسز بل پر چھپے ہوتے ہیں — ایپ حساب نہیں لگاتی، صرف اصل بل دکھاتی ہے</string>
     <string name="about_source_text">بل کا ڈیٹا LESCO/PITC کی آفیشل ویب سائٹ سے لیا جاتا ہے۔ ریٹس اور ٹیکسز بل پر چھپے ہوتے ہیں — ایپ حساب نہیں لگاتی، صرف آپ کا اصل بل دکھاتی ہے۔</string>
     <string name="about_disclaimer_title">سرکاری ذرائع اور اعلان</string>
     <string name="about_disclaimer_text">ٹیرف سلیب: نیپرا (nepra.org.pk)۔ بل ریکارڈ: پاکستانی ڈسکوز کا آفیشل پی آئی ٹی سی بلنگ پورٹل — پی آئی ٹی سی پاکستان کی وزارت توانائی (پاور ڈویژن) کے تحت کام کرتا ہے (power.gov.pk)۔ یہ ایک آزاد ایپ ہے — اس کا نیپرا، واپڈا، پی آئی ٹی سی یا کسی ڈسکو (لیسکو، آئیسکو، گیپکو، فیسکو، میپکو وغیرہ) سے کوئی تعلق نہیں۔ اندازے صرف رہنمائی کے لیے ہیں۔</string>
     <string name="about_update_btn">اپ ڈیٹس چیک کریں</string>
     <string name="about_update_msg">اپ ڈیٹ چیک جلد آ رہا ہے۔</string>
-    <string name="about_version">ورژن 2.5.0</string>
+    <string name="about_version">ورژن</string>
 
     <!-- Premium -->
     <string name="premium_title">★ گو پریمیم</string>
