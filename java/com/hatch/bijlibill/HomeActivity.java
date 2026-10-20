@@ -69,6 +69,8 @@ public class HomeActivity extends BaseActivity {
     private TextView fieldLabel;
     private TextView refField;
     private TextView cidField;
+    /** v3.7.22 (user): bill check karne ke baad input khali ho. */
+    private boolean clearInputOnResume = false;
     private TextView errorView;
     private LinearLayout savedList;
     /** v3.4.0: streak card (visible only while a streak exists). */
@@ -111,6 +113,13 @@ public class HomeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // v3.7.22 (user): bill dekh kar wapas aane par reference/CID
+        // input khali — purana number input mein nahi rehna chahiye.
+        if (clearInputOnResume) {
+            clearInputOnResume = false;
+            if (refField != null) refField.setText("");
+            if (cidField != null) cidField.setText("");
+        }
         refreshSavedList();
         refreshMeterCheckButton();
         refreshStreakCard();
@@ -1525,6 +1534,7 @@ public class HomeActivity extends BaseActivity {
             return;
         }
         hideError();
+        clearInputOnResume = true;
         // v2.1.0: remember for the Unit Check entry point.
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .putString(KEY_LAST_MODE, mode)
