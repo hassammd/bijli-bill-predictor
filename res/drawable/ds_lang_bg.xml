@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- v3.7.8: fill SAME as the header back-button background (#DDF5EF,
+     nd_back_btn_light) — user: toggle ke non-active background aur back
+     button ka background same hona chahiye. Stroke lightened to match. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="30dp" />
-    <solid android:color="#C8D8CF" />
-    <stroke android:width="1dp" android:color="#A8C0B5" />
+    <solid android:color="#DDF5EF" />
+    <stroke android:width="1dp" android:color="#B9E6DA" />
 </shape>
