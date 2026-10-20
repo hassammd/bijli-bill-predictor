@@ -46,13 +46,13 @@
     <string name="save_need_ref">Enter the reference number first</string>
     <string name="save_need_name">Enter a name to identify it</string>
     <string name="saved_ok">Reference saved</string>
-    <string name="delete_title">Delete karna hai?</string>
-    <string name="delete_msg">%1$s (%2$s) delete ho jayega.</string>
-    <string name="deleted">Delete ho gaya</string>
+    <string name="delete_title">Remove this meter?</string>
+    <string name="delete_msg">%1$s (%2$s) will be removed from your saved meters.</string>
+    <string name="deleted">Meter removed</string>
 
     <!-- Shared -->
-    <string name="yes">Haan</string>
-    <string name="no">Nahi</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="back">BACK</string>

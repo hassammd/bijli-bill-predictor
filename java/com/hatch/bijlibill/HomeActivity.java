@@ -1472,6 +1472,17 @@ public class HomeActivity extends BaseActivity {
                                     });
                             return true;
                         }
+                    },
+                    new View.OnClickListener() {
+                        @Override public void onClick(View v) {
+                            MeterUi.confirmDelete(HomeActivity.this,
+                                    MeterUi.store(HomeActivity.this), m,
+                                    new Runnable() {
+                                        @Override public void run() {
+                                            refreshSavedList();
+                                        }
+                                    });
+                        }
                     }));
         }
     }

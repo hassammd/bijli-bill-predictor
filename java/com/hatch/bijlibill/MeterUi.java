@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
@@ -53,7 +54,8 @@ final class MeterUi {
     }
 
     static View card(final Context ctx, final SavedMeters.Meter m,
-            View.OnClickListener onOpen, View.OnLongClickListener onDelete) {
+            View.OnClickListener onOpen, View.OnLongClickListener onDelete,
+            View.OnClickListener onRemove) {
         final Disco md = Disco.fromCode(m.disco);
 
         LinearLayout row = new LinearLayout(ctx);
@@ -167,6 +169,31 @@ final class MeterUi {
         chev.setLayoutParams(new LinearLayout.LayoutParams(cs, cs));
         row.addView(chev);
 
+        // v3.7.19 (user): visible REMOVE option — trash button at the
+        // right end of every meter card. Tap = small Yes/No popup
+        // (confirmDelete). Long-press delete bhi maujood hai.
+        if (onRemove != null) {
+            FrameLayout del = new FrameLayout(ctx);
+            del.setBackgroundResource(R.drawable.pop_circle_red);
+            int ds = Ui.dp(ctx, 34);
+            LinearLayout.LayoutParams dlp =
+                    new LinearLayout.LayoutParams(ds, ds);
+            dlp.leftMargin = Ui.dp(ctx, 10);
+            del.setLayoutParams(dlp);
+            del.setClickable(true);
+            del.setFocusable(true);
+            del.setOnClickListener(onRemove);
+            ImageView tiv = new ImageView(ctx);
+            tiv.setImageResource(R.drawable.ic_trash);
+            int ts = Ui.dp(ctx, 18);
+            FrameLayout.LayoutParams tlp2 =
+                    new FrameLayout.LayoutParams(ts, ts);
+            tlp2.gravity = Gravity.CENTER;
+            tiv.setLayoutParams(tlp2);
+            del.addView(tiv);
+            row.addView(del);
+        }
+
         row.setClickable(true);
         row.setFocusable(true);
         row.setOnClickListener(onOpen);
@@ -177,27 +204,121 @@ final class MeterUi {
     static void confirmDelete(final Context ctx,
             final SavedMeters.Storage s, final SavedMeters.Meter m,
             final Runnable onDone) {
-        final Disco md = Disco.fromCode(m.disco);
         final String display = SavedMeters.maskId(m.idValue)
                 + ("cid".equals(m.idType)
-                        ? " · " + ctx.getString(R.string.saved_cid_suffix)
+                        ? " \u00b7 " + ctx.getString(R.string.saved_cid_suffix)
                         : "");
-        new AlertDialog.Builder(ctx)
-                .setTitle(R.string.delete_title)
-                .setMessage(ctx.getString(R.string.delete_msg,
-                        m.holderName, display))
-                .setPositiveButton(R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface d,
-                            int which) {
+        // v3.7.19 (user): system dialog ki jagah chhota sa apna
+        // Yes/No popup — app design, red Yes button.
+        final android.app.Dialog dlg = new android.app.Dialog(ctx);
+        dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        if (dlg.getWindow() != null) {
+            dlg.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(
+                            android.graphics.Color.TRANSPARENT));
+        }
+        dlg.setCancelable(true);
+        int d = (int) (ctx.getResources().getDisplayMetrics().density + 0.5f);
+
+        LinearLayout card = new LinearLayout(ctx);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundResource(R.drawable.ds_card_24);
+        card.setPadding(22 * d, 22 * d, 22 * d, 20 * d);
+        card.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        FrameLayout icBox = new FrameLayout(ctx);
+        icBox.setBackgroundResource(R.drawable.pop_circle_red);
+        icBox.setLayoutParams(new LinearLayout.LayoutParams(52 * d, 52 * d));
+        ImageView ic = new ImageView(ctx);
+        ic.setImageResource(R.drawable.ic_trash);
+        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(26 * d, 26 * d);
+        ilp.gravity = Gravity.CENTER;
+        ic.setLayoutParams(ilp);
+        icBox.addView(ic);
+        card.addView(icBox);
+
+        TextView title = new TextView(ctx);
+        title.setText(R.string.delete_title);
+        title.setTextSize(17);
+        title.setTextColor(Ds.ink());
+        title.setGravity(Gravity.CENTER);
+        Ds.heading(ctx, title);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = 12 * d; tlp.bottomMargin = 6 * d;
+        title.setLayoutParams(tlp);
+        card.addView(title);
+
+        TextView msg = new TextView(ctx);
+        msg.setText(ctx.getString(R.string.delete_msg, m.holderName, display));
+        msg.setTextSize(13.5f);
+        msg.setTextColor(Ds.muted());
+        msg.setGravity(Gravity.CENTER);
+        msg.setLineSpacing(2 * d, 1.3f);
+        Ds.body(ctx, msg, 400);
+        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        mlp.bottomMargin = 18 * d;
+        msg.setLayoutParams(mlp);
+        card.addView(msg);
+
+        LinearLayout btns = new LinearLayout(ctx);
+        btns.setOrientation(LinearLayout.HORIZONTAL);
+        btns.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        btns.addView(popBtn(ctx, d, R.string.no, false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) { dlg.dismiss(); }
+                }));
+        View gap = new View(ctx);
+        gap.setLayoutParams(new LinearLayout.LayoutParams(10 * d, 1));
+        btns.addView(gap);
+        btns.addView(popBtn(ctx, d, R.string.yes, true,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
                         SavedMeters.remove(s, m.disco, m.idValue);
                         android.widget.Toast.makeText(ctx,
                                 R.string.deleted,
                                 android.widget.Toast.LENGTH_SHORT).show();
+                        dlg.dismiss();
                         if (onDone != null) onDone.run();
                     }
-                })
-                .setNegativeButton(R.string.no, null)
-                .show();
+                }));
+        card.addView(btns);
+
+        dlg.setContentView(card);
+        if (dlg.getWindow() != null) {
+            int w = (int) (ctx.getResources().getDisplayMetrics().widthPixels
+                    * 0.82);
+            dlg.getWindow().setLayout(w,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        dlg.show();
+    }
+
+    /** v3.7.19: chhota pill button for the delete popup (No = light, Yes = red). */
+    private static View popBtn(Context ctx, int d, int textRes,
+            boolean danger, View.OnClickListener onClick) {
+        LinearLayout b = new LinearLayout(ctx);
+        b.setOrientation(LinearLayout.HORIZONTAL);
+        b.setGravity(Gravity.CENTER);
+        b.setBackgroundResource(danger
+                ? R.drawable.pop_btn_red : R.drawable.pop_btn_light);
+        b.setMinimumHeight(44 * d);
+        b.setClickable(true);
+        b.setFocusable(true);
+        b.setOnClickListener(onClick);
+        b.setLayoutParams(new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView t = new TextView(ctx);
+        t.setText(textRes);
+        t.setTextSize(14.5f);
+        t.setTextColor(danger ? Color.WHITE : Ds.ink());
+        Ds.heading(ctx, t);
+        b.addView(t);
+        return b;
     }
 }

@@ -157,6 +157,17 @@ public class BillsActivity extends BaseActivity {
                                     });
                             return true;
                         }
+                    },
+                    new View.OnClickListener() {
+                        @Override public void onClick(View v) {
+                            MeterUi.confirmDelete(BillsActivity.this,
+                                    storage, m,
+                                    new Runnable() {
+                                        @Override public void run() {
+                                            refresh();
+                                        }
+                                    });
+                        }
                     }));
             // v3.6.30: native ad every 3 bills (test placeholder).
             // Production: real AdMob native ad here.
