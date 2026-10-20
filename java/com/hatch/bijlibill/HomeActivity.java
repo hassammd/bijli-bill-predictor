@@ -161,119 +161,245 @@ public class HomeActivity extends BaseActivity {
                     new android.graphics.drawable.ColorDrawable(
                             android.graphics.Color.TRANSPARENT));
         }
-        dlg.setCancelable(false);
+        // v3.7.11: design has an X — dialog is dismissible now; closing
+        // without a choice saves NOTHING (asks again next launch).
+        dlg.setCancelable(true);
 
         int d = (int) (getResources().getDisplayMetrics().density + 0.5f);
-        int dp24 = 24 * d, dp16 = 16 * d, dp12 = 12 * d, dp8 = 8 * d;
 
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setBackgroundResource(R.drawable.ds_card_24);
-        card.setPadding(dp24, dp24, dp24, dp24);
+        card.setPadding(24 * d, 14 * d, 24 * d, 24 * d);
         card.setGravity(Gravity.CENTER_HORIZONTAL);
 
-        // Icon
-        ImageView ic = new ImageView(this);
-        ic.setImageResource(R.drawable.ic_info_circle);
-        ic.setColorFilter(Ds.g800(),
-                android.graphics.PorterDuff.Mode.SRC_IN);
-        int ics = 48 * d;
-        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(
-                ics, ics);
-        ilp.bottomMargin = dp16;
-        ic.setLayoutParams(ilp);
-        card.addView(ic);
+        // ---- close (X), top-right ----
+        LinearLayout xRow = new LinearLayout(this);
+        xRow.setOrientation(LinearLayout.HORIZONTAL);
+        xRow.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        View xSpacer = new View(this);
+        xSpacer.setLayoutParams(new LinearLayout.LayoutParams(0, 1, 1f));
+        xRow.addView(xSpacer);
+        TextView x = new TextView(this);
+        x.setText("\u2715");
+        x.setTextSize(17);
+        x.setTextColor(android.graphics.Color.parseColor("#8A9BA0"));
+        x.setGravity(Gravity.CENTER);
+        x.setLayoutParams(new LinearLayout.LayoutParams(36 * d, 36 * d));
+        x.setClickable(true);
+        x.setFocusable(true);
+        x.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { dlg.dismiss(); }
+        });
+        xRow.addView(x);
+        card.addView(xRow);
 
-        // Title
+        // ---- illustration: mint circle + globe + pin + bolt badge ----
+        android.widget.FrameLayout illus = new android.widget.FrameLayout(this);
+        illus.setLayoutParams(new LinearLayout.LayoutParams(150 * d, 132 * d));
+        View blobL = new View(this);
+        blobL.setBackgroundResource(R.drawable.pop_circle_mint);
+        android.widget.FrameLayout.LayoutParams bll =
+                new android.widget.FrameLayout.LayoutParams(30 * d, 30 * d);
+        bll.leftMargin = 2 * d; bll.topMargin = 52 * d;
+        blobL.setLayoutParams(bll);
+        illus.addView(blobL);
+        View blobR = new View(this);
+        blobR.setBackgroundResource(R.drawable.pop_circle_mint);
+        android.widget.FrameLayout.LayoutParams brl =
+                new android.widget.FrameLayout.LayoutParams(18 * d, 18 * d);
+        brl.leftMargin = 128 * d; brl.topMargin = 34 * d;
+        blobR.setLayoutParams(brl);
+        illus.addView(blobR);
+        View bigCircle = new View(this);
+        bigCircle.setBackgroundResource(R.drawable.pop_circle_mint);
+        android.widget.FrameLayout.LayoutParams bcl =
+                new android.widget.FrameLayout.LayoutParams(118 * d, 118 * d);
+        bcl.leftMargin = 16 * d; bcl.topMargin = 4 * d;
+        bigCircle.setLayoutParams(bcl);
+        illus.addView(bigCircle);
+        ImageView globe = new ImageView(this);
+        globe.setImageResource(R.drawable.ic_globe_teal);
+        android.widget.FrameLayout.LayoutParams gl =
+                new android.widget.FrameLayout.LayoutParams(84 * d, 84 * d);
+        gl.leftMargin = 33 * d; gl.topMargin = 21 * d;
+        globe.setLayoutParams(gl);
+        illus.addView(globe);
+        ImageView pin = new ImageView(this);
+        pin.setImageResource(R.drawable.ic_pin_teal);
+        android.widget.FrameLayout.LayoutParams pl =
+                new android.widget.FrameLayout.LayoutParams(30 * d, 30 * d);
+        pl.leftMargin = 106 * d; pl.topMargin = 0;
+        pin.setLayoutParams(pl);
+        illus.addView(pin);
+        android.widget.FrameLayout badge = new android.widget.FrameLayout(this);
+        badge.setBackgroundResource(R.drawable.pop_badge_dark);
+        android.widget.FrameLayout.LayoutParams bal =
+                new android.widget.FrameLayout.LayoutParams(36 * d, 36 * d);
+        bal.leftMargin = 84 * d; bal.topMargin = 88 * d;
+        badge.setLayoutParams(bal);
+        ImageView bolt = new ImageView(this);
+        bolt.setImageResource(R.drawable.ic_bolt_amber);
+        android.widget.FrameLayout.LayoutParams bol =
+                new android.widget.FrameLayout.LayoutParams(20 * d, 20 * d);
+        bol.gravity = Gravity.CENTER;
+        bolt.setLayoutParams(bol);
+        badge.addView(bolt);
+        illus.addView(badge);
+        card.addView(illus);
+
+        // ---- title + subtitle ----
         TextView title = new TextView(this);
-        title.setText(R.string.outside_pk_title);
-        title.setTextSize(18);
+        title.setText(R.string.pop_title);
+        title.setTextSize(21);
         title.setTextColor(Ds.ink());
         title.setGravity(Gravity.CENTER);
         Ds.heading(this, title);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        tlp.bottomMargin = dp8;
+        tlp.topMargin = 8 * d; tlp.bottomMargin = 6 * d;
         title.setLayoutParams(tlp);
         card.addView(title);
 
-        // Message
-        TextView msg = new TextView(this);
-        msg.setText(R.string.outside_pk_msg);
-        msg.setTextSize(14);
-        msg.setTextColor(Ds.muted());
-        msg.setGravity(Gravity.CENTER);
-        msg.setLineSpacing(dp8, 1.3f);
-        Ds.body(this, msg, 400);
-        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(
+        TextView sub = new TextView(this);
+        sub.setText(R.string.pop_sub);
+        sub.setTextSize(14.5f);
+        sub.setTextColor(Ds.muted());
+        sub.setGravity(Gravity.CENTER);
+        Ds.body(this, sub, 400);
+        LinearLayout.LayoutParams slp2 = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        mlp.bottomMargin = dp24;
-        msg.setLayoutParams(mlp);
-        card.addView(msg);
+        slp2.bottomMargin = 20 * d;
+        sub.setLayoutParams(slp2);
+        card.addView(sub);
 
-        // "No, I'm in Pakistan" — green primary button
-        LinearLayout btnNo = new LinearLayout(this);
-        btnNo.setOrientation(LinearLayout.HORIZONTAL);
-        btnNo.setGravity(Gravity.CENTER);
-        btnNo.setBackgroundResource(R.drawable.nd_btn_solid);
-        btnNo.setMinimumHeight(52 * d);
-        btnNo.setClickable(true);
-        btnNo.setFocusable(true);
-        TextView tNo = new TextView(this);
-        tNo.setText(R.string.outside_pk_no);
-        tNo.setTextSize(15);
-        tNo.setTextColor(Color.WHITE);
-        Ds.heading(this, tNo);
-        btnNo.addView(tNo);
-        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        blp.bottomMargin = dp12;
-        btnNo.setLayoutParams(blp);
-        btnNo.setOnClickListener(new View.OnClickListener() {
+        // ---- option cards ----
+        card.addView(popOption(d, true, new View.OnClickListener() {
             @Override public void onClick(View v) {
                 sp.edit().putBoolean("outside_pk", false).apply();
                 dlg.dismiss();
             }
-        });
-        card.addView(btnNo);
-
-        // "Yes, I'm outside" — outlined secondary button
-        LinearLayout btnYes = new LinearLayout(this);
-        btnYes.setOrientation(LinearLayout.HORIZONTAL);
-        btnYes.setGravity(Gravity.CENTER);
-        btnYes.setBackgroundResource(R.drawable.ds_btn_outline);
-        btnYes.setMinimumHeight(52 * d);
-        btnYes.setClickable(true);
-        btnYes.setFocusable(true);
-        TextView tYes = new TextView(this);
-        tYes.setText(R.string.outside_pk_yes);
-        tYes.setTextSize(15);
-        tYes.setTextColor(Ds.g800());
-        Ds.heading(this, tYes);
-        btnYes.addView(tYes);
-        btnYes.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        btnYes.setOnClickListener(new View.OnClickListener() {
+        }));
+        card.addView(popOption(d, false, new View.OnClickListener() {
             @Override public void onClick(View v) {
                 sp.edit().putBoolean("outside_pk", true).apply();
                 dlg.dismiss();
             }
-        });
-        card.addView(btnYes);
+        }));
+
+        // ---- info box ----
+        LinearLayout info = new LinearLayout(this);
+        info.setOrientation(LinearLayout.HORIZONTAL);
+        info.setGravity(Gravity.CENTER_VERTICAL);
+        info.setBackgroundResource(R.drawable.pop_info_bg);
+        info.setPadding(12 * d, 12 * d, 12 * d, 12 * d);
+        LinearLayout.LayoutParams iflp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        iflp.topMargin = 16 * d;
+        info.setLayoutParams(iflp);
+        ImageView iIc = new ImageView(this);
+        iIc.setImageResource(R.drawable.ic_info_circle);
+        iIc.setColorFilter(Ds.g800(), android.graphics.PorterDuff.Mode.SRC_IN);
+        iIc.setLayoutParams(new LinearLayout.LayoutParams(22 * d, 22 * d));
+        info.addView(iIc);
+        View div = new View(this);
+        div.setBackgroundColor(android.graphics.Color.parseColor("#CBE7DE"));
+        LinearLayout.LayoutParams dvl = new LinearLayout.LayoutParams(1 * d, 32 * d);
+        dvl.leftMargin = 10 * d; dvl.rightMargin = 10 * d;
+        div.setLayoutParams(dvl);
+        info.addView(div);
+        TextView iTx = new TextView(this);
+        iTx.setText(R.string.pop_info);
+        iTx.setTextSize(12.5f);
+        iTx.setTextColor(android.graphics.Color.parseColor("#41605A"));
+        iTx.setLineSpacing(2 * d, 1.25f);
+        Ds.body(this, iTx, 400);
+        iTx.setLayoutParams(new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        info.addView(iTx);
+        card.addView(info);
 
         dlg.setContentView(card);
-        // Dialog width: 85% of screen
         if (dlg.getWindow() != null) {
             int w = (int) (getResources().getDisplayMetrics().widthPixels
-                    * 0.88);
+                    * 0.9);
             dlg.getWindow().setLayout(w,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
         dlg.show();
+    }
+
+    /** v3.7.11: one option card of the location popup (design spec). */
+    private View popOption(int d, boolean pakistan,
+            View.OnClickListener onClick) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setBackgroundResource(pakistan
+                ? R.drawable.pop_card_pk : R.drawable.pop_card_out);
+        row.setPadding(14 * d, 14 * d, 14 * d, 14 * d);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setOnClickListener(onClick);
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (pakistan) rlp.bottomMargin = 12 * d;
+        row.setLayoutParams(rlp);
+
+        android.widget.FrameLayout icBox = new android.widget.FrameLayout(this);
+        icBox.setBackgroundResource(pakistan
+                ? R.drawable.pop_circle_green : R.drawable.pop_circle_mint);
+        icBox.setLayoutParams(new LinearLayout.LayoutParams(44 * d, 44 * d));
+        ImageView ic = new ImageView(this);
+        ic.setImageResource(pakistan
+                ? R.drawable.ic_check_white : R.drawable.ic_globe_teal);
+        int isz = pakistan ? 20 * d : 24 * d;
+        android.widget.FrameLayout.LayoutParams ilp2 =
+                new android.widget.FrameLayout.LayoutParams(isz, isz);
+        ilp2.gravity = Gravity.CENTER;
+        ic.setLayoutParams(ilp2);
+        icBox.addView(ic);
+        row.addView(icBox);
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams txlp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        txlp.leftMargin = 12 * d;
+        texts.setLayoutParams(txlp);
+        TextView t1 = new TextView(this);
+        t1.setText(pakistan ? R.string.pop_pk_title : R.string.pop_out_title);
+        t1.setTextSize(15.5f);
+        t1.setTextColor(Ds.ink());
+        Ds.heading(this, t1);
+        texts.addView(t1);
+        TextView t2 = new TextView(this);
+        t2.setText(pakistan ? R.string.pop_pk_sub : R.string.pop_out_sub);
+        t2.setTextSize(12.5f);
+        t2.setTextColor(Ds.muted());
+        Ds.body(this, t2, 400);
+        LinearLayout.LayoutParams t2lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        t2lp.topMargin = 2 * d;
+        t2.setLayoutParams(t2lp);
+        texts.addView(t2);
+        row.addView(texts);
+
+        ImageView chev = new ImageView(this);
+        chev.setImageResource(R.drawable.ic_chev_right);
+        chev.setColorFilter(android.graphics.Color.parseColor(
+                pakistan ? "#11998E" : "#9DB3AD"),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+        chev.setLayoutParams(new LinearLayout.LayoutParams(18 * d, 18 * d));
+        row.addView(chev);
+        return row;
     }
 
     private void buildUi() {
