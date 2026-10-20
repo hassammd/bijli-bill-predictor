@@ -128,6 +128,9 @@ public class SplashActivity extends BaseActivity {
 
         new Handler().postDelayed(new Runnable() {
             @Override public void run() {
+                // v3.7.16: har asal app-open Splash se guzarta hai —
+                // location popup ko yahin arm karo (Home dikhayega).
+                HomeActivity.popupArmed = true;
                 startActivity(new Intent(SplashActivity.this,
                         HomeActivity.class));
                 finish();

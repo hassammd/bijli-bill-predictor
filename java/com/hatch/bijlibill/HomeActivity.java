@@ -42,8 +42,10 @@ import java.util.Set;
 public class HomeActivity extends BaseActivity {
 
     private static final String PREFS = "bijli_bill_refs";
-    /** v3.7.15: location popup ek launch mein ek hi dafa (recreate-safe). */
-    private static boolean popupShownThisLaunch = false;
+    /** v3.7.16: Splash har app-open par arm karta hai; Home ek dafa
+     *  consume karke popup dikhata hai. Process peeche zinda ho tab
+     *  bhi naya open = Splash = popup. Recreate (language) par nahi. */
+    static boolean popupArmed = false;
     private static final String KEY_TAB = "tab_mode";   // "ref" or "cid"
     private static final String KEY_DISCO = "disco_code"; // Disco.code
     /** v2.1.0: last bill fetched — Unit Check entry needs a cached bill. */
@@ -159,8 +161,8 @@ public class HomeActivity extends BaseActivity {
         // cold start par popup aayega. Static flag sirf isi launch ke
         // andar recreate (language switch / rotation) par dobara
         // aane se rokta hai; naya process = naya launch = popup phir.
-        if (popupShownThisLaunch) return;
-        popupShownThisLaunch = true;
+        if (!popupArmed) return;
+        popupArmed = false;
 
         final android.app.Dialog dlg = new android.app.Dialog(this);
         dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
