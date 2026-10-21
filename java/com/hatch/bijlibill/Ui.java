@@ -54,6 +54,19 @@ public final class Ui {
         return (int) (v * ctx.getResources().getDisplayMetrics().density + 0.5f);
     }
 
+    // ---------- responsive (v3.7.28) ----------
+    // Screen width in dp. Buckets drive size choices so EVERY Android
+    // device (320dp small phones → 600dp+ tablets) gets a fitting layout
+    // instead of one fixed design that cuts on small screens.
+    public static int screenWdp(Context ctx) {
+        android.util.DisplayMetrics dm = ctx.getResources().getDisplayMetrics();
+        return (int) (dm.widthPixels / dm.density + 0.5f);
+    }
+    // Narrow phone (<360dp): use `small`; otherwise `normal`.
+    public static int narrow(Context ctx, int normal, int small) {
+        return screenWdp(ctx) < 360 ? small : normal;
+    }
+
     // ---------- containers ----------
     public static LinearLayout col(Context ctx) {
         LinearLayout l = new LinearLayout(ctx);

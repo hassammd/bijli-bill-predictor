@@ -532,16 +532,11 @@ public class HomeActivity extends BaseActivity {
         scrollView.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         scrollView.setFillViewport(false);
-        // v3.6.95: Home screen FIXED — no vertical scroll at all (user:
-        // "scroll nahi hona chahiye, screen still/fix rehni chahiye").
-        // Content is trimmed to fit; this listener eats page drags while
-        // child taps (buttons, field, chips carousel) still work normally.
-        scrollView.setOnTouchListener(new View.OnTouchListener() {
-            @Override public boolean onTouch(View v,
-                    android.view.MotionEvent e) {
-                return true;
-            }
-        });
+        // v3.7.28: scroll = SAFETY NET (user-approved responsive fix).
+        // The old touch-eater blocked ALL scrolling, so on short screens
+        // content was cut behind banner+nav with no way to reach it.
+        // Now: ScrollView scrolls naturally ONLY when content overflows.
+        // On tall phones content fits → no scroll, still looks fixed.
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         scrollView.addView(content, new ViewGroup.LayoutParams(
@@ -708,9 +703,10 @@ public class HomeActivity extends BaseActivity {
         android.widget.ImageView left = new android.widget.ImageView(this);
         left.setImageResource(R.drawable.ic_caro_left);
         left.setBackgroundResource(R.drawable.ds_avatar_light);
-        int as = Ui.dp(this, 36);
+        // v3.7.28: narrow screens get smaller arrows so 3 chips fit fully.
+        int as = Ui.dp(this, Ui.narrow(this, 36, 28));
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(as, as);
-        alp.rightMargin = Ui.dp(this, 8);
+        alp.rightMargin = Ui.dp(this, Ui.narrow(this, 8, 6));
         left.setLayoutParams(alp);
         left.setClickable(true);
         left.setFocusable(true);
@@ -738,7 +734,7 @@ public class HomeActivity extends BaseActivity {
         right.setImageResource(R.drawable.ic_caro_right);
         right.setBackgroundResource(R.drawable.ds_avatar_light);
         LinearLayout.LayoutParams arp = new LinearLayout.LayoutParams(as, as);
-        arp.leftMargin = Ui.dp(this, 8);
+        arp.leftMargin = Ui.dp(this, Ui.narrow(this, 8, 6));
         right.setLayoutParams(arp);
         right.setClickable(true);
         right.setFocusable(true);
@@ -802,7 +798,8 @@ public class HomeActivity extends BaseActivity {
             chip.setBackgroundResource(
                     // v3.6.80: selected = yellow (user request, like toggle).
                     isSel ? R.drawable.ds_chip_yellow : R.drawable.ds_chip);
-            int v = Ui.dp(this, 9), h = Ui.dp(this, 16);
+            // v3.7.28: narrow screens get tighter chips so 3 fit fully.
+            int v = Ui.dp(this, 9), h = Ui.dp(this, Ui.narrow(this, 16, 12));
             chip.setPadding(h, v, h, v);
             if (isSel && android.os.Build.VERSION.SDK_INT >= 21) {
                 chip.setElevation(Ui.dp(this, 3));
@@ -810,7 +807,7 @@ public class HomeActivity extends BaseActivity {
 
             TextView t = new TextView(this);
             t.setText(d.displayName);
-            t.setTextSize(13);
+            t.setTextSize(Ui.narrow(this, 13, 12));
             t.setSingleLine(true);
             // v3.6.80: dark text on yellow when selected (user request).
             t.setTextColor(isSel ? Ds.amberDark() : Ds.muted());
@@ -1158,8 +1155,9 @@ public class HomeActivity extends BaseActivity {
 
         // Icon circle
         // v3.6.76: smaller icon (user: make room for full headings).
+        // v3.7.28: even smaller on narrow screens (more room for text).
         FrameLayout circle = new FrameLayout(this);
-        int cs = Ui.dp(this, 40);
+        int cs = Ui.dp(this, Ui.narrow(this, 40, 36));
         circle.setLayoutParams(new LinearLayout.LayoutParams(cs, cs));
         android.graphics.drawable.GradientDrawable bg =
                 new android.graphics.drawable.GradientDrawable();
@@ -1186,10 +1184,10 @@ public class HomeActivity extends BaseActivity {
 
         TextView t = new TextView(this);
         t.setText(title);
-        // v3.6.76: 12sp single-line complete (user: full heading, icons smaller).
-        t.setTextSize(12);
-        t.setSingleLine(true);
-        t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        // v3.7.28: 2 lines allowed (was single-line + ellipsis → "Unit C..."
+        // on narrow screens). Title never truncates now.
+        t.setTextSize(Ui.narrow(this, 12, 11));
+        t.setMaxLines(2);
         t.setTextColor(Ds.ink());
         Ds.heading(this, t);
         txt.addView(t);
