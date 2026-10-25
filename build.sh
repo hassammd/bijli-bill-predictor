@@ -198,6 +198,7 @@ cp build/dex/classes*.dex build/mod/base/dex/
 
 echo "== AAB: bundletool build-bundle =="
 java -jar "$BUNDLETOOL" build-bundle --modules=build/mod/base.zip \
+  --config="$PROJ/BundleConfig.json" \
   --output=build/app.aab
 
 echo "== AAB: jarsigner (release key) =="
