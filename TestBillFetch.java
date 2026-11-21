@@ -16,6 +16,8 @@ import com.hatch.bijlibill.LangPolicy;
 import com.hatch.bijlibill.ArrearsStatus;
 import com.hatch.bijlibill.DailyReminder;
 import com.hatch.bijlibill.AccuracyTracker;
+import com.hatch.bijlibill.AssistantBrain;
+import com.hatch.bijlibill.BillSnapshots;
 import com.hatch.bijlibill.GuardCalc;
 import com.hatch.bijlibill.GuardReminder;
 
@@ -1046,6 +1048,9 @@ public class TestBillFetch {
 
         // ---- v3.7.30: in-app PITC image CAPTCHA ----
         runV3730CaptchaTests();
+
+        // ---- v3.7.31: AI Assistant snapshots + brain ----
+        runV3731Tests();
 
         System.out.println();
         if (failures == 0) {
@@ -2164,9 +2169,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"162\""), true);
+                man.contains("android:versionCode=\"163\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.30\""), true);
+                man.contains("android:versionName=\"3.7.31\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3869,9 +3874,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"162\""), true);
+                man.contains("android:versionCode=\"163\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.30\""), true);
+                man.contains("android:versionName=\"3.7.31\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4242,10 +4247,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"162\""),
+                manifest.contains("android:versionCode=\"163\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.30\""),
+                manifest.contains("android:versionName=\"3.7.31\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4404,10 +4409,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"162\""),
+                manifest.contains("android:versionCode=\"163\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.30\""),
+                manifest.contains("android:versionName=\"3.7.31\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4625,6 +4630,226 @@ public class TestBillFetch {
             rejected2 = true;
         }
         check("captcha resume wrong code rejected", rejected2, true);
+    }
+
+    // ---- v3.7.31 tests: AI Assistant snapshots + brain ----
+
+    static BillSnapshots.Storage memStore(
+            final java.util.Map<String, String> m) {
+        return new BillSnapshots.Storage() {
+            @Override public String load(String k) { return m.get(k); }
+            @Override public void save(String k, String v) { m.put(k, v); }
+        };
+    }
+
+    static BillSnapshots.Snapshot mkSnap(String month, int units,
+            double amount, String due, String fpa, String cat, long ts) {
+        BillSnapshots.Snapshot s = new BillSnapshots.Snapshot();
+        s.disco = "lesco";
+        s.mode = "ref";
+        s.ref = "02118240618604U";
+        s.holderName = "Test User";
+        s.billMonth = month;
+        s.units = units;
+        s.amount = amount;
+        s.amountAfterDue = amount + 500;
+        s.dueDate = due;
+        s.fpa = fpa;
+        s.category = cat;
+        s.prevReading = "1000";
+        s.currReading = String.valueOf(1000 + units);
+        s.readingDate = "05-OCT-26";
+        s.fetchedAt = ts;
+        return s;
+    }
+
+    static void runV3731Tests() throws Exception {
+        // ---- 1. snapshot record + latest ----
+        java.util.Map<String, String> m =
+                new java.util.LinkedHashMap<String, String>();
+        BillSnapshots.Storage st = memStore(m);
+        String key = "lesco:ref:02118240618604U";
+        check("snap empty latest null",
+                BillSnapshots.latest(st, key), null);
+        BillSnapshots.record(st, key,
+                mkSnap("AUG 26", 180, 9500, "15-SEP-26", "420.50",
+                        "Domestic (Protected)", 1000L));
+        BillSnapshots.record(st, key,
+                mkSnap("SEP 26", 250, 12800, "15-OCT-26", "610.75",
+                        "Domestic (Protected)", 2000L));
+        check("snap list size 2", BillSnapshots.list(st, key).size(), 2);
+        check("snap latest month",
+                BillSnapshots.latest(st, key).billMonth, "SEP 26");
+        check("snap latest units",
+                BillSnapshots.latest(st, key).units, 250);
+
+        // ---- 2. same-month re-fetch replaces, never duplicates ----
+        BillSnapshots.record(st, key,
+                mkSnap("SEP 26", 250, 12900, "15-OCT-26", "610.75",
+                        "Domestic (Protected)", 3000L));
+        check("snap same-month no dup",
+                BillSnapshots.list(st, key).size(), 2);
+        check("snap same-month updated",
+                BillSnapshots.latest(st, key).amount, 12900.0);
+
+        // ---- 3. cap 3 per meter ----
+        BillSnapshots.record(st, key,
+                mkSnap("OCT 26", 210, 11000, "15-NOV-26", "500",
+                        "Domestic (Protected)", 4000L));
+        BillSnapshots.record(st, key,
+                mkSnap("NOV 26", 190, 9800, "15-DEC-26", "480",
+                        "Domestic (Protected)", 5000L));
+        check("snap cap 3", BillSnapshots.list(st, key).size(), 3);
+        check("snap oldest evicted",
+                BillSnapshots.list(st, key).get(2).billMonth, "SEP 26");
+
+        // ---- 4. latestAny picks the newest meter ----
+        String key2 = "lesco:ref:02118240618605U";
+        BillSnapshots.Snapshot s2 = mkSnap("SEP 26", 120, 6200,
+                "15-OCT-26", "300", "Domestic (Protected)", 9000L);
+        s2.ref = "02118240618605U";
+        BillSnapshots.record(st, key2, s2);
+        BillSnapshots.Latest any = BillSnapshots.latestAny(st);
+        check("snap latestAny key", any.key, key2);
+        check("snap latestAny units", any.snap.units, 120);
+
+        // ---- 5. encode/decode round-trip survives a fresh read ----
+        java.util.List<BillSnapshots.Snapshot> again =
+                BillSnapshots.list(st, key);
+        check("snap roundtrip month", again.get(0).billMonth, "NOV 26");
+        check("snap roundtrip fpa", again.get(0).fpa, "480");
+        check("snap roundtrip amount", again.get(0).amount, 9800.0);
+
+        // ---- 6. brain: no bills -> plain message ----
+        java.util.List<BillSnapshots.Snapshot> empty =
+                new java.util.ArrayList<BillSnapshots.Snapshot>();
+        String noBill = AssistantBrain.answer(
+                "mera bill kyun zyada aaya?", empty, "");
+        check("brain no-bill honest",
+                noBill.contains("koi bill save nahi"), true);
+
+        // ---- 7. brain: why-high with previous month ----
+        java.util.List<BillSnapshots.Snapshot> two =
+                new java.util.ArrayList<BillSnapshots.Snapshot>();
+        two.add(mkSnap("SEP 26", 250, 12800, "15-OCT-26", "610.75",
+                "Domestic (Protected)", 2000L));
+        two.add(mkSnap("AUG 26", 180, 9500, "15-SEP-26", "420.50",
+                "Domestic (Protected)", 1000L));
+        String why = AssistantBrain.answer(
+                "mera bill kyun zyada aaya?", two, "Test User");
+        check("brain why delta", why.contains("70 unit zyada"), true);
+        check("brain why protected cliff",
+                why.contains("Protected status khatam"), true);
+        check("brain why fpa", why.contains("FPA Rs 611"), true);
+
+        // ---- 8. brain: Non-Protected is NOT read as Protected ----
+        java.util.List<BillSnapshots.Snapshot> np =
+                new java.util.ArrayList<BillSnapshots.Snapshot>();
+        BillSnapshots.Snapshot nps = mkSnap("SEP 26", 150, 8000,
+                "15-OCT-26", "400", "Domestic (Non-Protected)", 2000L);
+        np.add(nps);
+        String whyNp = AssistantBrain.answer(
+                "mera bill kyun zyada aaya?", np, "Test User");
+        check("brain non-protected not protected",
+                whyNp.contains("abhi bhi Protected"), false);
+
+        // ---- 9. brain: due date (far-future date -> days left).
+        //      NOTE: "15-JAN-50" parses as 1950 (2-digit-year pivot),
+        //      so the test uses 2030, unambiguously in the future. ----
+        java.util.List<BillSnapshots.Snapshot> due =
+                new java.util.ArrayList<BillSnapshots.Snapshot>();
+        BillSnapshots.Snapshot ds = mkSnap("SEP 26", 150, 8000,
+                "15-JAN-30", "400", "Domestic (Protected)", 2000L);
+        due.add(ds);
+        String dueAns = AssistantBrain.answer(
+                "mera bill kab due hai?", due, "Test User");
+        check("brain due date quoted",
+                dueAns.contains("15-JAN-30"), true);
+        check("brain due days left",
+                dueAns.contains("din reh gaye hain"), true);
+
+        // ---- 10. brain: previous bill ----
+        String prevAns = AssistantBrain.answer(
+                "pichle mahine ka bill kitna tha?", two, "Test User");
+        check("brain prev amount", prevAns.contains("9,500"), true);
+        check("brain prev units", prevAns.contains("180 unit"), true);
+
+        // ---- 11. brain: guard danger vs safe ----
+        String guardDanger = AssistantBrain.answer(
+                "200 unit guard kya kehta hai?", two, "Test User");
+        check("brain guard danger", guardDanger.contains("Khatra"), true);
+        java.util.List<BillSnapshots.Snapshot> safe =
+                new java.util.ArrayList<BillSnapshots.Snapshot>();
+        safe.add(mkSnap("SEP 26", 150, 8000, "15-OCT-26", "400",
+                "Domestic (Protected)", 2000L));
+        String guardSafe = AssistantBrain.answer(
+                "200 unit guard kya kehta hai?", safe, "Test User");
+        check("brain guard safe", guardSafe.contains("mehfooz"), true);
+
+        // ---- 12. brain: greeting + suggestions ----
+        check("brain greeting no-bill",
+                AssistantBrain.greeting(empty, "").contains(
+                        "koi bill save nahi"), true);
+        check("brain suggestions 3",
+                AssistantBrain.suggestions(true).size(), 3);
+
+        // ---- 13. EN/UR parity for the new v3.7.31 strings ----
+        java.util.Map<String, String> en =
+                readStrings("res/values/strings.xml");
+        java.util.Map<String, String> ur =
+                readStrings("res/values-ur/strings.xml");
+        String[] newKeys = {"quick_assistant", "quick_assistant_sub",
+                "assistant_title", "assistant_sub", "assistant_hint",
+                "assistant_input_hint", "assistant_send",
+                "assistant_voice_on", "assistant_voice_off",
+                "assistant_mic_denied", "assistant_mic_unavailable",
+                "assistant_mic_failed", "assistant_listening"};
+        for (String k : newKeys) {
+            check("v3731 key en " + k, en.containsKey(k), true);
+            check("v3731 key ur " + k, ur.containsKey(k), true);
+            check("v3731 fmt " + k, fmtArgs(en.get(k)),
+                    fmtArgs(ur.get(k)));
+        }
+
+        // ---- 14. wiring: Home opens the Assistant, BillActivity
+        //      records snapshots, manifest declares it ----
+        String home = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(
+                        "java/com/hatch/bijlibill/HomeActivity.java")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3731 home assistant card",
+                home.contains("AssistantActivity.class"), true);
+        String bill = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(
+                        "java/com/hatch/bijlibill/BillActivity.java")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3731 bill records snapshot",
+                bill.contains("BillSnapshots.record("), true);
+        String man = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get("AndroidManifest.xml")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3731 manifest activity",
+                man.contains(".AssistantActivity"), true);
+        check("v3731 manifest mic permission",
+                man.contains("android.permission.RECORD_AUDIO"), true);
+        check("v3731 manifest version 163",
+                man.contains("android:versionCode=\"163\""), true);
+
+        // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
+        //      6-char code is fully typed (TextWatcher; grey again
+        //      when characters are deleted) ----
+        check("v3731 captcha button watcher",
+                bill.contains("addTextChangedListener"), true);
+        check("v3731 captcha button 6 chars",
+                bill.contains("s.length() >= 6"), true);
+        check("v3731 captcha button grey state",
+                bill.contains("setCaptchaSubmitEnabled"), true);
+        String grey = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(
+                        "res/drawable/ds_btn_grey.xml")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3731 captcha grey drawable",
+                grey.contains("BDBDBD"), true);
     }
 
     static void addPoint(

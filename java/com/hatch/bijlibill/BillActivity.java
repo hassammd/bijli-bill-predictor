@@ -14,7 +14,9 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -836,7 +838,12 @@ public class BillActivity extends BaseActivity {
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(16));
         card.addView(new View(this), sp);
-        card.addView(amberButton(getString(R.string.fetch_btn),
+        // v3.7.31 (user QA): VIEW BILL stays GREY / unclickable until
+        // the CAPTCHA code is fully filled (6 characters), and goes
+        // grey again if the user deletes characters. The empty-code
+        // toast below stays only as a fallback (it can no longer be
+        // reached by tapping, only by an IME action).
+        final View submitBtn = amberButton(getString(R.string.fetch_btn),
                 new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         String code = codeField.getText() == null ? ""
@@ -849,7 +856,19 @@ public class BillActivity extends BaseActivity {
                         }
                         submitCaptcha(session, code);
                     }
-                }));
+                });
+        codeField.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s,
+                    int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s,
+                    int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                setCaptchaSubmitEnabled(submitBtn,
+                        s != null && s.length() >= 6);
+            }
+        });
+        setCaptchaSubmitEnabled(submitBtn, false);
+        card.addView(submitBtn);
         LinearLayout.LayoutParams sp2 = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(10));
         card.addView(new View(this), sp2);
@@ -865,6 +884,28 @@ public class BillActivity extends BaseActivity {
                     @Override public void onClick(View v) { finish(); }
                 }));
         content.addView(card);
+    }
+
+    /**
+     * v3.7.31 (user QA): the CAPTCHA screen's VIEW BILL button is
+     * GREY and unclickable while the code is incomplete, amber and
+     * active once all 6 characters are typed. Swaps the background
+     * and the label colour because the amber button has no built-in
+     * disabled state.
+     */
+    private void setCaptchaSubmitEnabled(View btn, boolean enabled) {
+        btn.setEnabled(enabled);
+        btn.setClickable(enabled);
+        btn.setAlpha(enabled ? 1f : 0.85f);
+        btn.setBackgroundResource(enabled
+                ? R.drawable.ds_btn_amber : R.drawable.ds_btn_grey);
+        if (btn instanceof ViewGroup && ((ViewGroup) btn).getChildCount() > 0) {
+            View child = ((ViewGroup) btn).getChildAt(0);
+            if (child instanceof TextView) {
+                ((TextView) child).setTextColor(enabled
+                        ? Ds.amberDark() : Color.parseColor("#8A8A8A"));
+            }
+        }
     }
 
     /**
@@ -1567,6 +1608,9 @@ public class BillActivity extends BaseActivity {
             // v2.5.0: auto-save this meter (holder name shown in
             // "Mere Meter").
             autoSaveMeter(b);
+            // v3.7.31: record a snapshot for the AI Assistant (v1) —
+            // the Assistant answers only from these saved snapshots.
+            BillSnapshots.record(this, disco.code, mode, ref, b);
         }
 
         // Parse failed but the page is still shown: say so honestly.

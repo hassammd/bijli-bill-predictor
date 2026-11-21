@@ -362,4 +362,19 @@
     <string name="quick_bill_history">بل ہسٹری</string>
     <string name="quick_bill_history_sub">پچھلے بل دیکھیں</string>
     <string name="ref_empty">براہ کرم اپنا ریفرنس نمبر درج کریں</string>
+
+    <!-- v3.7.31: AI Assistant (v1, SIMPLE) -->
+    <string name="quick_assistant">AI اسسٹنٹ</string>
+    <string name="quick_assistant_sub">اپنے بل کے بارے میں پوچھیں</string>
+    <string name="assistant_title">AI اسسٹنٹ</string>
+    <string name="assistant_sub">صرف آپ کے محفوظ بلوں سے جواب</string>
+    <string name="assistant_hint">بولنے کے لیے مائیک دبائیں، یا سوال لکھیں</string>
+    <string name="assistant_input_hint">اپنا سوال لکھیں…</string>
+    <string name="assistant_send">بھیجیں</string>
+    <string name="assistant_voice_on">آواز: آن</string>
+    <string name="assistant_voice_off">آواز: آف</string>
+    <string name="assistant_mic_denied">مائیک کی اجازت نہیں ملی — آپ لکھ کر سوال پوچھ سکتے ہیں</string>
+    <string name="assistant_mic_unavailable">اس فون پر وائس ان پٹ دستیاب نہیں ہے</string>
+    <string name="assistant_mic_failed">آواز سمجھ نہیں آئی — دوبارہ بولیں یا لکھ کر پوچھیں</string>
+    <string name="assistant_listening">سن رہا ہوں…</string>
 </resources>

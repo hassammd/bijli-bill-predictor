@@ -1135,6 +1135,34 @@ public class HomeActivity extends BaseActivity {
         row.addView(card2);
 
         sec.addView(row);
+
+        // v3.7.31: AI Assistant card (full-width second row) — the
+        // free on-device assistant answers from the saved bills.
+        LinearLayout row2 = new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        row2.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        row2.setClipChildren(false);
+        row2.setClipToPadding(false);
+        row2.setPadding(shp, shp, shp, shp);
+        View card3 = quickToolCard(
+                R.drawable.ic_assistant,
+                "#FDF3D8", // amber circle
+                getString(R.string.quick_assistant),
+                getString(R.string.quick_assistant_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(HomeActivity.this,
+                                AssistantActivity.class));
+                    }
+                });
+        LinearLayout.LayoutParams c3lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        card3.setLayoutParams(c3lp);
+        row2.addView(card3);
+        sec.addView(row2);
+
         return sec;
     }
 

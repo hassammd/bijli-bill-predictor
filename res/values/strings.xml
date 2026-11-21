@@ -362,4 +362,19 @@
     <string name="quick_bill_history">Bill History</string>
     <string name="quick_bill_history_sub">View previous bills</string>
     <string name="ref_empty">Please enter your reference number</string>
+
+    <!-- v3.7.31: AI Assistant (v1, SIMPLE) -->
+    <string name="quick_assistant">AI Assistant</string>
+    <string name="quick_assistant_sub">Ask about your bill</string>
+    <string name="assistant_title">AI Assistant</string>
+    <string name="assistant_sub">Answers from your saved bills only</string>
+    <string name="assistant_hint">Tap mic to speak, or type your question</string>
+    <string name="assistant_input_hint">Type your question…</string>
+    <string name="assistant_send">Send</string>
+    <string name="assistant_voice_on">Voice: On</string>
+    <string name="assistant_voice_off">Voice: Off</string>
+    <string name="assistant_mic_denied">Mic permission not given — you can type your question instead</string>
+    <string name="assistant_mic_unavailable">Voice input is not available on this phone</string>
+    <string name="assistant_mic_failed">Could not hear you — please try again or type your question</string>
+    <string name="assistant_listening">Listening…</string>
 </resources>

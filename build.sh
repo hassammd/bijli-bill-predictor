@@ -12,6 +12,23 @@
 #   - PITC is geo-blocked from this VM: the live fetch is NOT tested
 #     here; headless tests (TestBillFetch) cover the whole flow with
 #     a scripted transport. User tests on their own phone.
+# Bijli Bill v3.7.31 (163) — AI Assistant v1 (SIMPLE, free, on-device):
+#   - BillActivity records a small snapshot of every fetched bill
+#     (BillSnapshots: units, amount, due date, FPA, category,
+#     readings, bill month; 3 per meter). The Assistant answers ONLY
+#     from those snapshots — no internet, no API, no cost.
+#   - AssistantActivity: chat screen (Home > Quick Tools > AI
+#     Assistant) with typed questions + mic (SpeechRecognizer ur-PK)
+#     + voice replies (TextToSpeech ur-PK, device-default fallback).
+#     AssistantBrain is rule-based Roman Urdu; v1 answers: bill kyun
+#     zyada aaya, bill kab due hai, pichla bill, 200-unit guard.
+#   - CAPTCHA screen (user QA): VIEW BILL stays grey/disabled until
+#     the 6-char code is fully typed (TextWatcher; goes grey again
+#     when characters are deleted). Empty-code toast stays only as
+#     a fallback.
+#     OUT OF SCOPE v1: photo/OCR, daily summary, challenges,
+#     comparisons, storytelling, anything online — and NEVER any
+#     CAPTCHA auto-solve.
 # Bijli Bill v3.6.0 — ZERO-INPUT GUARD + SUNDAY REMINDER build (manual APK + AAB, no Gradle).
 # v3.6.0 changes:
 #   - Guard works with ZERO input: auto-projection from the last
@@ -131,11 +148,14 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/FramePrep.java \
   java/com/hatch/bijlibill/GuardCalc.java \
   java/com/hatch/bijlibill/GuardReminder.java \
+  java/com/hatch/bijlibill/GuardStore.java \
   java/com/hatch/bijlibill/BillReminder.java \
   java/com/hatch/bijlibill/BillSummary.java \
   java/com/hatch/bijlibill/BillPdf.java \
   java/com/hatch/bijlibill/Disco.java \
   java/com/hatch/bijlibill/SavedMeters.java \
+  java/com/hatch/bijlibill/BillSnapshots.java \
+  java/com/hatch/bijlibill/AssistantBrain.java \
   java/com/hatch/bijlibill/LangPolicy.java \
   java/com/hatch/bijlibill/StreakCalc.java \
   java/com/hatch/bijlibill/BillDayNudge.java \
