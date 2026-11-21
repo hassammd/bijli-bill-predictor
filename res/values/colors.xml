@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- v1.2 palette: deep teal + amber accent -->
-    <color name="brand_teal">#00695C</color>
-    <color name="brand_teal_dark">#004D40</color>
-    <color name="brand_teal_light">#B2DFDB</color>
+    <!-- v1.2 palette: deep blue + amber accent -->
+    <color name="brand_blue">#1B62B0</color>
+    <color name="brand_blue_dark">#21507E</color>
+    <color name="brand_blue_light">#BFD9F5</color>
     <color name="accent_amber">#FFB300</color>
     <color name="accent_amber_dark">#FF8F00</color>
     <color name="card_bg">#FFFFFF</color>
-    <color name="page_bg">#F4F7F6</color>
+    <color name="page_bg">#F4F8F7</color>
     <color name="text_dark">#212121</color>
     <color name="text_grey">#757575</color>
     <color name="tip_blue">#0D47A1</color>
@@ -16,10 +16,10 @@
     <color name="error_bg">#FFEBEE</color>
     <color name="ic_launcher_background">#00695C</color>
     <!-- v3.7.21: splash window bg = Ds.bg() exact, no green flash -->
-    <color name="splash_window_bg">#F3F8F7</color>
+    <color name="splash_window_bg">#F4F8F7</color>
     <!-- legacy aliases (kept for safety) -->
-    <color name="brand_green">#00695C</color>
-    <color name="brand_green_dark">#004D40</color>
+    <color name="brand_green">#1B62B0</color>
+    <color name="brand_green_dark">#21507E</color>
     <color name="brand_yellow">#FFB300</color>
     <color name="brand_yellow_dark">#FF8F00</color>
     <color name="tip_amber_bg">#FFF8E1</color>
@@ -29,37 +29,39 @@
     <color name="grey_light">#9E9E9E</color>
 
     <!-- v2.6.0 DESIGN TOKENS (100% per approved design) -->
-    <color name="ds_deep_green">#0C5C46</color>
-    <color name="ds_ink_green">#052E22</color>
+    <!-- v3.7.38: electric-blue theme — the old green tokens below now
+         carry the sampled competitor blue values. -->
+    <color name="ds_deep_green">#165598</color>
+    <color name="ds_ink_green">#0B2C52</color>
     <color name="ds_amber">#F6A609</color>
-    <color name="ds_bg">#F5F8F6</color>
+    <color name="ds_bg">#F4F8F7</color>
     <color name="ds_card">#FFFFFF</color>
     <color name="ds_red">#D92D20</color>
-    <color name="ds_ink">#12211B</color>
-    <color name="ds_muted">#6B7F74</color>
-    <color name="ds_line">#E6EDE9</color>
+    <color name="ds_ink">#10233A</color>
+    <color name="ds_muted">#6B7F8F</color>
+    <color name="ds_line">#D9E4F2</color>
     <color name="ds_amber_deep">#DD8D00</color>
     <color name="ds_amber_soft">#FDF3E0</color>
     <color name="ds_green_bg">#EAF5EE</color>
     <color name="ds_blue_bg">#EAF1FD</color>
     <color name="ds_red_bg">#FDF0EE</color>
-    <color name="ds_g600">#0E6D53</color>
-    <color name="ds_g800">#0A4A38</color>
-    <color name="ds_g900">#06382B</color>
+    <color name="ds_g600">#1B62B0</color>
+    <color name="ds_g800">#21507E</color>
+    <color name="ds_g900">#0F3D6E</color>
     <!-- v2.6.0 Unit Check / Estimate tokens (from design CSS vars) -->
-    <color name="ds_step_todo">#E3EAE6</color>
+    <color name="ds_step_todo">#E8EEF7</color>
     <color name="ds_step_num">#3A2700</color>
     <color name="ds_blue_border">#CCD9F5</color>
     <color name="ds_blue_text">#243B6B</color>
     <color name="ds_red_border">#F5C6C0</color>
     <color name="ds_red_text">#7A271A</color>
     <color name="ds_warn_text">#8A2B20</color>
-    <color name="ds_faint">#93A79B</color>
-    <color name="ds_prog_track">#E7EDE9</color>
+    <color name="ds_faint">#93A7B5</color>
+    <color name="ds_prog_track">#E8EEF7</color>
     <color name="ds_prog_end">#FFCF4D</color>
     <color name="ds_link_blue">#2F5FD0</color>
-    <color name="ds_est_end">#F2F8F4</color>
-    <color name="ds_illus_end">#D4E9DC</color>
+    <color name="ds_est_end">#F0F5FA</color>
+    <color name="ds_illus_end">#D4E4F5</color>
     <color name="ds_tip_green">#2E7D32</color>
-    <color name="ds_dots">#CFD9D4</color>
+    <color name="ds_dots">#CFD9E8</color>
 </resources>

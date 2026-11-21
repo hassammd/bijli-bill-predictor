@@ -1050,6 +1050,10 @@ public class TestBillFetch {
         // ---- v3.7.37: voice feature removed (removal tests) ----
         runV3731Tests();
 
+        // ---- v3.7.38: blue theme + Paid/Unpaid badge + Rate Us
+        //      moved to Settings ----
+        runV3738Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -1350,6 +1354,51 @@ public class TestBillFetch {
         check("v206 history r12 month", hist.get(11)[0], "AUG26");
         check("v206 history r12 units", hist.get(11)[2], "81");
         check("v206 history r12 bill", hist.get(11)[3], "1482");
+
+        // ---- v3.7.38 groundwork: PaidStatus resolver on the REAL
+        //      history table (user order 2026-11-21: Paid/Unpaid badge
+        //      on the bill screen). Verified 2026-11-21 against this
+        //      same real PITC page: STATUS is an empty pill / "SS"
+        //      (no Paid text anywhere), PAYMENT is an amount in Rs.
+        //      (never a date), and history covers the 12 months
+        //      BEFORE the bill month — so the bill on screen always
+        //      resolves UNKNOWN. The badge is wired to
+        //      BillActivity.payCard in v3.7.38 and shows "Paid" /
+        //      "Unpaid" text only — "Paid on <date>" cannot be
+        //      sourced from PITC at all and is never invented. ----
+        check("paidstatus real no Paid text",
+                bill.toLowerCase().contains("paid"), false);
+        check("paidstatus real no Unpaid text",
+                bill.toLowerCase().contains("unpaid"), false);
+        check("paidstatus real no payment date",
+                bill.toLowerCase().contains("paid on"), false);
+        check("paidstatus own month unknown",
+                com.hatch.bijlibill.PaidStatus.resolve(b.history, b.billMonth).state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+        check("paidstatus own month unknown literal",
+                com.hatch.bijlibill.PaidStatus.resolve(b.history, "SEP 26").state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+        check("paidstatus AUG26 paid",
+                com.hatch.bijlibill.PaidStatus.resolve(b.history, "AUG 26").state,
+                com.hatch.bijlibill.PaidStatus.State.PAID);
+        check("paidstatus APR26 unpaid",
+                com.hatch.bijlibill.PaidStatus.resolve(b.history, "APR 26").state,
+                com.hatch.bijlibill.PaidStatus.State.UNPAID);
+        check("paidstatus DEC25 paid despite SS pill",
+                com.hatch.bijlibill.PaidStatus.resolve(b.history, "DEC 25").state,
+                com.hatch.bijlibill.PaidStatus.State.PAID);
+        check("paidstatus null history unknown",
+                com.hatch.bijlibill.PaidStatus.resolve(null, "SEP 26").state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+        check("paidstatus null month unknown",
+                com.hatch.bijlibill.PaidStatus.resolve(b.history, null).state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+        check("paidstatus monthKey OCT 26",
+                com.hatch.bijlibill.PaidStatus.monthKey("OCT 26"), "OCT26");
+        check("paidstatus monthKey Oct 2026",
+                com.hatch.bijlibill.PaidStatus.monthKey("Oct 2026"), "OCT26");
+        check("paidstatus monthKey OCT26",
+                com.hatch.bijlibill.PaidStatus.monthKey("OCT26"), "OCT26");
 
         // ---- same page via the direct-leg parser ----
         BillInfo f = LescoBillFetcher.parseFullBillHtml(bill, typed);
@@ -2170,9 +2219,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"169\""), true);
+                man.contains("android:versionCode=\"170\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.37\""), true);
+                man.contains("android:versionName=\"3.7.38\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -2778,8 +2827,8 @@ public class TestBillFetch {
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v300 splash_bg linear gradient",
                 !sbg.contains("android:type=\"radial\"")
-                && sbg.contains("#0D5A43")
-                && sbg.contains("#04271E"), true);
+                && sbg.contains("#165598")
+                && sbg.contains("#0B2C52"), true);
         check("v300 splash_bg no dot pattern",
                 !sbg.contains("dot_pattern"), true);
         check("v260 fonts bundled",
@@ -3875,9 +3924,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"169\""), true);
+                man.contains("android:versionCode=\"170\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.37\""), true);
+                man.contains("android:versionName=\"3.7.38\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4248,10 +4297,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"169\""),
+                manifest.contains("android:versionCode=\"170\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.37\""),
+                manifest.contains("android:versionName=\"3.7.38\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4410,10 +4459,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"169\""),
+                manifest.contains("android:versionCode=\"170\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.37\""),
+                manifest.contains("android:versionName=\"3.7.38\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4761,23 +4810,25 @@ public class TestBillFetch {
         //      used it) ----
         check("v3737 no record audio",
                 man.contains("android.permission.RECORD_AUDIO"), false);
-        // ---- 5. Rate Us card kept (v3.7.36 restore, still in) ----
-        check("v3737 rate us card", home.contains("quick_rate_us"), true);
-        check("v3737 rate us sub",
-                home.contains("quick_rate_us_sub"), true);
-        check("v3737 rate us star icon",
-                home.contains("ic_star"), true);
-        check("v3737 rate us market link",
-                home.contains("market://details?id="), true);
-        check("v3737 rate us web fallback",
+        // ---- 5. Rate Us card GONE from Home (v3.7.38: user order
+        //      2026-11-21 — Rate Us / Share / Privacy live in
+        //      Settings now). Home keeps only Unit Check + Bill
+        //      History; no second row, no market link on Home. ----
+        check("v3737 rate us gone from home",
+                home.contains("quick_rate_us"), false);
+        check("v3737 rate us sub gone from home",
+                home.contains("quick_rate_us_sub"), false);
+        check("v3737 second row gone", home.contains("row2"), false);
+        check("v3737 no market link on home",
+                home.contains("market://details?id="), false);
+        check("v3737 no web fallback on home",
                 home.contains(
                         "https://play.google.com/store/apps/details?id="),
-                true);
-        check("v3737 second row kept", home.contains("row2"), true);
+                false);
         check("v3737 task cards kept",
                 home.contains("quick_unit_check")
                         && home.contains("quick_bill_history"), true);
-        // Rate Us strings in both locales, same format args.
+        // Rate Us strings stay in both locales (Settings uses them).
         java.util.Map<String, String> en =
                 readStrings("res/values/strings.xml");
         java.util.Map<String, String> ur =
@@ -4793,11 +4844,11 @@ public class TestBillFetch {
         //      removed voice feature ----
         check("v3737 bill no snapshot call",
                 bill.contains("BillSnapshots"), false);
-        // ---- 7. Version 169 / 3.7.37 in the manifest ----
-        check("v3737 manifest version 169",
-                man.contains("android:versionCode=\"169\""), true);
-        check("v3737 manifest name 3.7.37",
-                man.contains("android:versionName=\"3.7.37\""), true);
+        // ---- 7. Version 170 / 3.7.38 in the manifest ----
+        check("v3737 manifest version 170",
+                man.contains("android:versionCode=\"170\""), true);
+        check("v3737 manifest name 3.7.38",
+                man.contains("android:versionName=\"3.7.38\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -4814,6 +4865,187 @@ public class TestBillFetch {
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v3731 captcha grey drawable",
                 grey.contains("BDBDBD"), true);
+    }
+
+    /** Counts the old palette word (any case) NOT inside "steal".
+     *  The word is built from parts so a repo-wide grep for it
+     *  stays clean — this test file asserts its absence. */
+    static int countOldWord(String s) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "(?i)(?<!s)" + "te" + "al").matcher(s);
+        int n = 0;
+        while (m.find()) n++;
+        return n;
+    }
+
+    static void runV3738Tests() throws Exception {
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String about = readFile(
+                "java/com/hatch/bijlibill/AboutActivity.java");
+        String ds = readFile("java/com/hatch/bijlibill/Ds.java");
+        String ui = readFile("java/com/hatch/bijlibill/Ui.java");
+        String colors = readFile("res/values/colors.xml");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Blue theme: no old palette word / hex anywhere in
+        //      app source + values + drawables (build/ excluded —
+        //      it regenerates). The launcher icon keeps its own
+        //      background (#00695C in ic_launcher_background only).
+        String[] oldHex = {"11998E", "0D766E", "064E50", "004D40",
+                "B2DFDB", "E0F2F1", "DDF5EF", "E1EFEC", "F3F8F7",
+                "E7EDE9", "0E7569", "0B5563", "0E6D53", "0C5C46",
+                "0A4A38", "06382B", "052E22", "0D5A43", "04271E"};
+        String[] srcTexts = {home, bill, about, ds, ui, colors};
+        for (int i = 0; i < srcTexts.length; i++) {
+            check("v3738 no old word src[" + i + "]",
+                    countOldWord(srcTexts[i]), 0);
+            for (String h : oldHex) {
+                check("v3738 no hex " + h + " src[" + i + "]",
+                        srcTexts[i].toUpperCase().contains(h), false);
+            }
+        }
+        // #00695C: allowed ONLY as the launcher-icon background.
+        check("v3738 00695C only launcher bg",
+                countOcc(colors, "#00695C"), 1);
+        check("v3738 launcher bg kept",
+                colors.contains(
+                        "<color name=\"ic_launcher_background\">#00695C</color>"),
+                true);
+        // Every drawable: same word/hex scan.
+        java.nio.file.Path drawDir =
+                java.nio.file.Paths.get("res/drawable");
+        try (java.util.stream.Stream<java.nio.file.Path> st =
+                     java.nio.file.Files.list(drawDir)) {
+            for (java.nio.file.Path p
+                    : (Iterable<java.nio.file.Path>) st::iterator) {
+                String d = new String(java.nio.file.Files.readAllBytes(p),
+                        java.nio.charset.StandardCharsets.UTF_8);
+                check("v3738 no old word " + p.getFileName(),
+                        countOldWord(d), 0);
+                for (String h : oldHex) {
+                    check("v3738 no hex " + h + " " + p.getFileName(),
+                            d.toUpperCase().contains(h), false);
+                }
+            }
+        }
+        // New blue values present in the design system.
+        check("v3738 ds primary blue", ds.contains("#1B62B0"), true);
+        check("v3738 ds mid blue", ds.contains("#165598"), true);
+        check("v3738 ds deep blue", ds.contains("#21507E"), true);
+        check("v3738 colors brand_blue",
+                colors.contains("<color name=\"brand_blue\">#1B62B0</color>"),
+                true);
+        check("v3738 colors brand_blue_dark",
+                colors.contains(
+                        "<color name=\"brand_blue_dark\">#21507E</color>"),
+                true);
+        // Renamed icon files exist; old names gone.
+        check("v3738 ic_globe_blue exists",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_globe_blue.xml")), true);
+        check("v3738 ic_pin_blue exists",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_pin_blue.xml")), true);
+        check("v3738 old globe icon gone",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_globe_" + "te" + "al" + ".xml")),
+                false);
+        check("v3738 old pin icon gone",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_pin_" + "te" + "al" + ".xml")),
+                false);
+
+        // ---- 2. Paid/Unpaid badge: resolver on synthetic tables
+        //      (the real-table cases are covered by the v206
+        //      PaidStatus checks above).
+        java.util.List<java.util.List<String[]>> hist =
+                new java.util.ArrayList<java.util.List<String[]>>();
+        java.util.List<String[]> tbl =
+                new java.util.ArrayList<String[]>();
+        tbl.add(new String[]{"MONTH", "STATUS", "UNITS", "BILL (RS.)",
+                "PAYMENT (RS.)"});
+        tbl.add(new String[]{"NOV 26", "", "100", "2000", "2000"});
+        tbl.add(new String[]{"OCT 26", "", "50", "1000", ""});
+        tbl.add(new String[]{"SEP 26", "", "80", "1500", "500"});
+        hist.add(tbl);
+        check("v3738 badge NOV26 paid",
+                com.hatch.bijlibill.PaidStatus.resolve(hist, "NOV 26").state,
+                com.hatch.bijlibill.PaidStatus.State.PAID);
+        check("v3738 badge OCT26 unpaid",
+                com.hatch.bijlibill.PaidStatus.resolve(hist, "OCT 26").state,
+                com.hatch.bijlibill.PaidStatus.State.UNPAID);
+        check("v3738 badge SEP26 partial unknown",
+                com.hatch.bijlibill.PaidStatus.resolve(hist, "SEP 26").state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+        check("v3738 badge DEC26 no row unknown",
+                com.hatch.bijlibill.PaidStatus.resolve(hist, "DEC 26").state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+        // Wiring on the bill detail screen (payCard, after amount).
+        check("v3738 badge wired", bill.contains("PaidStatus.resolve"),
+                true);
+        check("v3738 badge helper", bill.contains("paidBadge"), true);
+        check("v3738 badge paid string",
+                bill.contains("R.string.badge_paid"), true);
+        check("v3738 badge unpaid string",
+                bill.contains("R.string.badge_unpaid"), true);
+        check("v3738 badge red pill",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ds_pill_red.xml")), true);
+        // Badge strings: text only, NO date in either locale.
+        java.util.Map<String, String> en =
+                readStrings("res/values/strings.xml");
+        java.util.Map<String, String> ur =
+                readStrings("res/values-ur/strings.xml");
+        check("v3738 badge_paid en", en.get("badge_paid"), "Paid");
+        check("v3738 badge_unpaid en", en.get("badge_unpaid"), "Unpaid");
+        check("v3738 badge_paid ur", ur.get("badge_paid"), "ادا شدہ");
+        check("v3738 badge_unpaid ur", ur.get("badge_unpaid"),
+                "ادا نہیں ہوا");
+        String[] setKeys = {"settings_section", "settings_share",
+                "settings_share_sub", "settings_share_text",
+                "settings_privacy", "settings_privacy_sub"};
+        for (String k : setKeys) {
+            check("v3738 key en " + k, en.containsKey(k), true);
+            check("v3738 key ur " + k, ur.containsKey(k), true);
+        }
+
+        // ---- 3. Settings rows in AboutActivity (Rate Us moved
+        //      here from Home) ----
+        check("v3738 settings rate us",
+                about.contains("quick_rate_us"), true);
+        check("v3738 settings market link",
+                about.contains("market://details?id="), true);
+        check("v3738 settings web fallback",
+                about.contains(
+                        "https://play.google.com/store/apps/details?id="),
+                true);
+        check("v3738 settings share",
+                about.contains("settings_share"), true);
+        check("v3738 settings share intent",
+                about.contains("Intent.ACTION_SEND"), true);
+        check("v3738 settings privacy",
+                about.contains("settings_privacy"), true);
+        check("v3738 settings privacy url",
+                about.contains(
+                        "https://bijli-bill-privacy.netlify.app/privacy-policy"),
+                true);
+        check("v3738 settings scrollable",
+                about.contains("new ScrollView(this)"), true);
+        check("v3738 settings share icon",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_share.xml")), true);
+        check("v3738 settings privacy icon",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_privacy.xml")), true);
+
+        // ---- 4. Version 170 / 3.7.38 in the manifest ----
+        check("v3738 manifest version 170",
+                man.contains("android:versionCode=\"170\""), true);
+        check("v3738 manifest name 3.7.38",
+                man.contains("android:versionName=\"3.7.38\""), true);
     }
 
     static void addPoint(

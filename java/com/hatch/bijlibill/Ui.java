@@ -19,7 +19,7 @@ import android.widget.TextView;
 /**
  * v1.2 design system — every screen is built through these helpers so the
  * whole app shares one professional look:
- * deep teal (#00695C) + amber (#FFB300), white 12dp cards, 16dp rhythm,
+ * deep blue (#1B62B0) + amber (#FFB300), white 12dp cards, 16dp rhythm,
  * 48dp touch targets, dp/sp only, and automatic Noto Nastaliq Urdu for any
  * Urdu text (with extra line spacing — Nastaliq is tall).
  */
@@ -28,13 +28,13 @@ public final class Ui {
     private Ui() {}
 
     // ---------- palette ----------
-    public static int teal()       { return Color.parseColor("#00695C"); }
-    public static int tealDark()   { return Color.parseColor("#004D40"); }
-    public static int tealLight()  { return Color.parseColor("#B2DFDB"); }
-    public static int tealPale()   { return Color.parseColor("#E0F2F1"); }
+    public static int blue()       { return Color.parseColor("#1B62B0"); }
+    public static int blueDark()   { return Color.parseColor("#21507E"); }
+    public static int blueLight()  { return Color.parseColor("#BFD9F5"); }
+    public static int bluePale()   { return Color.parseColor("#E3EDFB"); }
     public static int amber()      { return Color.parseColor("#FFB300"); }
     public static int amberDark()  { return Color.parseColor("#FF8F00"); }
-    public static int pageBg()     { return Color.parseColor("#F4F7F6"); }
+    public static int pageBg()     { return Color.parseColor("#F4F8F7"); }
     public static int dark()       { return Color.parseColor("#212121"); }
     public static int grey()       { return Color.parseColor("#757575"); }
     public static int errorRed()   { return Color.parseColor("#C62828"); }
@@ -103,7 +103,7 @@ public final class Ui {
         int p = dp(ctx, 16);
         c.setPadding(p, p, p, p);
         if (android.os.Build.VERSION.SDK_INT >= 21) c.setElevation(dp(ctx, 3));
-        Ds.tealShadow(c);
+        Ds.blueShadow(c);
         return c;
     }
 
@@ -148,9 +148,9 @@ public final class Ui {
         return tv(ctx, ctx.getString(resId), sp, bold, color);
     }
 
-    /** v2.5.0 type scale: 16sp section heading, teal. */
+    /** v2.5.0 type scale: 16sp section heading, blue. */
     public static TextView sectionTitle(Context ctx, int resId) {
-        return tvRes(ctx, resId, 16, true, teal());
+        return tvRes(ctx, resId, 16, true, blue());
     }
 
     /** v2.5.0: 14sp body text. */
@@ -168,9 +168,9 @@ public final class Ui {
         return tvRes(ctx, resId, 20, true, dark());
     }
 
-    /** Small card heading, 13sp dark-teal (matches approved mockup). */
+    /** Small card heading, 13sp dark-blue (matches approved mockup). */
     public static TextView cardTitle(Context ctx, int resId) {
-        return tvRes(ctx, resId, 13, true, tealDark());
+        return tvRes(ctx, resId, 13, true, blueDark());
     }
 
     /** Small grey field label above an input, 12sp (matches mockup). */
@@ -194,7 +194,7 @@ public final class Ui {
         return b;
     }
 
-    /** Full-width primary action button (teal). */
+    /** Full-width primary action button (blue). */
     public static Button primaryButton(Context ctx, int resId) {
         Button b = baseBtn(ctx, ctx.getString(resId), 16);
         b.setBackgroundResource(R.drawable.btn_primary);
@@ -245,19 +245,19 @@ public final class Ui {
         return b;
     }
 
-    /** Quiet text button (teal text, transparent bg). */
+    /** Quiet text button (blue text, transparent bg). */
     public static Button ghostButton(Context ctx, int resId) {        Button b = baseBtn(ctx, ctx.getString(resId), 14);
         b.setBackgroundColor(Color.TRANSPARENT);
-        b.setTextColor(teal());
+        b.setTextColor(blue());
         Fonts.applyIfUrdu(ctx, b);
         return b;
     }
 
-    /** Outline button (white bg, teal border) — e.g. refresh. */
+    /** Outline button (white bg, blue border) — e.g. refresh. */
     public static Button outlineButton(Context ctx, int resId) {
         Button b = baseBtn(ctx, ctx.getString(resId), 14);
         b.setBackgroundResource(R.drawable.btn_outline);
-        b.setTextColor(teal());
+        b.setTextColor(blue());
         b.setTypeface(Typeface.DEFAULT_BOLD);
         Fonts.applyIfUrdu(ctx, b);
         b.setLayoutParams(new LinearLayout.LayoutParams(
@@ -309,7 +309,7 @@ public final class Ui {
     }
 
     /**
-     * v1.3 teal header (approved mockup), v2.5.0 type scale: 20sp bold
+     * v1.3 blue header (approved mockup), v2.5.0 type scale: 20sp bold
      * title + 12sp subtitle on the left, amber-pill EN/اردو toggle on
      * the right.
      */
@@ -319,11 +319,11 @@ public final class Ui {
         // v3.7.2: horizontal header — title/subtitle column (left) + toggle
         // CENTERED against the full header height. Before, the toggle sat
         // in the title row only, so with the subtitle below it looked
-        // off-center (user QA: upar space kam, neeche zyada). Same teal as
+        // off-center (user QA: upar space kam, neeche zyada). Same blue as
         // every other page header.
         LinearLayout h = row(ctx);
         h.setGravity(Gravity.CENTER_VERTICAL);
-        h.setBackgroundColor(Ds.ndTealAccent());
+        h.setBackgroundColor(Ds.ndBlueAccent());
         h.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), dp(ctx, 12));
 
         LinearLayout left = col(ctx);
@@ -363,7 +363,7 @@ public final class Ui {
      * segments; the active language sits on an amber pill with dark text.
      * Tapping the inactive segment switches language.
      *
-     * @param onLight true on light backgrounds (teal container + teal
+     * @param onLight true on light backgrounds (blue container + blue
      *               inactive text, e.g. the About language card)
      */
     public static LinearLayout langPill(final Activity act, boolean onLight,
@@ -405,7 +405,7 @@ public final class Ui {
             t.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
             t.setBackgroundColor(Color.TRANSPARENT);
-            t.setTextColor(onLight ? teal() : Color.WHITE);
+            t.setTextColor(onLight ? blue() : Color.WHITE);
         }
         if (Fonts.isUrdu(text)) {
             t.setTypeface(Fonts.urdu(ctx));
@@ -447,9 +447,9 @@ public final class Ui {
         return t;
     }
 
-    /** v1.3: teal-pale rounded pill, e.g. the rates version line. */
+    /** v1.3: blue-pale rounded pill, e.g. the rates version line. */
     public static TextView ratePill(Context ctx, CharSequence text) {
-        TextView t = tv(ctx, text, 12, true, teal());
+        TextView t = tv(ctx, text, 12, true, blue());
         t.setBackgroundResource(R.drawable.toggle_bg_light);
         t.setPadding(dp(ctx, 14), dp(ctx, 7), dp(ctx, 14), dp(ctx, 7));
         t.setGravity(Gravity.CENTER);
@@ -480,7 +480,7 @@ public final class Ui {
 
     public static LinearLayout tableHeader(Context ctx, int... resIds) {
         LinearLayout r = row(ctx);
-        r.setBackgroundColor(teal());
+        r.setBackgroundColor(blue());
         float[] w = {1.5f, 1f, 1.3f, 1.5f};
         for (int i = 0; i < resIds.length; i++) {
             r.addView(cell(ctx, ctx.getString(resIds[i]), 13, true,
@@ -526,7 +526,7 @@ public final class Ui {
 
     /**
      * v2.5.0 selectable chip (disco selector, badges): 48dp touch
-     * target, rounded 24dp background; selected = teal fill + white
+     * target, rounded 24dp background; selected = blue fill + white
      * text, unselected = pale outline + dark text, disabled = grey.
      */
     public static TextView chip(Context ctx, CharSequence text,
@@ -565,7 +565,7 @@ public final class Ui {
         t.setTextSize(11);
         t.setGravity(Gravity.CENTER);
         t.setBackgroundResource(R.drawable.chip_idle);
-        t.setTextColor(tealDark());
+        t.setTextColor(blueDark());
         t.setTypeface(Typeface.DEFAULT_BOLD);
         int hp = dp(ctx, 10), vp = dp(ctx, 5);
         t.setPadding(hp, vp, hp, vp);

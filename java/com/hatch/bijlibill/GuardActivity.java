@@ -67,8 +67,8 @@ public class GuardActivity extends BaseActivity {
 
         Window w = getWindow();
         if (w != null) {
-            // v3.7.26: teal status bar like the other pages (white icons).
-            w.setStatusBarColor(Ds.ndTealAccent());
+            // v3.7.26: blue status bar like the other pages (white icons).
+            w.setStatusBarColor(Ds.ndBlueAccent());
             w.getDecorView().setSystemUiVisibility(0);
         }
 
@@ -78,7 +78,7 @@ public class GuardActivity extends BaseActivity {
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        // v3.7.26: standard teal app bar + banner + bottom nav, same
+        // v3.7.26: standard blue app bar + banner + bottom nav, same
         // as the other pages (was a plain private appBar, no nav).
         root.addView(Ds.appBar(this, new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }

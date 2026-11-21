@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- v2.5.0: NoActionBar — every screen draws its own teal header. -->
+    <!-- v2.5.0: NoActionBar — every screen draws its own blue header. -->
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:colorPrimary">@color/brand_teal</item>
-        <item name="android:colorPrimaryDark">@color/brand_teal_dark</item>
+        <item name="android:colorPrimary">@color/brand_blue</item>
+        <item name="android:colorPrimaryDark">@color/brand_blue_dark</item>
         <item name="android:colorAccent">@color/accent_amber</item>
         <item name="android:windowBackground">@color/page_bg</item>
     </style>
@@ -11,7 +11,7 @@
         <!-- v3.7.21 (user): splash se pehle green flash aa raha tha —
              theme ka windowBackground purana dark-green splash_bg
              gradient tha (v3.0.0 ka leftover). Ab wahi halka rang jo
-             splash screen asal mein draw karti hai (#F3F8F7 = Ds.bg()),
+             splash screen asal mein draw karti hai (#F4F8F7 = Ds.bg()),
              to pre-draw background aur splash ek hi rang = flash khatam. -->
         <item name="android:windowBackground">@color/splash_window_bg</item>
         <item name="android:windowSplashScreenBackground">@color/splash_window_bg</item>

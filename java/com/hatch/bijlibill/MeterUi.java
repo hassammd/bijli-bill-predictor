@@ -67,7 +67,7 @@ final class MeterUi {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             row.setElevation(Ui.dp(ctx, 2));
         }
-        Ds.tealShadow(row);
+        Ds.blueShadow(row);
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -80,7 +80,7 @@ final class MeterUi {
         int as = Ui.dp(ctx, 44);
         avatar.setLayoutParams(new LinearLayout.LayoutParams(as, as));
         int[] bgs = {
-                R.drawable.ds_avatar_ddf5ef,  // mint
+                R.drawable.ds_avatar_e3edfb,  // light blue
                 R.drawable.ds_avatar_e8e4f8,  // lavender
                 R.drawable.ds_avatar_fde8d8,  // peach
                 R.drawable.ds_avatar_d8eafd,  // blue

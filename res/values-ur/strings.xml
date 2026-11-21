@@ -364,6 +364,20 @@
     <string name="ref_empty">براہ کرم اپنا ریفرنس نمبر درج کریں</string>
 
     <!-- v3.7.36: Rate Us card (Quick Tools, second row) -->
+    <!-- v3.7.38: moved to Settings (AboutActivity) — Home keeps only
+         Unit Check + Bill History. -->
     <string name="quick_rate_us">ہمیں ریٹ کریں</string>
     <string name="quick_rate_us_sub">اسٹار ریٹنگ دیں</string>
+
+    <!-- v3.7.38: Paid/Unpaid badge (bill detail, after the amount) -->
+    <string name="badge_paid">ادا شدہ</string>
+    <string name="badge_unpaid">ادا نہیں ہوا</string>
+
+    <!-- v3.7.38: Settings rows (AboutActivity) -->
+    <string name="settings_section">سیٹنگز</string>
+    <string name="settings_share">ایپ شیئر کریں</string>
+    <string name="settings_share_sub">دوستوں کو بجلی بل کے بارے میں بتائیں</string>
+    <string name="settings_share_text">بجلی بل سے اپنا بجلی کا بل چیک کریں:</string>
+    <string name="settings_privacy">پرائیویسی پالیسی</string>
+    <string name="settings_privacy_sub">آپ کا ڈیٹا کیسے استعمال ہوتا ہے</string>
 </resources>

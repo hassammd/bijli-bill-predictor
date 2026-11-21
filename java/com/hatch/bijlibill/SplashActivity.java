@@ -17,8 +17,8 @@ import android.widget.TextView;
  * Splash — v3.6.99 redesign (user request 2026-10-20):
  *  - English-only short text ("Bijli Bill" / "Your bill, before it
  *    arrives." / "Made for Pakistan") in BOTH locales (brand splash).
- *  - Current palette: light bg #F3F8F7 (Ds.bg), teal/ink text — the old
- *    dark-green gradient (splash_bg, #04271E) is gone.
+ *  - Current palette: light bg #F4F8F7 (Ds.bg), blue/ink text — the old
+ *    dark-green gradient (splash_bg, #0B2C52) is gone.
  *  - Custom flat illustration (transmission towers + poles + houses,
  *    app palette) as a top band for a professional look.
  *  - App icon (Play Store icon, transparent) stays, 96dp.

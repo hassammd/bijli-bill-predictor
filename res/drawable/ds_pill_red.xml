@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v3.7.38: light-red pill for the Unpaid badge (matches the
+     light-green ds_pill_green used for the Paid badge). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FDECEA" />
+    <corners android:radius="28dp" />
+</shape>

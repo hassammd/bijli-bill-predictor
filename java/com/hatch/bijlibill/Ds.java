@@ -23,26 +23,32 @@ final class Ds {
 
     private Ds() {}
 
-    static int bg()        { return Color.parseColor("#F3F8F7"); }
+    // v3.7.38: ELECTRIC-BLUE THEME (user order 2026-11-21 — the
+    // competitor's blue, sampled from video frames: primary
+    // #1B62B0, mid #165598, deep #21507E, bg #F4F8F7). The old
+    // green values are gone everywhere. Green-named helpers below
+    // (deepGreen, g600/g800/g900, greenBg, ndMintGreen) are kept
+    // under their old names to avoid churn — they now return blue.
+    static int bg()        { return Color.parseColor("#F4F8F7"); }
     static int ink()       { return Color.parseColor("#123D46"); }
     static int muted()     { return Color.parseColor("#71858B"); }
-    static int line()      { return Color.parseColor("#E1EFEC"); }
-    static int deepGreen() { return Color.parseColor("#0D766E"); }
-    static int g800()      { return Color.parseColor("#064E50"); }
-    static int g900()      { return Color.parseColor("#064E50"); }
+    static int line()      { return Color.parseColor("#D9E4F2"); }
+    static int deepGreen() { return Color.parseColor("#165598"); }
+    static int g800()      { return Color.parseColor("#21507E"); }
+    static int g900()      { return Color.parseColor("#21507E"); }
     static int amber()     { return Color.parseColor("#FFC83D"); }
     static int amberDark() { return Color.parseColor("#3A2700"); }
     static int navIdle()   { return Color.parseColor("#A9BCB2"); }
     static int red()       { return Color.parseColor("#D92D20"); }
-    static int g600()      { return Color.parseColor("#0D766E"); }
-    static int stepTodo()  { return Color.parseColor("#E1EFEC"); }
-    static int greenBg()     { return Color.parseColor("#DDF5EF"); }
+    static int g600()      { return Color.parseColor("#165598"); }
+    static int stepTodo()  { return Color.parseColor("#D9E4F2"); }
+    static int greenBg()     { return Color.parseColor("#E3EDFB"); }
     static int faint()       { return Color.parseColor("#71858B"); }
 
-    /** v3.6.60: teal-tinted shadow for cards (user feedback). API 28+. */
-    static void tealShadow(android.view.View v) {
+    /** v3.6.60: blue-tinted shadow for cards (user feedback). API 28+. */
+    static void blueShadow(android.view.View v) {
         if (android.os.Build.VERSION.SDK_INT >= 28) {
-            v.setOutlineSpotShadowColor(Color.parseColor("#0D766E"));
+            v.setOutlineSpotShadowColor(Color.parseColor("#165598"));
         }
     }
     static int stepNum()   { return Color.parseColor("#3A2700"); }
@@ -52,19 +58,19 @@ final class Ds {
     static int redBg()     { return Color.parseColor("#FDECEA"); }
 
     // v3.6.54: New bill page design colors (2026-10-19)
-    static int ndPrimaryDark() { return Color.parseColor("#064E50"); }
-    static int ndPrimaryTeal() { return Color.parseColor("#0D766E"); }
-    static int ndTealAccent() { return Color.parseColor("#11998E"); }
-    static int ndAppBg()     { return Color.parseColor("#F3F8F7"); }
+    static int ndPrimaryDark() { return Color.parseColor("#21507E"); }
+    static int ndPrimaryBlue() { return Color.parseColor("#165598"); }
+    static int ndBlueAccent() { return Color.parseColor("#1B62B0"); }
+    static int ndAppBg()     { return Color.parseColor("#F4F8F7"); }
     static int ndCardWhite() { return Color.parseColor("#FFFFFF"); }
-    static int ndMintGreen() { return Color.parseColor("#DDF5EF"); }
+    static int ndMintGreen() { return Color.parseColor("#E3EDFB"); }
     static int ndDarkText()  { return Color.parseColor("#123D46"); }
     static int ndSecondary() { return Color.parseColor("#71858B"); }
     static int ndAmber()     { return Color.parseColor("#FFC83D"); }
-    static int ndLightBorder(){ return Color.parseColor("#E1EFEC"); }
+    static int ndLightBorder(){ return Color.parseColor("#D9E4F2"); }
     static int redBorder() { return Color.parseColor("#F5C6C0"); }
     static int redText()   { return Color.parseColor("#7A271A"); }
-    static int progTrack() { return Color.parseColor("#E7EDE9"); }
+    static int progTrack() { return Color.parseColor("#E8EEF7"); }
     static int linkBlue()  { return Color.parseColor("#2F5FD0"); }
     static int tipGreen()  { return Color.parseColor("#2E7D32"); }
 
@@ -685,7 +691,7 @@ final class Ds {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             c.setElevation(Ui.dp(ctx, 2));
         }
-        tealShadow(c);
+        blueShadow(c);
         return c;
     }
 
@@ -704,8 +710,8 @@ final class Ds {
         bar.setGravity(android.view.Gravity.CENTER_VERTICAL);
         int p = Ui.dp(ctx, 20);
         bar.setPadding(p, Ui.dp(ctx, 14), p, Ui.dp(ctx, 10));
-        // v3.6.69: light teal header (was dark green, user request).
-        bar.setBackgroundColor(ndTealAccent());
+        // v3.6.69: light blue header (was dark green, user request).
+        bar.setBackgroundColor(ndBlueAccent());
 
         android.widget.ImageView back =
                 new android.widget.ImageView(ctx);

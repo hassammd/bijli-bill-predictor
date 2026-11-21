@@ -142,12 +142,12 @@ public class BillViewerActivity extends Activity {
         // v3.6.71: padding matches Home header (18/12/18/10).
         bar.setPadding(dp(18), dp(12) + sbh, dp(18), dp(10));
         // v3.6.68: dark green header (like other pages).
-        bar.setBackgroundColor(Ds.ndTealAccent());
+        bar.setBackgroundColor(Ds.ndBlueAccent());
 
         // v3.6.71: match Home header style — dark green rounded square
         // (like Home logo), white arrow.
         // v3.7.4: SAME standard as other pages (user QA — viewer icons
-        // purane thay): mint circle bg (nd_back_btn_light), dark teal
+        // purane thay): mint circle bg (nd_back_btn_light), dark blue
         // chevron, 28dp, 8dp padding — identical to BillsActivity.
         ImageView back = new ImageView(this);
         back.setImageResource(R.drawable.ic_chev_right);

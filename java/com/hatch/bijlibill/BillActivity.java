@@ -102,8 +102,8 @@ public class BillActivity extends BaseActivity {
 
         android.view.Window w = getWindow();
         if (w != null) {
-            // v3.6.54: new design — dark teal status bar.
-            w.setStatusBarColor(Ds.ndTealAccent());
+            // v3.6.54: new design — dark blue status bar.
+            w.setStatusBarColor(Ds.ndBlueAccent());
             w.getDecorView().setSystemUiVisibility(0);
         }
 
@@ -183,22 +183,22 @@ public class BillActivity extends BaseActivity {
     }
 
     // ------------------------------------------------------------------
-    // App bar — v3.6.54 new design: dark teal, rounded bottom corners
+    // App bar — v3.6.54 new design: dark blue, rounded bottom corners
     // ------------------------------------------------------------------
 
 
 
     /** Creates a rounded-corner drawable programmatically. */
 
-    /** Dark teal header bg with rounded BOTTOM corners only. */
+    /** Dark blue header bg with rounded BOTTOM corners only. */
 
     private View appBar() {
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        // v3.6.55: standard app bar (reverted from v3.6.54 dark teal).
-        // Uses new teal colors.
-        bar.setBackgroundColor(Ds.ndTealAccent());
+        // v3.6.55: standard app bar (reverted from v3.6.54 dark blue).
+        // Uses new blue colors.
+        bar.setBackgroundColor(Ds.ndBlueAccent());
         bar.setPadding(dp(16), dp(16), dp(16), dp(16));
 
         // Back button.
@@ -258,7 +258,7 @@ public class BillActivity extends BaseActivity {
         c.setBackgroundResource(R.drawable.ds_card);
         c.setPadding(dp(16), dp(16), dp(16), dp(16));
         if (Build.VERSION.SDK_INT >= 21) c.setElevation(dp(2));
-        Ds.tealShadow(c);
+        Ds.blueShadow(c);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1722,6 +1722,53 @@ public class BillActivity extends BaseActivity {
         return pill;
     }
 
+    /**
+     * v3.7.38: paid/unpaid pill for the pay card (shown right after
+     * the amount). Paid = light-green pill + check + "Paid" in dark
+     * green; not paid = light-red pill + the unpaid label in dark
+     * red. No date is ever shown: PITC prints no payment date.
+     */
+    private View paidBadge(boolean paid) {
+        LinearLayout pill = new LinearLayout(this);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setBackgroundResource(paid ? R.drawable.ds_pill_green
+                : R.drawable.ds_pill_red);
+        pill.setPadding(dp(12), dp(7), dp(12), dp(7));
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        // Sit at the amount's baseline (the amt row is BOTTOM
+        // gravity) with a gap after the figures.
+        plp.leftMargin = dp(12);
+        plp.bottomMargin = dp(6);
+        pill.setLayoutParams(plp);
+
+        if (paid) {
+            ImageView ic = new ImageView(this);
+            ic.setImageResource(R.drawable.ic_check);
+            ic.setColorFilter(Color.parseColor("#137333"),
+                    PorterDuff.Mode.SRC_IN);
+            int s = dp(13);
+            LinearLayout.LayoutParams ilp =
+                    new LinearLayout.LayoutParams(s, s);
+            ilp.rightMargin = dp(5);
+            ic.setLayoutParams(ilp);
+            pill.addView(ic);
+        }
+
+        TextView t = new TextView(this);
+        t.setText(getString(paid ? R.string.badge_paid
+                : R.string.badge_unpaid));
+        t.setTextSize(13);
+        t.setTextColor(Color.parseColor(
+                paid ? "#137333" : "#D92D20"));
+        Ds.heading(this, t);
+        t.setSingleLine(true);
+        pill.addView(t);
+        return pill;
+    }
+
     /** Holder card: consumer name, address, company pill. */
     /**
      * v3.6.16: strip the guardian suffix ("W/O ...", "S/O ...", "D/O ...",
@@ -1794,7 +1841,7 @@ public class BillActivity extends BaseActivity {
         TextView pill = new TextView(this);
         pill.setText(disco.displayName);
         pill.setTextSize(12);
-        pill.setTextColor(Ds.ndPrimaryTeal());
+        pill.setTextColor(Ds.ndPrimaryBlue());
         Ds.heading(this, pill);
         pill.setBackgroundResource(R.drawable.ds_pill_green);
         pill.setPadding(dp(12), dp(6), dp(12), dp(6));
@@ -1965,6 +2012,24 @@ public class BillActivity extends BaseActivity {
         am.setTypeface(Fonts.archivo(this, 800));
         am.setSingleLine(true);
         amt.addView(am);
+
+        // v3.7.38: paid/unpaid badge right after the amount (user
+        // order 2026-11-21). Source: PaidStatus.resolve on the PITC
+        // history table ONLY — the bill document itself carries no
+        // paid field, and PITC prints NO payment date anywhere, so
+        // the badge shows the paid / unpaid text only (never a "Paid
+        // on <date>" — that date cannot be sourced from PITC and
+        // must not be invented). A current-month bill resolves
+        // UNKNOWN (history holds the 12 months BEFORE the bill
+        // month) -> no badge is shown.
+        PaidStatus.Result ps = PaidStatus.resolve(
+                b == null ? null : b.history,
+                b == null ? null : b.billMonth);
+        if (ps.state == PaidStatus.State.PAID
+                || ps.state == PaidStatus.State.UNPAID) {
+            amt.addView(paidBadge(ps.state == PaidStatus.State.PAID));
+        }
+
         c.addView(amt);
 
         // Due chip row.
@@ -1990,7 +2055,7 @@ public class BillActivity extends BaseActivity {
 
             ImageView cal = new ImageView(this);
             cal.setImageResource(R.drawable.ic_calendar);
-            cal.setColorFilter(Ds.ndPrimaryTeal(),
+            cal.setColorFilter(Ds.ndPrimaryBlue(),
                     PorterDuff.Mode.SRC_IN);
             int cs = dp(13);
             LinearLayout.LayoutParams clp =
@@ -2052,7 +2117,7 @@ public class BillActivity extends BaseActivity {
 
 
     /**
-     * v3.6.54: dark teal "View Full Bill →" button for inside the
+     * v3.6.54: dark blue "View Full Bill →" button for inside the
      * pay card. Keeps the ad-gate (interstitial before opening).
      */
 

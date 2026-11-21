@@ -243,14 +243,14 @@ public class HomeActivity extends BaseActivity {
         bigCircle.setLayoutParams(bcl);
         illus.addView(bigCircle);
         ImageView globe = new ImageView(this);
-        globe.setImageResource(R.drawable.ic_globe_teal);
+        globe.setImageResource(R.drawable.ic_globe_blue);
         android.widget.FrameLayout.LayoutParams gl =
                 new android.widget.FrameLayout.LayoutParams(84 * d, 84 * d);
         gl.leftMargin = 33 * d; gl.topMargin = 21 * d;
         globe.setLayoutParams(gl);
         illus.addView(globe);
         ImageView pin = new ImageView(this);
-        pin.setImageResource(R.drawable.ic_pin_teal);
+        pin.setImageResource(R.drawable.ic_pin_blue);
         android.widget.FrameLayout.LayoutParams pl =
                 new android.widget.FrameLayout.LayoutParams(30 * d, 30 * d);
         pl.leftMargin = 106 * d; pl.topMargin = 0;
@@ -386,7 +386,7 @@ public class HomeActivity extends BaseActivity {
         icBox.setBackgroundResource(R.drawable.pop_circle_mint);
         icBox.setLayoutParams(new LinearLayout.LayoutParams(64 * d, 64 * d));
         ImageView ic = new ImageView(this);
-        ic.setImageResource(R.drawable.ic_globe_teal);
+        ic.setImageResource(R.drawable.ic_globe_blue);
         android.widget.FrameLayout.LayoutParams ilp =
                 new android.widget.FrameLayout.LayoutParams(36 * d, 36 * d);
         ilp.gravity = Gravity.CENTER;
@@ -472,7 +472,7 @@ public class HomeActivity extends BaseActivity {
         icBox.setLayoutParams(new LinearLayout.LayoutParams(44 * d, 44 * d));
         ImageView ic = new ImageView(this);
         ic.setImageResource(pakistan
-                ? R.drawable.ic_check_white : R.drawable.ic_globe_teal);
+                ? R.drawable.ic_check_white : R.drawable.ic_globe_blue);
         int isz = pakistan ? 20 * d : 24 * d;
         android.widget.FrameLayout.LayoutParams ilp2 =
                 new android.widget.FrameLayout.LayoutParams(isz, isz);
@@ -509,7 +509,7 @@ public class HomeActivity extends BaseActivity {
         ImageView chev = new ImageView(this);
         chev.setImageResource(R.drawable.ic_chev_right);
         chev.setColorFilter(android.graphics.Color.parseColor(
-                pakistan ? "#11998E" : "#9DB3AD"),
+                pakistan ? "#1B62B0" : "#9DB3AD"),
                 android.graphics.PorterDuff.Mode.SRC_IN);
         chev.setLayoutParams(new LinearLayout.LayoutParams(18 * d, 18 * d));
         row.addView(chev);
@@ -606,7 +606,7 @@ public class HomeActivity extends BaseActivity {
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         // v3.6.60: dark green header (matches BillActivity).
-        bar.setBackgroundColor(Ds.ndTealAccent());
+        bar.setBackgroundColor(Ds.ndBlueAccent());
         bar.setPadding(Ui.dp(this, 18), Ui.dp(this, 12),
                 Ui.dp(this, 18), Ui.dp(this, 10));
 
@@ -849,7 +849,7 @@ public class HomeActivity extends BaseActivity {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             card.setElevation(Ui.dp(this, 4));
         }
-        Ds.tealShadow(card);
+        Ds.blueShadow(card);
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1105,7 +1105,7 @@ public class HomeActivity extends BaseActivity {
 
         View card1 = quickToolCard(
                 R.drawable.icon_gauge,
-                "#DDF5EF", // mint circle
+                "#E3EDFB", // mint circle
                 getString(R.string.quick_unit_check),
                 getString(R.string.quick_unit_check_sub),
                 new View.OnClickListener() {
@@ -1139,49 +1139,6 @@ public class HomeActivity extends BaseActivity {
 
         sec.addView(row);
 
-        // v3.7.36: Rate Us card restored (user correction 2026-11-21:
-        // v3.7.35 removed the whole second row by mistake). The Rate
-        // Us card is back as a full-width second row, exactly as in
-        // v3.7.34 (star icon, Play Store listing via market:// with
-        // web fallback).
-        // v3.7.37: the voice feature is gone entirely (user order
-        // 2026-11-21) — no card, no bubble, no voice screen.
-        LinearLayout row2 = new LinearLayout(this);
-        row2.setOrientation(LinearLayout.HORIZONTAL);
-        row2.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        row2.setClipChildren(false);
-        row2.setClipToPadding(false);
-        row2.setPadding(shp, shp, shp, shp);
-        View rateCard = quickToolCard(
-                R.drawable.ic_star,
-                "#FDF3D8", // amber circle
-                getString(R.string.quick_rate_us),
-                getString(R.string.quick_rate_us_sub),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        String pkg = getPackageName();
-                        try {
-                            Intent i = new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(
-                                            "market://details?id=" + pkg));
-                            i.setPackage("com.android.vending");
-                            startActivity(i);
-                        } catch (Exception e) {
-                            startActivity(new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(
-                                            "https://play.google.com/store/apps/details?id="
-                                                    + pkg)));
-                        }
-                    }
-                });
-        LinearLayout.LayoutParams rateLp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        rateCard.setLayoutParams(rateLp);
-        row2.addView(rateCard);
-        sec.addView(row2);
-
         return sec;
     }
 
@@ -1198,7 +1155,7 @@ public class HomeActivity extends BaseActivity {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             card.setElevation(Ui.dp(this, 4));
         }
-        Ds.tealShadow(card);
+        Ds.blueShadow(card);
 
         // Icon circle
         // v3.6.76: smaller icon (user: make room for full headings).

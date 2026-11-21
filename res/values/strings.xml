@@ -364,6 +364,20 @@
     <string name="ref_empty">Please enter your reference number</string>
 
     <!-- v3.7.36: Rate Us card (Quick Tools, second row) -->
+    <!-- v3.7.38: moved to Settings (AboutActivity) — Home keeps only
+         Unit Check + Bill History. -->
     <string name="quick_rate_us">Rate us</string>
     <string name="quick_rate_us_sub">Give us a star rating</string>
+
+    <!-- v3.7.38: Paid/Unpaid badge (bill detail, after the amount) -->
+    <string name="badge_paid">Paid</string>
+    <string name="badge_unpaid">Unpaid</string>
+
+    <!-- v3.7.38: Settings rows (AboutActivity) -->
+    <string name="settings_section">Settings</string>
+    <string name="settings_share">Share app</string>
+    <string name="settings_share_sub">Tell friends about Bijli Bill</string>
+    <string name="settings_share_text">Check your electricity bill with Bijli Bill:</string>
+    <string name="settings_privacy">Privacy Policy</string>
+    <string name="settings_privacy_sub">How your data is handled</string>
 </resources>

@@ -1,4 +1,20 @@
 #!/bin/bash
+# Bijli Bill v3.7.38 (170) — electric-blue theme + Paid/Unpaid badge
+# + Rate Us moved to Settings (user order, 2026-11-21):
+#   - Blue theme: the old green palette is gone everywhere (Ds/Ui
+#     central colors, colors.xml, styles, drawables, icon tints) —
+#     sampled competitor blue: primary #1B62B0, mid #165598, deep
+#     #21507E, bg #F4F8F7. Launcher icon NOT changed (separate pick
+#     still pending).
+#   - Paid/Unpaid badge on the bill detail screen, right after the
+#     amount (PaidStatus on the PITC history table; "Paid"/"Unpaid"
+#     text only — PITC prints no payment date, never invented;
+#     UNKNOWN -> no badge).
+#   - Rate Us card leaves Home Quick Tools; Settings (About) gains
+#     Rate Us / Share App / Privacy Policy rows; About content is
+#     now scrollable (new card no longer fits one screen).
+#   - Kept: bill fetch, CAPTCHA/session-out fixes, reminders,
+#     tariff code. No AI voice feature, no company-cards home flow.
 # Bijli Bill v3.7.37 (169) — voice feature REMOVED entirely
 # (user order, voice call 2026-11-21: "AI wala kaam saara remove,
 # bubble wala hata do, wo nahi chahiye").
@@ -59,7 +75,7 @@
 #   - Default language ENGLISH (saved choice still honored).
 #   - Splash re-centered (true Gravity.CENTER, no weights).
 #   - UI polish: 20/16/14/12sp type scale, 12dp card corners,
-#     48dp touch targets, teal+amber chips.
+#     48dp touch targets, blue+amber chips.
 #   - Customer-ID search wired per disco (best-effort, NOT
 #     live-verified — PITC is geo-blocked outside Pakistan).
 # v2.4.0 changes:
@@ -153,6 +169,7 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/Disco.java \
   java/com/hatch/bijlibill/SavedMeters.java \
   java/com/hatch/bijlibill/LangPolicy.java \
+  java/com/hatch/bijlibill/PaidStatus.java \
   java/com/hatch/bijlibill/StreakCalc.java \
   java/com/hatch/bijlibill/BillDayNudge.java \
   java/com/hatch/bijlibill/WeeklyReport.java \
@@ -268,16 +285,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.37.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.37.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.38.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.38.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.37.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.37.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.38.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.38.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.37.apk" "$OUTDIR/bijli-bill-publish-3.7.37.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.38.apk" "$OUTDIR/bijli-bill-publish-3.7.38.aab"
 echo BUILD_OK

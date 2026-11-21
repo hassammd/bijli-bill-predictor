@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -38,15 +39,98 @@ public class AboutActivity extends BaseActivity {
         return wrap;
     }
 
+    /** Privacy policy page (same URL as the Play listing). */
+    private static final String PRIVACY_URL =
+            "https://bijli-bill-privacy.netlify.app/privacy-policy";
+
+    /** Opens this app's Play Store listing (market:// first, web fallback). */
+    private void openPlayStore() {
+        String pkg = getPackageName();
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW,
+                    android.net.Uri.parse("market://details?id=" + pkg));
+            i.setPackage("com.android.vending");
+            startActivity(i);
+        } catch (Exception e) {
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    android.net.Uri.parse(
+                            "https://play.google.com/store/apps/details?id="
+                                    + pkg)));
+        }
+    }
+
+    /** One Settings row: blue icon circle, title + sub, chevron. */
+    private View settingRow(int iconRes, int titleRes, int subRes,
+            View.OnClickListener onClick) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(Ui.dp(this, 4), Ui.dp(this, 10),
+                Ui.dp(this, 4), Ui.dp(this, 10));
+        row.setOnClickListener(onClick);
+
+        android.widget.FrameLayout circle =
+                new android.widget.FrameLayout(this);
+        int cs = Ui.dp(this, 40);
+        circle.setLayoutParams(
+                new LinearLayout.LayoutParams(cs, cs));
+        android.graphics.drawable.GradientDrawable bg =
+                new android.graphics.drawable.GradientDrawable();
+        bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        bg.setColor(Ds.greenBg());
+        circle.setBackground(bg);
+        android.widget.ImageView ic = new android.widget.ImageView(this);
+        ic.setImageResource(iconRes);
+        int is = Ui.dp(this, 22);
+        android.widget.FrameLayout.LayoutParams ilp =
+                new android.widget.FrameLayout.LayoutParams(
+                        is, is, Gravity.CENTER);
+        ic.setLayoutParams(ilp);
+        circle.addView(ic);
+        row.addView(circle);
+
+        LinearLayout col = Ui.col(this);
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        clp.leftMargin = Ui.dp(this, 12);
+        clp.rightMargin = Ui.dp(this, 8);
+        col.setLayoutParams(clp);
+        col.addView(Ui.tvRes(this, titleRes, 15, true, Ui.dark()));
+        col.addView(Ui.tvRes(this, subRes, 12, false, Ui.grey()));
+        row.addView(col);
+
+        android.widget.ImageView ch = new android.widget.ImageView(this);
+        ch.setImageResource(R.drawable.ic_chev_right);
+        int chs = Ui.dp(this, 18);
+        ch.setLayoutParams(new LinearLayout.LayoutParams(chs, chs));
+        row.addView(ch);
+        return row;
+    }
+
+    /** 1dp divider between Settings rows. */
+    private View settingDivider() {
+        View d = new View(this);
+        d.setBackgroundColor(Ds.line());
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(this, 1));
+        dlp.leftMargin = Ui.dp(this, 56);
+        d.setLayoutParams(dlp);
+        return d;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // v3.7.24: fixed (non-scroll) content column, weight 1.
+        // v3.7.38: content is now a ScrollView (the Settings card
+        // added rows — one-screen fit no longer holds on small
+        // phones). Actions stay pinned below, as before.
         LinearLayout root = Ui.col(this);
         root.setBackgroundColor(Ui.pageBg());
         root.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 
         root.addView(Ui.header(this, R.string.about_title, R.string.about_subtitle,
                 new Ui.LangToggle() {
@@ -102,6 +186,45 @@ public class AboutActivity extends BaseActivity {
         disc.addView(discTxt);
         root.addView(compactWrap(disc));
 
+        // v3.7.38: Settings rows (user order 2026-11-21 — Rate Us
+        // moves here from Home Quick Tools, plus Share App and
+        // Privacy Policy). One compact card, three tappable rows.
+        LinearLayout set = compactCard();
+        set.addView(Ui.cardTitle(this, R.string.settings_section));
+        set.addView(Ui.spacer(this, 2));
+        set.addView(settingRow(R.drawable.ic_star,
+                R.string.quick_rate_us, R.string.quick_rate_us_sub,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        openPlayStore();
+                    }
+                }));
+        set.addView(settingDivider());
+        set.addView(settingRow(R.drawable.ic_share,
+                R.string.settings_share, R.string.settings_share_sub,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        Intent s = new Intent(Intent.ACTION_SEND);
+                        s.setType("text/plain");
+                        s.putExtra(Intent.EXTRA_TEXT,
+                                getString(R.string.settings_share_text)
+                                        + " https://play.google.com/store/apps/details?id="
+                                        + getPackageName());
+                        startActivity(Intent.createChooser(s,
+                                getString(R.string.settings_share)));
+                    }
+                }));
+        set.addView(settingDivider());
+        set.addView(settingRow(R.drawable.ic_privacy,
+                R.string.settings_privacy, R.string.settings_privacy_sub,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                android.net.Uri.parse(PRIVACY_URL)));
+                    }
+                }));
+        root.addView(compactWrap(set));
+
         // Actions — pinned below the content column (v3.7.24) so they are
         // visible without scrolling on every screen size.
         LinearLayout actions = Ui.col(this);
@@ -111,7 +234,7 @@ public class AboutActivity extends BaseActivity {
         // v3.7.1: primary green button (same as app buttons, user QA) —
         // was outlineButton.
         // v3.7.2: Ds.greenBtn — the CURRENT button style (nd_btn_solid
-        // #11998E light teal-green, same as VIEW BILL). Ui.primaryButton
+        // #1B62B0 light blue-green, same as VIEW BILL). Ui.primaryButton
         // was the old dark green.
         // v3.7.5: FUNCTIONAL (user request) — tap opens this app's Play
         // Store page so the user can update from there. Play Store app
@@ -150,7 +273,11 @@ public class AboutActivity extends BaseActivity {
         // v3.7.24: page = content (weight 1) + pinned actions + banner + nav.
         android.widget.LinearLayout page = Ui.col(this);
         page.setBackgroundColor(Ui.pageBg());
-        page.addView(root);
+        ScrollView scroll = new ScrollView(this);
+        scroll.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        scroll.addView(root);
+        page.addView(scroll);
         page.addView(actions);
         // v3.6.16: test banner ad (user request — see ad on all pages).
         android.widget.LinearLayout bannerBox =
