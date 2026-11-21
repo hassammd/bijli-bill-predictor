@@ -785,6 +785,31 @@ public class HomeActivity extends BaseActivity {
         discoGlide.start();
     }
 
+    // v3.7.39: official DISCO emblem per company (res/drawable-nodpi).
+    // Every fetchable disco maps to its own logo; K-Electric has no
+    // chip (comingSoon) so it maps to 0 and is never shown.
+    private static int discoLogoRes(Disco d) {
+        if (d == null) return 0;
+        if ("lesco".equals(d.code)) return R.drawable.logo_lesco;
+        if ("iesco".equals(d.code)) return R.drawable.logo_iesco;
+        if ("gepco".equals(d.code)) return R.drawable.logo_gepco;
+        if ("fesco".equals(d.code)) return R.drawable.logo_fesco;
+        if ("mepco".equals(d.code)) return R.drawable.logo_mepco;
+        if ("pesco".equals(d.code)) return R.drawable.logo_pesco;
+        if ("hesco".equals(d.code)) return R.drawable.logo_hesco;
+        if ("sepco".equals(d.code)) return R.drawable.logo_sepco;
+        if ("qesco".equals(d.code)) return R.drawable.logo_qesco;
+        if ("tesco".equals(d.code)) return R.drawable.logo_tesco;
+        if ("hazeco".equals(d.code)) return R.drawable.logo_hazeco;
+        return 0;
+    }
+
+    // Wide marks (pill / oval) need a wider box than round emblems.
+    private static boolean discoLogoWide(Disco d) {
+        return d != null
+                && ("iesco".equals(d.code) || "tesco".equals(d.code));
+    }
+
     private void refreshChips() {
         discoRow.removeAllViews();
         // v3.6.89: K-Electric removed (user request).
@@ -807,6 +832,21 @@ public class HomeActivity extends BaseActivity {
             if (isSel && android.os.Build.VERSION.SDK_INT >= 21) {
                 chip.setElevation(Ui.dp(this, 3));
             }
+
+            // v3.7.39: official DISCO logo before the name (emblems in
+            // res/drawable-nodpi/logo_<code>.png, verified per company).
+            ImageView logo = new ImageView(this);
+            logo.setImageResource(discoLogoRes(d));
+            logo.setContentDescription(d.displayName + " logo");
+            logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            logo.setAdjustViewBounds(true);
+            int lw = Ui.dp(this, discoLogoWide(d) ? 34 : 20);
+            LinearLayout.LayoutParams llp =
+                    new LinearLayout.LayoutParams(
+                            lw, Ui.dp(this, 20));
+            llp.rightMargin = Ui.dp(this, 6);
+            logo.setLayoutParams(llp);
+            chip.addView(logo);
 
             TextView t = new TextView(this);
             t.setText(d.displayName);

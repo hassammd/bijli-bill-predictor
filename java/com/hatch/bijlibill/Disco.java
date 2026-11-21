@@ -7,11 +7,15 @@ package com.hatch.bijlibill;
  *
  * PITC paths per the portal's own URL scheme:
  *   lescobill, iescobill, gepcobill, fescobill, mepcobill,
- *   pescobill, hescobill, sepcobill, qescobill.
+ *   pescobill, hescobill, sepcobill, qescobill, tescobill,
+ *   hazecobill.
  * Non-LESCO discos are NOT live-verified from outside Pakistan
  * (geo-blocked) — the parser degrades gracefully (WebView + whatever
  * summary parsed, never a hard error). K-Electric runs on a different
  * system entirely (no PITC endpoint) and is shown as "coming soon".
+ *
+ * v3.7.39: TESCO + HAZECO added (same PITC template, paths
+ * tescobill / hazecobill) so all 11 government DISCOs are served.
  *
  * Plain Java, unit-tested headlessly.
  */
@@ -26,6 +30,8 @@ public enum Disco {
     HESCO("hesco", "hescobill", "HESCO", false),
     SEPCO("sepco", "sepcobill", "SEPCO", false),
     QESCO("qesco", "qescobill", "QESCO", false),
+    TESCO("tesco", "tescobill", "TESCO", false),
+    HAZECO("hazeco", "hazecobill", "HAZECO", false),
     /** Different billing system (no PITC endpoint) — disabled chip. */
     KELECTRIC("ke", null, "K-Electric", true);
 

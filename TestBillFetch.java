@@ -1054,6 +1054,9 @@ public class TestBillFetch {
         //      moved to Settings ----
         runV3738Tests();
 
+        // ---- v3.7.39: official DISCO logos in picker + TESCO/HAZECO ----
+        runV3739Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2219,9 +2222,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"170\""), true);
+                man.contains("android:versionCode=\"171\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.38\""), true);
+                man.contains("android:versionName=\"3.7.39\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -2503,8 +2506,8 @@ public class TestBillFetch {
     }
 
     static void runV250Tests() throws Exception {
-        // ---- Disco: all 9 PITC mappings + K-Electric disabled ----
-        check("v250 disco count", Disco.values().length, 10);
+        // ---- Disco: all 11 PITC mappings + K-Electric disabled ----
+        check("v250 disco count", Disco.values().length, 12);
         check("v250 lesco url", Disco.LESCO.baseUrl(),
                 "https://bill.pitc.com.pk/lescobill");
         check("v250 iesco url", Disco.IESCO.baseUrl(),
@@ -2523,10 +2526,16 @@ public class TestBillFetch {
                 "https://bill.pitc.com.pk/sepcobill");
         check("v250 qesco url", Disco.QESCO.baseUrl(),
                 "https://bill.pitc.com.pk/qescobill");
+        check("v250 tesco url", Disco.TESCO.baseUrl(),
+                "https://bill.pitc.com.pk/tescobill");
+        check("v250 hazeco url", Disco.HAZECO.baseUrl(),
+                "https://bill.pitc.com.pk/hazecobill");
+        check("v250 tesco not comingSoon", Disco.TESCO.comingSoon, false);
+        check("v250 hazeco not comingSoon", Disco.HAZECO.comingSoon, false);
         check("v250 ke comingSoon", Disco.KELECTRIC.comingSoon, true);
         check("v250 ke no pitc path", Disco.KELECTRIC.pitcPath, null);
         check("v250 lesco not comingSoon", Disco.LESCO.comingSoon, false);
-        check("v250 fetchable count", Disco.fetchable().length, 9);
+        check("v250 fetchable count", Disco.fetchable().length, 11);
         boolean keFetchable = false;
         for (Disco d : Disco.fetchable()) {
             if (d == Disco.KELECTRIC) keFetchable = true;
@@ -2534,7 +2543,7 @@ public class TestBillFetch {
         check("v250 ke not fetchable", keFetchable, false);
         java.util.Set<String> codes = new java.util.HashSet<String>();
         for (Disco d : Disco.values()) codes.add(d.code);
-        check("v250 distinct codes", codes.size(), 10);
+        check("v250 distinct codes", codes.size(), 12);
         check("v250 fromCode null -> lesco", Disco.fromCode(null),
                 Disco.LESCO);
         check("v250 fromCode unknown -> lesco", Disco.fromCode("nope"),
@@ -3924,9 +3933,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"170\""), true);
+                man.contains("android:versionCode=\"171\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.38\""), true);
+                man.contains("android:versionName=\"3.7.39\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4297,10 +4306,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"170\""),
+                manifest.contains("android:versionCode=\"171\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.38\""),
+                manifest.contains("android:versionName=\"3.7.39\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4459,10 +4468,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"170\""),
+                manifest.contains("android:versionCode=\"171\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.38\""),
+                manifest.contains("android:versionName=\"3.7.39\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4844,11 +4853,11 @@ public class TestBillFetch {
         //      removed voice feature ----
         check("v3737 bill no snapshot call",
                 bill.contains("BillSnapshots"), false);
-        // ---- 7. Version 170 / 3.7.38 in the manifest ----
-        check("v3737 manifest version 170",
-                man.contains("android:versionCode=\"170\""), true);
-        check("v3737 manifest name 3.7.38",
-                man.contains("android:versionName=\"3.7.38\""), true);
+        // ---- 7. Version 171 / 3.7.39 in the manifest ----
+        check("v3737 manifest version 171",
+                man.contains("android:versionCode=\"171\""), true);
+        check("v3737 manifest name 3.7.39",
+                man.contains("android:versionName=\"3.7.39\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5041,11 +5050,79 @@ public class TestBillFetch {
                 java.nio.file.Files.exists(java.nio.file.Paths.get(
                         "res/drawable/ic_privacy.xml")), true);
 
-        // ---- 4. Version 170 / 3.7.38 in the manifest ----
-        check("v3738 manifest version 170",
-                man.contains("android:versionCode=\"170\""), true);
-        check("v3738 manifest name 3.7.38",
-                man.contains("android:versionName=\"3.7.38\""), true);
+        // ---- 4. Version 171 / 3.7.39 in the manifest ----
+        check("v3738 manifest version 171",
+                man.contains("android:versionCode=\"171\""), true);
+        check("v3738 manifest name 3.7.39",
+                man.contains("android:versionName=\"3.7.39\""), true);
+    }
+
+    static void runV3739Tests() throws Exception {
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String disco = readFile("java/com/hatch/bijlibill/Disco.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. All 11 official logos exist as PNGs, valid + small. ----
+        String[] codes = {"lesco", "iesco", "gepco", "fesco", "mepco",
+                "pesco", "hesco", "sepco", "qesco", "tesco", "hazeco"};
+        for (String c : codes) {
+            java.nio.file.Path p = java.nio.file.Paths.get(
+                    "res/drawable-nodpi/logo_" + c + ".png");
+            check("v3739 logo file " + c,
+                    java.nio.file.Files.exists(p), true);
+            byte[] b = java.nio.file.Files.readAllBytes(p);
+            check("v3739 logo png magic " + c,
+                    b.length > 8 && b[0] == (byte) 0x89 && b[1] == 0x50
+                            && b[2] == 0x4E && b[3] == 0x47, true);
+            check("v3739 logo size " + c, b.length > 5000, true);
+            int w = ((b[16] & 0xFF) << 24) | ((b[17] & 0xFF) << 16)
+                    | ((b[18] & 0xFF) << 8) | (b[19] & 0xFF);
+            int h = ((b[20] & 0xFF) << 24) | ((b[21] & 0xFF) << 16)
+                    | ((b[22] & 0xFF) << 8) | (b[23] & 0xFF);
+            check("v3739 logo width<=400 " + c, w <= 400, true);
+            check("v3739 logo height<=400 " + c, h <= 400, true);
+        }
+
+        // ---- 2. Picker wiring: logo ImageView in every chip row. ----
+        check("v3739 chip logo helper",
+                home.contains("discoLogoRes("), true);
+        check("v3739 chip logo view",
+                home.contains("new ImageView(this)"), true);
+        check("v3739 chip logo set",
+                home.contains("logo.setImageResource(discoLogoRes(d))"),
+                true);
+        check("v3739 chip logo wide helper",
+                home.contains("discoLogoWide(d)"), true);
+        check("v3739 chip logo desc",
+                home.contains("logo.setContentDescription"), true);
+        for (String c : codes) {
+            check("v3739 mapping " + c,
+                    home.contains("R.drawable.logo_" + c), true);
+        }
+
+        // ---- 3. TESCO + HAZECO in the company list (same PITC
+        //      template as the other 9). ----
+        check("v3739 disco total", Disco.values().length, 12);
+        check("v3739 fetchable total", Disco.fetchable().length, 11);
+        check("v3739 tesco path", Disco.TESCO.pitcPath, "tescobill");
+        check("v3739 hazeco path", Disco.HAZECO.pitcPath, "hazecobill");
+        check("v3739 tesco url", Disco.TESCO.baseUrl(),
+                "https://bill.pitc.com.pk/tescobill");
+        check("v3739 hazeco url", Disco.HAZECO.baseUrl(),
+                "https://bill.pitc.com.pk/hazecobill");
+        check("v3739 tesco enum", disco.contains(
+                "TESCO(\"tesco\", \"tescobill\", \"TESCO\", false)"), true);
+        check("v3739 hazeco enum", disco.contains(
+                "HAZECO(\"hazeco\", \"hazecobill\", \"HAZECO\", false)"), true);
+        check("v3739 ke still comingSoon",
+                Disco.KELECTRIC.comingSoon, true);
+
+        // ---- 4. Version 171 / 3.7.39 in the manifest ----
+        check("v3739 manifest version 171",
+                man.contains("android:versionCode=\"171\""), true);
+        check("v3739 manifest name 3.7.39",
+                man.contains("android:versionName=\"3.7.39\""), true);
     }
 
     static void addPoint(

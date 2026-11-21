@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bijli Bill v3.7.38 (170) — electric-blue theme + Paid/Unpaid badge
+# Bijli Bill v3.7.39 (171) — official DISCO logos in picker + TESCO/HAZECO
 # + Rate Us moved to Settings (user order, 2026-11-21):
 #   - Blue theme: the old green palette is gone everywhere (Ds/Ui
 #     central colors, colors.xml, styles, drawables, icon tints) —
@@ -285,16 +285,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.38.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.38.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.39.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.39.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.38.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.38.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.39.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.39.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.38.apk" "$OUTDIR/bijli-bill-publish-3.7.38.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.39.apk" "$OUTDIR/bijli-bill-publish-3.7.39.aab"
 echo BUILD_OK
