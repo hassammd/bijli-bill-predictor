@@ -69,7 +69,7 @@ public final class PaidStatus {
         public final double paymentAmount;
         /** Parsed bill amount for the matched row; -1 when absent. */
         public final double billAmount;
-        /** "17 Nov 2026" when a PAYMENT DATE was printed, else null. */
+        /** "17 Nov 26" when a PAYMENT DATE was printed, else null. */
         public final String paymentDateDisplay;
 
         Result(State state, String paymentPrinted,
@@ -142,11 +142,15 @@ public final class PaidStatus {
             "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
     /**
-     * "17-Nov-26" -&gt; "17 Nov 2026". Also accepts "17 Nov 26",
+     * "17-Nov-26" -&gt; "17 Nov 26". Also accepts "17 Nov 26",
      * "17-Nov-2026", "17 Nov 2026" and "17/11/2026" / "17-11-2026".
      * Returns null for anything unparseable (never invent a date).
      * The day prints without a leading zero, the month as a 3-letter
-     * title-case word, the year as 4 digits.
+     * title-case word, the year as 2 digits. v3.7.44: the badge
+     * reads "Paid on 17 Nov 26" — "Paid on" stays complete (user
+     * order), only the date is shortened so the badge never clips
+     * next to a big amount. This is the badge's only date source
+     * (paymentDateDisplay); nothing else displays it.
      */
     public static String formatPaymentDate(String raw) {
         if (raw == null) return null;
@@ -165,7 +169,7 @@ public final class PaidStatus {
             if (day < 1 || day > 31 || mon < 1 || mon > 12) return null;
             return day + " " + MONTHS[mon - 1].substring(0, 1)
                     + MONTHS[mon - 1].substring(1).toLowerCase()
-                    + " " + year;
+                    + " " + String.format("%02d", year % 100);
         }
         // Named month: dd-Mon-yy(yy) or dd Mon yy(yy).
         java.util.regex.Matcher named =
@@ -199,7 +203,7 @@ public final class PaidStatus {
         if (mon < 1) return null;
         return day + " " + MONTHS[mon - 1].substring(0, 1)
                 + MONTHS[mon - 1].substring(1).toLowerCase()
-                + " " + year;
+                + " " + String.format("%02d", year % 100);
     }
 
     /**

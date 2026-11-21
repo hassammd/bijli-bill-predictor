@@ -1,4 +1,15 @@
 #!/bin/bash
+# Bijli Bill v3.7.44 (176) — user orders, voice call 2026-11-22, ONE build:
+#   - REAL STAMP IMAGES: user-sent green BILL PAID / red BILL UNPAID
+#     PNGs (res/drawable-nodpi/stamp_paid_img.png /
+#     stamp_unpaid_img.png) replace the v3.7.42 text stamp in
+#     paidStamp(); artwork already tilted, no extra rotation.
+#   - BADGE DATE SHORT: "Paid on 17 Nov 26" — "Paid on" complete +
+#     green tick, only the date is 2-digit year.
+#   - BIG-AMOUNT GUARD: amount row is now a FlowLayout — badge +
+#     stamp wrap to a second line instead of clipping at thousands.
+#   - SETTINGS TOP ROWS: Rate Us, Share App, Privacy Policy — all
+#     above "How it works" (lower Settings card removed).
 # Bijli Bill v3.7.43 (175) — Total Payable improvements: per-bill
 # due date + days-left, tap card -> pending-bills list, Overdue red
 # mark + after-due amount, all-paid green tick (user order, voice
@@ -229,6 +240,8 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/SavedMeters.java \
   java/com/hatch/bijlibill/LangPolicy.java \
   java/com/hatch/bijlibill/PaidStatus.java \
+  java/com/hatch/bijlibill/FlowLayout.java \
+  java/com/hatch/bijlibill/FlowMath.java \
   java/com/hatch/bijlibill/TotalPayable.java \
   java/com/hatch/bijlibill/LastBillStore.java \
   java/com/hatch/bijlibill/StreakCalc.java \
@@ -346,16 +359,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.43.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.43.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.44.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.44.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.43.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.43.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.44.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.44.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.43.apk" "$OUTDIR/bijli-bill-publish-3.7.43.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.44.apk" "$OUTDIR/bijli-bill-publish-3.7.44.aab"
 echo BUILD_OK

@@ -150,12 +150,20 @@ public class AboutActivity extends BaseActivity {
                 getString(R.string.about_version) + " · v" + versionName()));
         root.addView(verWrap);
 
-        // v3.7.42 FINAL: Share App + Privacy Policy at the very
-        // top of Settings, before "How it works" (user order
-        // 2026-11-21, voice call). Same links and actions as
-        // before, only the position changed; Rate Us stays in
-        // the Settings card below.
+        // v3.7.44: top rows in this order — Rate Us, Share App,
+        // Privacy Policy — ALL above "How it works" (user order
+        // 2026-11-22, voice call). Same links and actions as
+        // before, only the position changed; the old lower
+        // Settings card that held Rate Us is gone (no duplicate).
         LinearLayout top = compactCard();
+        top.addView(settingRow(R.drawable.ic_star,
+                R.string.quick_rate_us, R.string.quick_rate_us_sub,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        openPlayStore();
+                    }
+                }));
+        top.addView(settingDivider());
         top.addView(settingRow(R.drawable.ic_share,
                 R.string.settings_share, R.string.settings_share_sub,
                 new View.OnClickListener() {
@@ -217,21 +225,8 @@ public class AboutActivity extends BaseActivity {
         disc.addView(discTxt);
         root.addView(compactWrap(disc));
 
-        // v3.7.38: Settings rows (user order 2026-11-21 — Rate Us
-        // moved here from Home Quick Tools). v3.7.42 FINAL: Share
-        // App + Privacy Policy now live in the top card above
-        // "How it works"; only Rate Us stays in this card.
-        LinearLayout set = compactCard();
-        set.addView(Ui.cardTitle(this, R.string.settings_section));
-        set.addView(Ui.spacer(this, 2));
-        set.addView(settingRow(R.drawable.ic_star,
-                R.string.quick_rate_us, R.string.quick_rate_us_sub,
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        openPlayStore();
-                    }
-                }));
-        root.addView(compactWrap(set));
+        // v3.7.44: the lower Settings card is gone — Rate Us now
+        // lives in the top card (see above); no duplicate row.
 
         // Actions — pinned below the content column (v3.7.24) so they are
         // visible without scrolling on every screen size.

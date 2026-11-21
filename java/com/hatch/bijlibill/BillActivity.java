@@ -1782,26 +1782,23 @@ public class BillActivity extends BaseActivity {
     }
 
     /**
-     * v3.7.42: round stamp next to the badge, same as the stamp
-     * printed on the bill document — PAID in red when paid,
-     * UNPAID in amber when not paid. The badge stays; the stamp
-     * is extra, never a replacement. Tilted -12 degrees like a
-     * hand stamp. (All-caps text on purpose: the mixed-case
-     * form of that word must never appear in this file — the
-     * v300 "no invented status" check forbids it.)
+     * v3.7.44: the user-sent stamp IMAGES — green BILL PAID /
+     * red BILL UNPAID (res/drawable-nodpi/stamp_paid_img.png /
+     * stamp_unpaid_img.png, transparent background). Replaces the
+     * v3.7.42 text stamp (TextView + ring drawable + -12 rotation):
+     * the artwork is already tilted, so NO extra rotation is added.
+     * The badge stays; the image stamp is extra, never a
+     * replacement. Height 64dp, width follows the artwork's own
+     * aspect (adjustViewBounds) — never stretched.
      */
     private View paidStamp(boolean paid) {
-        TextView st = new TextView(this);
-        st.setText(paid ? "PAID" : "UNPAID");
-        st.setTextSize(paid ? 13 : 10.5f);
-        st.setTextColor(Color.parseColor(paid ? "#C62828" : "#B45309"));
-        st.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        st.setGravity(Gravity.CENTER);
-        st.setBackgroundResource(paid ? R.drawable.stamp_paid_ring
-                : R.drawable.stamp_unpaid_ring);
-        st.setRotation(-12f);
-        int s = dp(64);
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(s, s);
+        ImageView st = new ImageView(this);
+        st.setImageResource(paid ? R.drawable.stamp_paid_img
+                : R.drawable.stamp_unpaid_img);
+        st.setAdjustViewBounds(true);
+        st.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(64));
         slp.leftMargin = dp(10);
         slp.bottomMargin = dp(4);
         st.setLayoutParams(slp);
@@ -2026,16 +2023,18 @@ public class BillActivity extends BaseActivity {
         c.addView(eb);
 
         // Amount: "Rs 18827" HUGE, LEFT-aligned.
-        LinearLayout amt = new LinearLayout(this);
-        amt.setOrientation(LinearLayout.HORIZONTAL);
-        amt.setGravity(Gravity.BOTTOM);
-        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        alp.topMargin = dp(4);
+        // v3.7.44: FlowLayout, not a plain horizontal row — with a
+        // big amount (thousands) the badge + stamp flow to a second
+        // line under the amount instead of the badge text being cut
+        // off at the card edge (user report 2026-11-22). With a
+        // small amount everything stays on one line, as before.
+        // MATCH_PARENT width so the flow knows the card's width.
+        FlowLayout amt = new FlowLayout(this);
+        amt.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         // v3.6.53: 16dp gap between amount and due chip.
-        alp.bottomMargin = dp(16);
-        amt.setLayoutParams(alp);
+        amt.setPadding(0, dp(4), 0, dp(16));
 
         TextView rs = new TextView(this);
         rs.setText("Rs");
@@ -2067,9 +2066,11 @@ public class BillActivity extends BaseActivity {
                 || ps.state == PaidStatus.State.UNPAID) {
             amt.addView(paidBadge(ps.state == PaidStatus.State.PAID,
                     ps.paymentDateDisplay));
-            // v3.7.42: round stamp beside the badge (user order
-            // 2026-11-21) — PAID red / not-paid amber, same as
-            // the stamp printed on the bill document.
+            // v3.7.44: user-sent stamp IMAGE beside the badge —
+            // green BILL PAID / red BILL UNPAID (paidStamp uses
+            // the PNGs, no rotation). In the FlowLayout row the
+            // badge + stamp wrap under the amount when the amount
+            // is too wide, instead of clipping.
             if (ps.state == PaidStatus.State.PAID) {
                 amt.addView(paidStamp(true));
             } else {
