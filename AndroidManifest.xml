@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hatch.bijlibill"
-    android:versionCode="174"
-    android:versionName="3.7.42">
+    android:versionCode="175"
+    android:versionName="3.7.43">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
 
@@ -72,6 +72,14 @@
              list (same tap/long-press behaviour as the home cards) -->
         <activity
             android:name=".BillsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+
+        <!-- v3.7.43: Pending Bills list — opens from a tap on the
+             Home "Total Payable" card (user order 2026-11-21) -->
+        <activity
+            android:name=".PendingBillsActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden" />

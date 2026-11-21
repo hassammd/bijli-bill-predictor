@@ -1,7 +1,8 @@
 #!/bin/bash
-# Bijli Bill v3.7.42 (174) — Quick Tools on form page + PAID/UNPAID
-# stamps + blue splash + Settings top links (user order, voice call
-# 2026-11-21, FINAL scope — earlier placements cancelled):
+# Bijli Bill v3.7.43 (175) — Total Payable improvements: per-bill
+# due date + days-left, tap card -> pending-bills list, Overdue red
+# mark + after-due amount, all-paid green tick (user order, voice
+# call 2026-11-21, "sahi karo aisa hi karo").
 #   - QUICK TOOLS on the company form page: Unit Check + Bill
 #     History below VIEW BILL (reference input ke neeche), above
 #     the ad banner. Home keeps only greeting + Total Payable +
@@ -345,16 +346,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.42.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.42.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.43.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.43.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.42.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.42.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.43.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.43.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.42.apk" "$OUTDIR/bijli-bill-publish-3.7.42.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.43.apk" "$OUTDIR/bijli-bill-publish-3.7.43.aab"
 echo BUILD_OK

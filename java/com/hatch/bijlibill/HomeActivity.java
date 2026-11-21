@@ -73,6 +73,10 @@ public class HomeActivity extends BaseActivity {
     private LinearLayout formSection;
     private TextView totalPayableAmount;
     private TextView totalPayablePending;
+    // v3.7.43: nearest-due line + the pill whose background turns
+    // green with a tick when nothing is pending.
+    private TextView totalPayableDue;
+    private LinearLayout totalPayablePill;
     private ImageView formLogo;
     private TextView formCompanyName;
     private TextView fieldLabel;
@@ -566,7 +570,15 @@ public class HomeActivity extends BaseActivity {
         // lives in formSection below, hidden until a card is tapped.
         gridSection = new LinearLayout(this);
         gridSection.setOrientation(LinearLayout.VERTICAL);
-        gridSection.addView(totalPayableCard());
+        // v3.7.43: tap the Total Payable card -> pending-bills list.
+        View tpCard = totalPayableCard();
+        tpCard.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                startActivity(new Intent(HomeActivity.this,
+                        PendingBillsActivity.class));
+            }
+        });
+        gridSection.addView(tpCard);
         gridSection.addView(secLabel(R.string.select_company, 10));
         gridSection.addView(companyGrid());
         content.addView(gridSection);
@@ -795,7 +807,22 @@ public class HomeActivity extends BaseActivity {
         totalPayableAmount.setLayoutParams(alp);
         card.addView(totalPayableAmount);
 
-        LinearLayout pill = new LinearLayout(this);
+        // v3.7.43: nearest-due line (due date + days left; red
+        // when due soon / overdue). Hidden when nothing pending.
+        totalPayableDue = new TextView(this);
+        totalPayableDue.setTextSize(12.5f);
+        totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
+        Ds.heading(this, totalPayableDue);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        dlp.topMargin = Ui.dp(this, 6);
+        totalPayableDue.setLayoutParams(dlp);
+        totalPayableDue.setVisibility(View.GONE);
+        card.addView(totalPayableDue);
+
+        totalPayablePill = new LinearLayout(this);
+        LinearLayout pill = totalPayablePill;
         pill.setOrientation(LinearLayout.HORIZONTAL);
         pill.setGravity(Gravity.CENTER_VERTICAL);
         pill.setBackgroundResource(R.drawable.ds_total_pill);
@@ -815,7 +842,11 @@ public class HomeActivity extends BaseActivity {
         return card;
     }
 
-    /** Recomputes the Total Payable card from last-bill records. */
+    /** Recomputes the Total Payable card from last-bill records.
+     *  v3.7.43: nearest-due line under the amount (red when due
+     *  soon / overdue); all paid -&gt; green tick pill + "0 bills
+     *  pending"; tap the card -&gt; PendingBillsActivity (wired in
+     *  onCreate). */
     private void refreshTotalPayable() {
         if (totalPayableAmount == null || totalPayablePending == null) {
             return;
@@ -823,13 +854,76 @@ public class HomeActivity extends BaseActivity {
         java.util.List<TotalPayable.Record> recs =
                 new java.util.ArrayList<TotalPayable.Record>();
         for (LastBillStore.Record r : LastBillStore.loadAll(this)) {
-            recs.add(new TotalPayable.Record(r.amount, r.state));
+            recs.add(new TotalPayable.Record(r.amount, r.state,
+                    r.disco, r.mode, r.ref, r.billMonth, r.dueDate,
+                    r.afterDue));
         }
         TotalPayable.Result res = TotalPayable.compute(recs);
         totalPayableAmount.setText("Rs. "
                 + TotalPayable.formatAmount(res.total));
+        java.util.List<TotalPayable.Record> pending =
+                TotalPayable.pendingSorted(recs);
+        if (res.pendingCount == 0) {
+            if (totalPayablePill != null) {
+                totalPayablePill.setBackgroundResource(
+                        R.drawable.ds_pill_green);
+            }
+            totalPayablePending.setTextColor(
+                    Color.parseColor("#1E7A34"));
+            totalPayablePending.setText("\u2713 "
+                    + getString(R.string.bills_pending, 0));
+            if (totalPayableDue != null) {
+                totalPayableDue.setVisibility(View.GONE);
+            }
+            return;
+        }
+        if (totalPayablePill != null) {
+            totalPayablePill.setBackgroundResource(
+                    R.drawable.ds_total_pill);
+        }
+        totalPayablePending.setTextColor(Color.WHITE);
         totalPayablePending.setText(
                 getString(R.string.bills_pending, res.pendingCount));
+        setTotalPayableDue(pending.isEmpty() ? null : pending.get(0));
+    }
+
+    /** v3.7.43: nearest-due line for the Total Payable card. */
+    private void setTotalPayableDue(TotalPayable.Record near) {
+        if (totalPayableDue == null) return;
+        if (near == null) {
+            totalPayableDue.setVisibility(View.GONE);
+            return;
+        }
+        String due = near.dueDate == null ? "" : near.dueDate.trim();
+        Integer d = TotalPayable.daysLeft(near.dueDate,
+                System.currentTimeMillis());
+        if (d == null) {
+            if (due.isEmpty()) {
+                totalPayableDue.setText(
+                        getString(R.string.pending_no_due));
+            } else {
+                totalPayableDue.setText(
+                        getString(R.string.strip_due_date) + " " + due);
+            }
+            totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
+        } else if (d.intValue() < 0) {
+            totalPayableDue.setText(getString(
+                    R.string.pending_overdue_by, -d.intValue()));
+            totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
+        } else if (d.intValue() == 0) {
+            totalPayableDue.setText(getString(R.string.due_chip, due,
+                    getString(R.string.due_today)));
+            totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
+        } else if (d.intValue() <= TotalPayable.DUE_SOON_DAYS) {
+            totalPayableDue.setText(getString(R.string.due_chip, due,
+                    getString(R.string.due_days_left, d.intValue())));
+            totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
+        } else {
+            totalPayableDue.setText(getString(R.string.due_chip, due,
+                    getString(R.string.due_days_left, d.intValue())));
+            totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
+        }
+        totalPayableDue.setVisibility(View.VISIBLE);
     }
 
     /** 11 DISCO cards in a 4-column grid (logo on top, name below). */

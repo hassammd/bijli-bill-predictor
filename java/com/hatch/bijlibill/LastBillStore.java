@@ -36,6 +36,10 @@ public final class LastBillStore {
         public String billMonth;
         public PaidStatus.State state;
         public long savedAt;
+        /** v3.7.43: due date as printed, e.g. "23 NOV 26". */
+        public String dueDate;
+        /** v3.7.43: after-due amount as printed, e.g. "2,271". */
+        public String afterDue;
     }
 
     /** Storage key for one meter: "lesco|ref|02118240618604U". */
@@ -47,7 +51,9 @@ public final class LastBillStore {
 
     /**
      * Encodes one record as a single |-separated string:
-     * disco|mode|ref|amount|billMonth|STATE|savedAt.
+     * disco|mode|ref|amount|billMonth|STATE|savedAt|dueDate|afterDue.
+     * v3.7.43 adds the last two fields; decode still accepts the
+     * old 7-field form (dueDate/afterDue read as null).
      */
     public static String encode(Record r) {
         if (r == null) return "";
@@ -57,14 +63,16 @@ public final class LastBillStore {
                 + (r.amount == null ? "" : r.amount) + "|"
                 + (r.billMonth == null ? "" : r.billMonth) + "|"
                 + (r.state == null ? PaidStatus.State.UNKNOWN : r.state)
-                + "|" + r.savedAt;
+                + "|" + r.savedAt + "|"
+                + (r.dueDate == null ? "" : r.dueDate) + "|"
+                + (r.afterDue == null ? "" : r.afterDue);
     }
 
     /** Decodes an encoded record; null when the string is not one. */
     public static Record decode(String key, String s) {
         if (s == null) return null;
         String[] p = s.split("\\|", -1);
-        if (p.length != 7) return null;
+        if (p.length != 7 && p.length != 9) return null;
         Record r = new Record();
         r.disco = p[0];
         r.mode = p[1];
@@ -81,7 +89,34 @@ public final class LastBillStore {
         } catch (Exception e) {
             r.savedAt = 0;
         }
+        if (p.length == 9) {
+            r.dueDate = p[7].isEmpty() ? null : p[7];
+            r.afterDue = p[8].isEmpty() ? null : p[8];
+        }
         return r;
+    }
+
+    /**
+     * v3.7.43: the after-due amount for the Overdue row — the
+     * bill's own payableAfter25 when the fetcher split it out,
+     * else the amountAfterDueDate when it is a single amount.
+     * A compound "Till ... After ..." string is NOT guessed at:
+     * null when no clean single amount exists. Public so the
+     * headless tests (default package) can cover it. */
+    public static String afterDueOf(LescoBillFetcher.BillInfo b) {
+        if (b == null) return null;
+        if (b.payableAfter25 != null
+                && !b.payableAfter25.trim().isEmpty()) {
+            return b.payableAfter25.trim();
+        }
+        if (b.amountAfterDueDate == null) return null;
+        String s = b.amountAfterDueDate.trim();
+        if (s.isEmpty()) return null;
+        String up = s.toUpperCase();
+        if (up.contains("TILL") || up.contains("AFTER")) return null;
+        Double v = PaidStatus.parseFirstAmount(s);
+        if (v == null) return null;
+        return TotalPayable.formatAmount(v.doubleValue());
     }
 
     /** Records the latest fetched bill for one meter. Never throws. */
@@ -97,6 +132,8 @@ public final class LastBillStore {
             r.billMonth = b.billMonth;
             r.state = PaidStatus.resolveBill(b).state;
             r.savedAt = System.currentTimeMillis();
+            r.dueDate = b.dueDate;
+            r.afterDue = afterDueOf(b);
             ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                     .edit()
                     .putString(key(disco, mode, ref), encode(r))

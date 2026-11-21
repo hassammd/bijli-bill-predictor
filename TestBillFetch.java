@@ -1064,6 +1064,11 @@ public class TestBillFetch {
         //      stamps + blue splash + Settings top links ----
         runV3742Tests();
 
+        // ---- v3.7.43: Total Payable improvements — due date +
+        //      days-left, tap card -> pending-bills list, Overdue
+        //      red mark + after-due amount, all-paid green tick ----
+        runV3743Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2229,9 +2234,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3944,9 +3949,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4317,10 +4322,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"174\""),
+                manifest.contains("android:versionCode=\"175\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.42\""),
+                manifest.contains("android:versionName=\"3.7.43\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4479,10 +4484,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"174\""),
+                manifest.contains("android:versionCode=\"175\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.42\""),
+                manifest.contains("android:versionName=\"3.7.43\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4871,9 +4876,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5068,9 +5073,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5136,9 +5141,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5550,9 +5555,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5611,9 +5616,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"174\""), true);
+                man.contains("android:versionCode=\"175\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.42\""), true);
+                man.contains("android:versionName=\"3.7.43\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5700,6 +5705,184 @@ public class TestBillFetch {
                 about.contains(
                         "https://bijli-bill-privacy.netlify.app/privacy-policy"),
                 true);
+    }
+
+    static void runV3743Tests() throws Exception {
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String pend = readFile(
+                "java/com/hatch/bijlibill/PendingBillsActivity.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Version 175 / 3.7.43 in the manifest ----
+        check("v3743 manifest version 175",
+                man.contains("android:versionCode=\"175\""), true);
+        check("v3743 manifest name 3.7.43",
+                man.contains("android:versionName=\"3.7.43\""), true);
+        check("v3743 pending activity registered",
+                man.contains(".PendingBillsActivity"), true);
+
+        // ---- 2. days-left math (fixed "today" so the test is
+        //      date-independent). ----
+        long today = com.hatch.bijlibill.BillReminder.parseDueDate(
+                "20 NOV 26");
+        check("v3743 daysLeft 3",
+                com.hatch.bijlibill.TotalPayable.daysLeft(
+                        "23 NOV 26", today), Integer.valueOf(3));
+        check("v3743 daysLeft 0",
+                com.hatch.bijlibill.TotalPayable.daysLeft(
+                        "20 NOV 26", today), Integer.valueOf(0));
+        check("v3743 daysLeft overdue",
+                com.hatch.bijlibill.TotalPayable.daysLeft(
+                        "18 NOV 26", today), Integer.valueOf(-2));
+        check("v3743 daysLeft unknown",
+                com.hatch.bijlibill.TotalPayable.daysLeft(
+                        "garbage", today), null);
+        check("v3743 daysLeft null",
+                com.hatch.bijlibill.TotalPayable.daysLeft(null, today),
+                null);
+        check("v3743 due soon threshold",
+                com.hatch.bijlibill.TotalPayable.DUE_SOON_DAYS, 3);
+
+        // ---- 3. pendingSorted: PAID out, zero-amount out,
+        //      earliest due first, unknown due date last. ----
+        java.util.List<com.hatch.bijlibill.TotalPayable.Record> recs =
+                new java.util.ArrayList<com.hatch.bijlibill.TotalPayable.Record>();
+        recs.add(new com.hatch.bijlibill.TotalPayable.Record("19,615",
+                com.hatch.bijlibill.PaidStatus.State.UNPAID,
+                "mepco", "ref", "15158130010993", "OCT 26",
+                "25 NOV 26", null));
+        recs.add(new com.hatch.bijlibill.TotalPayable.Record("2,229",
+                com.hatch.bijlibill.PaidStatus.State.PAID,
+                "lesco", "ref", "02118240618604U", "NOV 26",
+                "21 NOV 26", null));
+        recs.add(new com.hatch.bijlibill.TotalPayable.Record("5,000",
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN,
+                "lesco", "ref", "02118240618605U", "NOV 26",
+                "23 NOV 26", null));
+        recs.add(new com.hatch.bijlibill.TotalPayable.Record("1,000",
+                com.hatch.bijlibill.PaidStatus.State.UNPAID,
+                "fesco", "ref", "13131240849201R", "NOV 26",
+                null, null));
+        recs.add(new com.hatch.bijlibill.TotalPayable.Record("0",
+                com.hatch.bijlibill.PaidStatus.State.UNPAID,
+                "gepco", "ref", "12121240739102U", "NOV 26",
+                "22 NOV 26", null));
+        java.util.List<com.hatch.bijlibill.TotalPayable.Record> pendList =
+                com.hatch.bijlibill.TotalPayable.pendingSorted(recs);
+        check("v3743 pending size", pendList.size(), 3);
+        check("v3743 pending first due",
+                pendList.get(0).dueDate, "23 NOV 26");
+        check("v3743 pending second due",
+                pendList.get(1).dueDate, "25 NOV 26");
+        check("v3743 pending last no due",
+                pendList.get(2).dueDate, null);
+        com.hatch.bijlibill.TotalPayable.Result tr =
+                com.hatch.bijlibill.TotalPayable.compute(recs);
+        check("v3743 total unchanged", tr.total, 25615.0);
+        check("v3743 total count", tr.pendingCount, 3);
+
+        // ---- 4. LastBillStore: 9-field round-trip + old
+        //      7-field records still decode (due/afterDue null). ----
+        com.hatch.bijlibill.LastBillStore.Record lr =
+                new com.hatch.bijlibill.LastBillStore.Record();
+        lr.disco = "lesco";
+        lr.mode = "ref";
+        lr.ref = "02118240618604U";
+        lr.amount = "2,229";
+        lr.billMonth = "NOV 26";
+        lr.state = com.hatch.bijlibill.PaidStatus.State.UNPAID;
+        lr.savedAt = 123456789L;
+        lr.dueDate = "23 NOV 26";
+        lr.afterDue = "2,271";
+        String enc = com.hatch.bijlibill.LastBillStore.encode(lr);
+        com.hatch.bijlibill.LastBillStore.Record back =
+                com.hatch.bijlibill.LastBillStore.decode("k", enc);
+        check("v3743 store due", back.dueDate, "23 NOV 26");
+        check("v3743 store afterDue", back.afterDue, "2,271");
+        check("v3743 store amount", back.amount, "2,229");
+        com.hatch.bijlibill.LastBillStore.Record old =
+                com.hatch.bijlibill.LastBillStore.decode("k",
+                        "lesco|ref|02118240618604U|2,229|NOV 26|PAID|123456789");
+        check("v3743 store old decodes", old != null, true);
+        check("v3743 store old due null", old.dueDate, null);
+        check("v3743 store old after null", old.afterDue, null);
+
+        // ---- 5. afterDueOf: split field wins; single amount
+        //      ok; compound "Till ... After ..." never guessed. ----
+        com.hatch.bijlibill.LescoBillFetcher.BillInfo b1 =
+                new com.hatch.bijlibill.LescoBillFetcher.BillInfo();
+        b1.payableAfter25 = "2,271";
+        check("v3743 afterDue split",
+                com.hatch.bijlibill.LastBillStore.afterDueOf(b1),
+                "2,271");
+        com.hatch.bijlibill.LescoBillFetcher.BillInfo b2 =
+                new com.hatch.bijlibill.LescoBillFetcher.BillInfo();
+        b2.amountAfterDueDate = "2,271";
+        check("v3743 afterDue single",
+                com.hatch.bijlibill.LastBillStore.afterDueOf(b2),
+                "2,271");
+        com.hatch.bijlibill.LescoBillFetcher.BillInfo b3 =
+                new com.hatch.bijlibill.LescoBillFetcher.BillInfo();
+        b3.amountAfterDueDate =
+                "Till 25-EP 2,229 After 25-EP 2,271";
+        check("v3743 afterDue compound null",
+                com.hatch.bijlibill.LastBillStore.afterDueOf(b3), null);
+        check("v3743 afterDue null bill",
+                com.hatch.bijlibill.LastBillStore.afterDueOf(null),
+                null);
+
+        // ---- 6. Home card: tap -> pending list, due line,
+        //      green tick pill when all paid. ----
+        check("v3743 card tap opens pending",
+                home.contains("PendingBillsActivity.class"), true);
+        check("v3743 card due line",
+                home.contains("totalPayableDue"), true);
+        check("v3743 card green pill",
+                home.contains("ds_pill_green"), true);
+        check("v3743 card green tick",
+                home.contains("\\u2713"), true);
+        check("v3743 card overdue string",
+                home.contains("pending_overdue_by"), true);
+        check("v3743 card due soon ref",
+                home.contains("DUE_SOON_DAYS"), true);
+
+        // ---- 7. Pending list: overdue + after-due + tap open
+        //      + all-paid empty state. ----
+        check("v3743 list overdue",
+                pend.contains("pending_overdue_by"), true);
+        check("v3743 list after due",
+                pend.contains("pending_after_due"), true);
+        check("v3743 list all paid",
+                pend.contains("pending_all_paid"), true);
+        check("v3743 list green circle",
+                pend.contains("ds_circle_green"), true);
+        check("v3743 list check icon",
+                pend.contains("ic_check_white"), true);
+        check("v3743 list tap opens bill",
+                pend.contains("BillActivity.EXTRA_DISCO"), true);
+        check("v3743 list bottom nav home",
+                pend.contains("Ds.TAB_HOME"), true);
+
+        // ---- 8. Strings EN + UR. ----
+        java.util.Map<String, String> en =
+                readStrings("res/values/strings.xml");
+        java.util.Map<String, String> ur =
+                readStrings("res/values-ur/strings.xml");
+        check("v3743 str title en",
+                en.get("pending_bills_title"), "Pending Bills");
+        check("v3743 str title ur",
+                ur.get("pending_bills_title"), "بقایا بل");
+        check("v3743 str overdue en",
+                en.get("pending_overdue_by"), "Overdue by %1$d days");
+        check("v3743 str after due en",
+                en.get("pending_after_due"), "After due: Rs %1$s");
+        check("v3743 str all paid en",
+                en.get("pending_all_paid"), "All bills paid");
+        check("v3743 str all paid ur",
+                ur.get("pending_all_paid"), "تمام بل ادا ہو گئے");
+        check("v3743 str no due ur",
+                ur.get("pending_no_due"), "آخری تاریخ معلوم نہیں");
     }
 
     static void addPoint(

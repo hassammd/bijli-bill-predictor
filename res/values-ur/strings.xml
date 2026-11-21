@@ -267,6 +267,12 @@
     <string name="select_company">کمپنی منتخب کریں</string>
     <string name="total_payable_title">کل واجب الادا</string>
     <string name="bills_pending">%1$d بل بقایا ہیں</string>
+    <!-- v3.7.43: Total Payable improvements (user order 2026-11-21) -->
+    <string name="pending_bills_title">بقایا بل</string>
+    <string name="pending_overdue_by">%1$d دن کی تاخیر</string>
+    <string name="pending_after_due">آخری تاریخ کے بعد: %1$s روپے</string>
+    <string name="pending_all_paid">تمام بل ادا ہو گئے</string>
+    <string name="pending_no_due">آخری تاریخ معلوم نہیں</string>
     <string name="helper_ref">بل پر لکھا 14 ہندسوں کا ریفرنس نمبر درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
     <string name="helper_cid">بل پر لکھا 7 ہندسوں کا کسٹمر آئی ڈی درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
     <string name="paste">پیسٹ کریں</string>

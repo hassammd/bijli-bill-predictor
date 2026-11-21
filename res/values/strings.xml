@@ -267,6 +267,12 @@
     <string name="select_company">Select Your Company</string>
     <string name="total_payable_title">Total Payable</string>
     <string name="bills_pending">%1$d bills pending</string>
+    <!-- v3.7.43: Total Payable improvements (user order 2026-11-21) -->
+    <string name="pending_bills_title">Pending Bills</string>
+    <string name="pending_overdue_by">Overdue by %1$d days</string>
+    <string name="pending_after_due">After due: Rs %1$s</string>
+    <string name="pending_all_paid">All bills paid</string>
+    <string name="pending_no_due">Due date not available</string>
     <string name="helper_ref">Enter the 14-digit reference number printed on your bill — it will only be saved on this phone.</string>
     <string name="helper_cid">Enter the 7-digit customer ID printed on your bill — it will only be saved on this phone.</string>
     <string name="paste">PASTE</string>
