@@ -177,6 +177,36 @@ public final class SavedMeters {
         return sb.toString();
     }
 
+    /**
+     * v3.7.50 — holder (consumer) name for a Pending Bills row:
+     * the saved meter's consumer name, or null when there is no
+     * real name to show. Auto-save stores the masked ref as the
+     * name when the bill printed none (BillActivity.autoSaveMeter),
+     * so a name equal to the masked ref counts as "no name" — the
+     * pending row already shows the ref line, and the name must
+     * never be invented. Pure Java, headless-tested.
+     */
+    public static String holderNameFor(List<Meter> meters, String disco,
+            String idValue) {
+        if (meters == null || idValue == null) return null;
+        String v = idValue.trim();
+        if (v.isEmpty()) return null;
+        for (Meter m : meters) {
+            if (m == null) continue;
+            // Disco codes are a closed set; compare case-insensitively
+            // so a stored "LESCO" still matches a "lesco" record.
+            if (disco == null ? m.disco != null
+                    : !disco.equalsIgnoreCase(m.disco)) continue;
+            if (m.idValue == null || !v.equals(m.idValue.trim())) continue;
+            String n = m.holderName == null
+                    ? null : m.holderName.trim();
+            if (n == null || n.isEmpty()) return null;
+            if (n.equals(maskId(v))) return null;
+            return n;
+        }
+        return null;
+    }
+
     // ------------------------------------------------------------------
     // Minimal JSON (no org.json on the headless unit-test classpath)
     // ------------------------------------------------------------------

@@ -53,6 +53,19 @@ final class MeterUi {
         return sb.length() == 0 ? "?" : sb.toString();
     }
 
+    /**
+     * v3.7.50: list-card geometry — the Bills list (MeterUi.card)
+     * and the Pending Bills list use the SAME card width: no side
+     * margins (the 20dp list padding sets the inset), 12dp below
+     * each card. Both lists call this so the design flow stays
+     * identical (user order 2026-11-22).
+     */
+    static void listCardMargins(Context ctx,
+            LinearLayout.LayoutParams lp) {
+        lp.setMargins(Ui.dp(ctx, 0), Ui.dp(ctx, 0), Ui.dp(ctx, 0),
+                Ui.dp(ctx, 12));
+    }
+
     static View card(final Context ctx, final SavedMeters.Meter m,
             View.OnClickListener onOpen, View.OnLongClickListener onDelete,
             View.OnClickListener onRemove) {
@@ -70,7 +83,8 @@ final class MeterUi {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         // v3.7.41: more space between rows (9dp -> 12dp).
-        rlp.bottomMargin = Ui.dp(ctx, 12);
+        // v3.7.50: shared list-card margins (same as Pending Bills).
+        listCardMargins(ctx, rlp);
         row.setLayoutParams(rlp);
 
         // avatar: light circle + person icon (v3.6.90, user request).

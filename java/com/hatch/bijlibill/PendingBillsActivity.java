@@ -133,8 +133,15 @@ public class PendingBillsActivity extends BaseActivity {
             list.addView(allPaidView());
             return;
         }
+        // v3.7.50: consumer name per row (user order 2026-11-22,
+        // "BY NAME") — from the saved meter's holder name, the
+        // same source the Bills list shows (MeterUi.card).
+        List<SavedMeters.Meter> meters =
+                SavedMeters.load(MeterUi.store(this));
         for (TotalPayable.Record p : pending) {
-            list.addView(pendingRow(p, nowMs));
+            list.addView(pendingRow(p,
+                    SavedMeters.holderNameFor(meters, p.disco, p.ref),
+                    nowMs));
         }
     }
 
@@ -182,10 +189,11 @@ public class PendingBillsActivity extends BaseActivity {
         return empty;
     }
 
-    /** One pending bill: company + month, amount, ref, due line,
-     *  and (when overdue) the after-due amount. Tap = open bill. */
+    /** One pending bill: consumer name (when known), company +
+     *  month, amount, ref, due line, and (when overdue) the
+     *  after-due amount. Tap = open bill. */
     private View pendingRow(final TotalPayable.Record p,
-            final long nowMs) {
+            final String holderName, final long nowMs) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setBackgroundResource(R.drawable.ds_card_24);
@@ -194,8 +202,10 @@ public class PendingBillsActivity extends BaseActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(Ui.dp(this, 16), Ui.dp(this, 8),
-                Ui.dp(this, 16), Ui.dp(this, 8));
+        // v3.7.50: SAME width as the Bills list (MeterUi.card) —
+        // shared list-card margins, no side margins (user order
+        // 2026-11-22: "same list aani chahiye").
+        MeterUi.listCardMargins(this, lp);
         card.setLayoutParams(lp);
         card.setClickable(true);
         card.setFocusable(true);
@@ -204,6 +214,27 @@ public class PendingBillsActivity extends BaseActivity {
                 openBill(Disco.fromCode(p.disco), p.mode, p.ref);
             }
         });
+
+        // v3.7.50: consumer name first (Bills list pattern) — only
+        // when a real name is known; never invented, never the
+        // masked ref (holderNameFor already filters those out).
+        if (holderName != null && !holderName.trim().isEmpty()) {
+            TextView nameTv = new TextView(this);
+            nameTv.setText(holderName.trim());
+            nameTv.setTextSize(14);
+            nameTv.setTextColor(Color.parseColor("#1B1B1B"));
+            nameTv.setMaxLines(1);
+            nameTv.setEllipsize(
+                    android.text.TextUtils.TruncateAt.END);
+            Ds.heading(this, nameTv);
+            LinearLayout.LayoutParams nlp =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            nlp.bottomMargin = Ui.dp(this, 2);
+            nameTv.setLayoutParams(nlp);
+            card.addView(nameTv);
+        }
 
         LinearLayout top = new LinearLayout(this);
         top.setOrientation(LinearLayout.HORIZONTAL);

@@ -1,4 +1,18 @@
 #!/bin/bash
+# Bijli Bill v3.7.50 (182) — user order, 2026-11-22, ONE build:
+#   - PENDING BILLS rows show the CONSUMER NAME (user: "jo bill
+#     pending hain unki thodi si detail bhi likho, BY NAME"):
+#     name first on each row, from the saved meter's holder name
+#     (same source the Bills list shows); no real name stored ->
+#     no name line (ref line stays); name never invented.
+#   - PENDING BILLS cards SAME WIDTH as the Bills list (user:
+#     "jitni un cards ki width hai, utni hi in cards ki width
+#     rakho... same list aani chahiye"): shared listCardMargins
+#     in MeterUi (0 side, 0 top, 12 bottom) used by MeterUi.card
+#     AND PendingBillsActivity — both lists share the same 20dp
+#     list padding, so both cards are screen - 40dp wide.
+#   - v3.7.49 INTACT: category chip, MDI meter-table parse,
+#     dues (arrears) chip untouched.
 # Bijli Bill v3.7.49 (181) — user order, 2026-11-22, ONE build:
 #   - CATEGORY CHIP on the bill detail (user: "Arrears KO remove na
 #     krna or category show krwao"): a COMMERCIAL / DOMESTIC pill
@@ -415,16 +429,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.49.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.49.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.50.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.50.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.49.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.49.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.50.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.50.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.49.apk" "$OUTDIR/bijli-bill-publish-3.7.49.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.50.apk" "$OUTDIR/bijli-bill-publish-3.7.50.aab"
 echo BUILD_OK

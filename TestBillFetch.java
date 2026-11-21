@@ -1099,6 +1099,10 @@ public class TestBillFetch {
         //      untouched) + commercial (MDI) meter-table parse ----
         runV3749Tests();
 
+        // ---- v3.7.50: Pending Bills rows show the consumer name
+        //      (BY NAME) + pending cards same width as Bills list ----
+        runV3750Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2264,9 +2268,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3979,9 +3983,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4359,10 +4363,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"181\""),
+                manifest.contains("android:versionCode=\"182\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.49\""),
+                manifest.contains("android:versionName=\"3.7.50\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4521,10 +4525,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"181\""),
+                manifest.contains("android:versionCode=\"182\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.49\""),
+                manifest.contains("android:versionName=\"3.7.50\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4913,9 +4917,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5110,9 +5114,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5178,9 +5182,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5594,9 +5598,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5655,9 +5659,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5762,9 +5766,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5940,9 +5944,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6060,9 +6064,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6184,9 +6188,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6289,9 +6293,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6439,9 +6443,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 180 / 3.7.48 in the manifest ----
         check("v3748 manifest version 180",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3748 manifest name 3.7.48",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. The "Estimate vs Actual Bill" card is GONE from
         //      BillActivity — view, wiring and helpers, all of it.
@@ -6503,11 +6507,13 @@ public class TestBillFetch {
         String enStrings = readFile("res/values/strings.xml");
         String urStrings = readFile("res/values-ur/strings.xml");
 
-        // ---- 1. Version 181 / 3.7.49 in the manifest ----
+        // ---- 1. Version 181 / 3.7.49 in the manifest (bumped
+        //      by v3.7.50; the v3749 block's asserts track the
+        //      manifest, same as every earlier version bump) ----
         check("v3749 manifest version 181",
-                man.contains("android:versionCode=\"181\""), true);
+                man.contains("android:versionCode=\"182\""), true);
         check("v3749 manifest name 3.7.49",
-                man.contains("android:versionName=\"3.7.49\""), true);
+                man.contains("android:versionName=\"3.7.50\""), true);
 
         // ---- 2. Arrears (dues) chip UNTOUCHED (user order
         //      2026-11-22: "Arrears KO remove na krna") ----
@@ -6597,6 +6603,144 @@ public class TestBillFetch {
         // "tariff category" spelling.
         check("v3749 tariff cat label",
                 fetch.contains("label.contains(\"tariff cat\")"), true);
+    }
+
+    static void runV3750Tests() throws Exception {
+        String pending = readFile(
+                "java/com/hatch/bijlibill/PendingBillsActivity.java");
+        String meterUi = readFile(
+                "java/com/hatch/bijlibill/MeterUi.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String fetch = readFile(
+                "java/com/hatch/bijlibill/LescoBillFetcher.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Version 182 / 3.7.50 in the manifest ----
+        check("v3750 manifest version 182",
+                man.contains("android:versionCode=\"182\""), true);
+        check("v3750 manifest name 3.7.50",
+                man.contains("android:versionName=\"3.7.50\""), true);
+
+        // ---- 2. Pending row name lookup (headless): the user's
+        //      live pending rows — Rs 5,629 (ref 02118240620201)
+        //      and Rs 4,637 (ref 05115140283704), both LESCO NOV 26.
+        //      Names come from the saved meters (same source the
+        //      Bills list shows), never invented. ----
+        java.util.List<SavedMeters.Meter> meters =
+                new java.util.ArrayList<SavedMeters.Meter>();
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "02118240620201", "Namoos Tahira Minhas", 1000L));
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "05115140283704", "Abdul Sattar", 2000L));
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "02118240618604", "M Anwar", 3000L));
+        check("v3750 name row 5629",
+                SavedMeters.holderNameFor(meters, "lesco",
+                        "02118240620201"),
+                "Namoos Tahira Minhas");
+        check("v3750 name row 4637",
+                SavedMeters.holderNameFor(meters, "lesco",
+                        "05115140283704"),
+                "Abdul Sattar");
+        // Case-insensitive disco still matches.
+        check("v3750 name disco case",
+                SavedMeters.holderNameFor(meters, "LESCO",
+                        "02118240620201"),
+                "Namoos Tahira Minhas");
+        // No meter for the ref -> no name line (ref line stays).
+        check("v3750 name unknown ref",
+                SavedMeters.holderNameFor(meters, "lesco",
+                        "02119999999999"),
+                null);
+        // Wrong disco -> no name.
+        check("v3750 name wrong disco",
+                SavedMeters.holderNameFor(meters, "mepco",
+                        "02118240620201"),
+                null);
+        // Auto-save's masked-ref fallback counts as "no name":
+        // the row must not show a second copy of the ref. (The
+        // masked name must be computed from THIS meter's own ref.)
+        String masked = SavedMeters.maskId("02118240620202");
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "02118240620202", masked, 4000L));
+        check("v3750 name masked ref is none",
+                SavedMeters.holderNameFor(meters, "lesco",
+                        "02118240620202"),
+                null);
+        // Blank holderName -> none.
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "02118240620203", "   ", 5000L));
+        check("v3750 name blank is none",
+                SavedMeters.holderNameFor(meters, "lesco",
+                        "02118240620203"),
+                null);
+        check("v3750 name null list",
+                SavedMeters.holderNameFor(null, "lesco",
+                        "02118240620201"),
+                null);
+        check("v3750 name null ref",
+                SavedMeters.holderNameFor(meters, "lesco", null),
+                null);
+
+        // ---- 3. Pending row wiring: name passed in + rendered
+        //      first (Bills list pattern), only when known. ----
+        check("v3750 pending uses holderNameFor",
+                pending.contains("SavedMeters.holderNameFor("), true);
+        check("v3750 pendingRow takes name",
+                pending.contains(
+                        "pendingRow(final TotalPayable.Record p,"),
+                true);
+        check("v3750 pending renders name first",
+                pending.contains("TextView nameTv = new TextView(this);"),
+                true);
+        check("v3750 pending name guarded",
+                pending.contains(
+                        "if (holderName != null && !holderName.trim().isEmpty())"),
+                true);
+
+        // ---- 4. SAME card width as the Bills list (measured):
+        //      shared listCardMargins — 0 side, 0 top, 12 bottom —
+        //      used by MeterUi.card AND PendingBillsActivity, and
+        //      the old 16dp-side / 8dp margins are gone. Both lists
+        //      share the same 20dp list padding, so the cards are
+        //      the same width (screen - 40dp). ----
+        check("v3750 shared margins helper",
+                meterUi.contains("static void listCardMargins("), true);
+        check("v3750 margins 0 side 12 bottom",
+                meterUi.contains("lp.setMargins(Ui.dp(ctx, 0), "
+                        + "Ui.dp(ctx, 0), Ui.dp(ctx, 0),"),
+                true);
+        check("v3750 margins bottom 12",
+                meterUi.contains("Ui.dp(ctx, 12));"), true);
+        check("v3750 meter card uses helper",
+                meterUi.contains("listCardMargins(ctx, rlp);"), true);
+        check("v3750 pending uses helper",
+                pending.contains("MeterUi.listCardMargins(this, lp);"),
+                true);
+        check("v3750 pending old margins gone",
+                !pending.contains("Ui.dp(this, 16), Ui.dp(this, 8)"),
+                true);
+
+        // ---- 5. v3.7.49 regression (still in the build): category
+        //      chip wiring + MDI meter-table parse intact. ----
+        check("v3750 v3749 category chip still wired",
+                bill.contains("categoryChip(b)"), true);
+        check("v3750 v3749 mdi parse still present",
+                fetch.contains("parseMeterInfoTable"), true);
+        check("v3750 v3749 dues chip still untouched",
+                bill.contains("private View duesChip(BillInfo b)"), true);
+        LescoBillFetcher.BillInfo info =
+                LescoBillFetcher.parseBillHtml(
+                        mdiBillHtml(), "44115130438868");
+        check("v3750 v3749 mdi prev", info.prevReading,
+                "47403 / 12213");
+        check("v3750 v3749 mdi curr", info.currReading,
+                "48288 / 12732");
+        check("v3750 v3749 mdi units", info.units, "1404");
+        check("v3750 v3749 mdi category",
+                com.hatch.bijlibill.BillSummary.categoryChipKey(info),
+                "COMMERCIAL");
     }
 
     /** Synthetic commercial (MDI) bill: the user's live case (Abdul
