@@ -1,83 +1,19 @@
 #!/bin/bash
+# Bijli Bill v3.7.37 (169) — voice feature REMOVED entirely
+# (user order, voice call 2026-11-21: "AI wala kaam saara remove,
+# bubble wala hata do, wo nahi chahiye").
+#   - Floating bubble (HomeActivity) gone; voice screen, on-device
+#     brain, Live client, API-key file and bill snapshots deleted;
+#     RECORD_AUDIO permission gone; all voice-feature strings
+#     (EN + UR) and drawables gone. No API key remains in the app.
+#   - Kept: Rate Us card (restored in v3.7.36), Unit Check, Bill
+#     History, bill fetch, CAPTCHA/session-out fixes, reminders,
+#     tariff code. Nothing else changes.
 # Bijli Bill v3.7.36 (168) — Rate Us card restored (user correction)
 # v3.7.36 (user, 2026-11-21): v3.7.35 removed the whole Quick Tools
-# second row by mistake — the user only asked to remove the AI
-# Assistant card. Rate Us card is back as a full-width second row
-# (v3.7.34 style: star icon, Play Store listing via market:// with
-# web fallback). AI Assistant card stays OUT of Quick Tools; the
-# floating bubble is the only way into the Assistant.
-# Bijli Bill v3.7.35 (167) — Gemini Live voice assistant (TEST build)
-# + Quick Tools: only task cards left
-# v3.7.35 (user, voice call 2026-11-21): the on-device Assistant
-# brain is replaced by Google's Gemini Live API (voice-to-voice)
-# when a real API key is configured in ApiKeys.java (gitignored
-# file — the real key NEVER reaches the public repo). Free tier:
-# audio in/out "Free of charge" (official pricing page); paid
-# ~$0.023/min combined. Model gemini-3.8-live, voice Aoede,
-# hand-rolled WebSocket (no new libraries), 16kHz mic in /
-# 24kHz audio out, system instruction built from the saved bill
-# snapshots. No key -> free on-device brain, nothing regresses.
-# Network failure speaks "internet nahi chal raha, dobara try
-# karein" and reconnects twice, then falls back to on-device.
-# v3.7.35 (user, voice call 2026-11-21): Quick Tools second row
-# removed — AI Assistant card + Rate Us card gone; only Unit
-# Check + Bill History remain. The floating bubble is now the
-# only way into the Assistant. v3.7.36: Rate Us card restored
-# (user correction) — AI card stays out.
-# (user instruction, voice call 2026-11-21):
-#   - Assistant is now fully voice-only: transcript bubbles,
-#     suggestion chips, status line and voice toggle are GONE —
-#     the mic colour is the only status (teal idle, amber
-#     listening, green speaking). Errors are SPOKEN, never shown.
-#   - Live-call speed: partial results on + short silence timeouts
-#     (700ms complete / 500ms possibly-complete) + quiet detection
-#     (partial transcript unchanged 700ms -> stopListening at
-#     once). No waiting for the recognizer's slow silence timeout
-#     or any text step — bolte hi foran jawab.
-#   - Smooth voice: best Urdu voice picked (ur-PK -> any ur ->
-#     name contains "urdu"), rate 0.95, replies chunked into short
-#     sentences (first QUEUE_FLUSH, rest QUEUE_ADD).
-#   - Rate Us card on Home (Quick Tools, row 2 next to Assistant):
-#     opens the Play Store listing (market:// first, web fallback).
-#     Plain link only — no in-app review prompt, no reward, no
-#     nudge for rating (policy-safe). No real AdMob IDs in this
-#     build — TEST IDs stay; test devices come later, separately.
-#   - AAB copy guard: after copying APK + AAB out, the build FAILS
-#     loudly if either output is missing (v3.7.33's AAB copy was
-#     reported missing; the tail had no existence check).
-# Bijli Bill v3.7.33 (165) — Assistant v2: voice-only + Punjabi
-# (user instruction, voice call 2026-11-21):
-#   - Text input field + send button REMOVED entirely from the
-#     Assistant — typing ka koi rasta nahi. Screen is voice-call
-#     style: big round mic + status ("Sun raha hoon…",
-#     "Jawab de raha hoon…", "Bolne ke liye mic dabayen"). After a
-#     spoken reply ends, the Assistant listens again at once — a
-#     direct voice conversation, like a phone call. Suggestion
-#     chips stay, but tapping one gives a SPOKEN answer.
-#   - Punjabi support: SpeechRecognizer tries ur-PK first; on a
-#     no-match it retries in pa-PK, but ONLY if the device reports
-#     pa-PK support (ACTION_GET_LANGUAGE_DETAILS). AssistantBrain
-#     detects Roman Punjabi (whole-word markers) and answers the
-#     main intents in Roman Punjabi; TTS stays ur-PK (Punjabi TTS
-#     data is not on every phone; ur-PK reads Roman Punjabi).
-#   - Nothing else changes: floating bubble, auto-listen + greeting,
-#     in-chat retry (no Toast), free, on-device, saved bills only.
-#   - NOTE: this tree ALSO carries a sibling agent's v3.7.33
-#     session-out fix (LescoBillFetcher: a POST re-serving the form
-#     with a fresh CAPTCHA goes straight to the captcha screen
-#     instead of NOT_FOUND). Both land in this 165 build.
-# Bijli Bill v3.7.32 (164) — Assistant bubble entry (user QA 2026-11-21):
-#   - Home gets a floating round teal bubble (bottom-right, above banner
-#     + bottom nav). Tap opens the Assistant with EXTRA_AUTO_LISTEN: it
-#     greets by voice and starts listening at once — no extra mic tap.
-#   - "Samajh nahi aaya" Toast/notification REMOVED: a missed hearing
-#     now shows an in-chat message and listens again once; a second
-#     miss points at the text field. No Toast is shown anywhere in the
-#     Assistant any more (mic unavailable / denied / failed are also
-#     in-chat bubbles). Quick Tools card stays as the other way in.
-#   - Nothing else changes: still free, on-device, Roman Urdu, answers
-#     only from saved bills. Live test is the user's phone (PITC is
-#     geo-blocked from this VM); build + unit tests verify here.
+# second row by mistake. Rate Us card is back as a full-width second
+# row (v3.7.34 style: star icon, Play Store listing via market://
+# with web fallback).
 # Bijli Bill v3.7.30 (162) — in-app PITC image CAPTCHA (Tareeqa 1):
 #   - LescoBillFetcher stops at the form GET when the page carries a
 #     CAPTCHA, throws CaptchaRequiredException with the live session
@@ -91,23 +27,6 @@
 #   - PITC is geo-blocked from this VM: the live fetch is NOT tested
 #     here; headless tests (TestBillFetch) cover the whole flow with
 #     a scripted transport. User tests on their own phone.
-# Bijli Bill v3.7.31 (163) — AI Assistant v1 (SIMPLE, free, on-device):
-#   - BillActivity records a small snapshot of every fetched bill
-#     (BillSnapshots: units, amount, due date, FPA, category,
-#     readings, bill month; 3 per meter). The Assistant answers ONLY
-#     from those snapshots — no internet, no API, no cost.
-#   - AssistantActivity: chat screen (Home > Quick Tools > AI
-#     Assistant) with typed questions + mic (SpeechRecognizer ur-PK)
-#     + voice replies (TextToSpeech ur-PK, device-default fallback).
-#     AssistantBrain is rule-based Roman Urdu; v1 answers: bill kyun
-#     zyada aaya, bill kab due hai, pichla bill, 200-unit guard.
-#   - CAPTCHA screen (user QA): VIEW BILL stays grey/disabled until
-#     the 6-char code is fully typed (TextWatcher; goes grey again
-#     when characters are deleted). Empty-code toast stays only as
-#     a fallback.
-#     OUT OF SCOPE v1: photo/OCR, daily summary, challenges,
-#     comparisons, storytelling, anything online — and NEVER any
-#     CAPTCHA auto-solve.
 # Bijli Bill v3.6.0 — ZERO-INPUT GUARD + SUNDAY REMINDER build (manual APK + AAB, no Gradle).
 # v3.6.0 changes:
 #   - Guard works with ZERO input: auto-projection from the last
@@ -179,23 +98,6 @@ BUNDLETOOL="$HOME/workspace/bundletool.jar"
 PROJ="$HOME/workspace/apk-build/lesco-bill"
 OUTDIR="$HOME/workspace/your_files/bijli-bill-app"
 cd "$PROJ"
-# v3.7.35: the Gemini API key lives in ApiKeys.java (gitignored —
-# never committed). A clean checkout has no such file: create the
-# REPLACE_ME placeholder so the build works and the Assistant
-# falls back to the free on-device brain.
-if [ ! -f java/com/hatch/bijlibill/ApiKeys.java ]; then
-  cat > java/com/hatch/bijlibill/ApiKeys.java <<'EOF'
-package com.hatch.bijlibill;
-
-// Auto-created by build.sh (gitignored). Put the real Google AI
-// Studio key here; NEVER commit this file.
-public final class ApiKeys {
-    private ApiKeys() {}
-    public static final String GEMINI_API_KEY = "REPLACE_ME";
-}
-EOF
-  echo "  (created ApiKeys.java placeholder — Gemini falls back to on-device)"
-fi
 # NOTE: build/mlkit/aar-{repo,libs,res,manifests} are intentionally kept.
 rm -rf build/classes build/dex build/gen build/gen-lib build/R.txt \
        build/aar-res-zip build/mod build/app.aab build/signed.aab \
@@ -250,10 +152,6 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/BillPdf.java \
   java/com/hatch/bijlibill/Disco.java \
   java/com/hatch/bijlibill/SavedMeters.java \
-  java/com/hatch/bijlibill/BillSnapshots.java \
-  java/com/hatch/bijlibill/AssistantBrain.java \
-  java/com/hatch/bijlibill/ApiKeys.java \
-  java/com/hatch/bijlibill/GeminiLiveClient.java \
   java/com/hatch/bijlibill/LangPolicy.java \
   java/com/hatch/bijlibill/StreakCalc.java \
   java/com/hatch/bijlibill/BillDayNudge.java \
@@ -370,16 +268,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-calculator-v3.6.0.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.6.0.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.37.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.37.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-calculator-v3.6.0.apk" \
-        "$OUTDIR/bijli-bill-publish-3.6.0.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.37.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.37.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-calculator-v3.6.0.apk" "$OUTDIR/bijli-bill-publish-3.6.0.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.37.apk" "$OUTDIR/bijli-bill-publish-3.7.37.aab"
 echo BUILD_OK

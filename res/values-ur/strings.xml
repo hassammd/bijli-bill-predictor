@@ -363,25 +363,7 @@
     <string name="quick_bill_history_sub">پچھلے بل دیکھیں</string>
     <string name="ref_empty">براہ کرم اپنا ریفرنس نمبر درج کریں</string>
 
-    <!-- v3.7.31: AI Assistant (v1, SIMPLE) -->
-    <string name="quick_assistant">AI اسسٹنٹ</string>
-    <string name="quick_assistant_sub">اپنے بل کے بارے میں پوچھیں</string>
+    <!-- v3.7.36: Rate Us card (Quick Tools, second row) -->
     <string name="quick_rate_us">ہمیں ریٹ کریں</string>
     <string name="quick_rate_us_sub">اسٹار ریٹنگ دیں</string>
-    <string name="assistant_title">AI اسسٹنٹ</string>
-    <string name="assistant_sub">صرف آپ کے محفوظ بلوں سے جواب</string>
-    <string name="assistant_hint">بول کر پوچھیں — میں آواز میں جواب دوں گا</string>
-    <string name="assistant_voice_on">آواز: آن</string>
-    <string name="assistant_voice_off">آواز: آف</string>
-    <string name="assistant_mic_denied">مائیک کی اجازت نہیں ملی — مائیک دبا کر دوبارہ کوشش کریں</string>
-    <string name="assistant_mic_unavailable">اس فون پر وائس ان پٹ دستیاب نہیں ہے</string>
-    <string name="assistant_mic_failed">آواز سن نہیں پایا — دوبارہ بولیں</string>
-    <string name="assistant_hear_retry">سن نہیں پایا، ایک بار پھر بولیں…</string>
-    <string name="assistant_hear_type">پھر بھی سن نہیں پایا — مائیک دبا کر دوبارہ بولیں، میں سن رہا ہوں۔</string>
-    <string name="assistant_voice_greeting">السلام علیکم! میں آپ کا بجلی بل اسسٹنٹ ہوں۔ اپنا سوال بولیں۔</string>
-    <string name="assistant_gemini_error">انٹرنیٹ نہیں چل رہا، دوبارہ کوشش کریں</string>
-    <string name="assistant_bubble_desc">AI اسسٹنٹ — بول کر پوچھیں</string>
-    <string name="assistant_status_listening">سن رہا ہوں…</string>
-    <string name="assistant_status_speaking">جواب دے رہا ہوں…</string>
-    <string name="assistant_status_tap">بولنے کے لیے مائیک دبائیں</string>
 </resources>

@@ -16,9 +16,6 @@ import com.hatch.bijlibill.LangPolicy;
 import com.hatch.bijlibill.ArrearsStatus;
 import com.hatch.bijlibill.DailyReminder;
 import com.hatch.bijlibill.AccuracyTracker;
-import com.hatch.bijlibill.AssistantBrain;
-import com.hatch.bijlibill.BillSnapshots;
-import com.hatch.bijlibill.GeminiLiveClient;
 import com.hatch.bijlibill.GuardCalc;
 import com.hatch.bijlibill.GuardReminder;
 
@@ -1050,7 +1047,7 @@ public class TestBillFetch {
         // ---- v3.7.30: in-app PITC image CAPTCHA ----
         runV3730CaptchaTests();
 
-        // ---- v3.7.31: AI Assistant snapshots + brain ----
+        // ---- v3.7.37: voice feature removed (removal tests) ----
         runV3731Tests();
 
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
@@ -2173,9 +2170,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"168\""), true);
+                man.contains("android:versionCode=\"169\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.36\""), true);
+                man.contains("android:versionName=\"3.7.37\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3878,9 +3875,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"168\""), true);
+                man.contains("android:versionCode=\"169\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.36\""), true);
+                man.contains("android:versionName=\"3.7.37\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4251,10 +4248,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"168\""),
+                manifest.contains("android:versionCode=\"169\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.36\""),
+                manifest.contains("android:versionName=\"3.7.37\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4413,10 +4410,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"168\""),
+                manifest.contains("android:versionCode=\"169\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.36\""),
+                manifest.contains("android:versionName=\"3.7.37\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4707,211 +4704,102 @@ public class TestBillFetch {
         check("genuine NOT_FOUND still NOT_FOUND", notFound2, true);
     }
 
-    // ---- v3.7.31 tests: AI Assistant snapshots + brain ----
+    // ---- v3.7.37 tests: voice feature REMOVED (user order, voice
+    // call 2026-11-21: "AI wala kaam saara remove, bubble wala hata
+    // do"). Files gone, no reference left in app source, Rate Us
+    // card kept, CAPTCHA grey-button behaviour kept. ----
 
-    static BillSnapshots.Storage memStore(
-            final java.util.Map<String, String> m) {
-        return new BillSnapshots.Storage() {
-            @Override public String load(String k) { return m.get(k); }
-            @Override public void save(String k, String v) { m.put(k, v); }
-        };
-    }
-
-    static BillSnapshots.Snapshot mkSnap(String month, int units,
-            double amount, String due, String fpa, String cat, long ts) {
-        BillSnapshots.Snapshot s = new BillSnapshots.Snapshot();
-        s.disco = "lesco";
-        s.mode = "ref";
-        s.ref = "02118240618604U";
-        s.holderName = "Test User";
-        s.billMonth = month;
-        s.units = units;
-        s.amount = amount;
-        s.amountAfterDue = amount + 500;
-        s.dueDate = due;
-        s.fpa = fpa;
-        s.category = cat;
-        s.prevReading = "1000";
-        s.currReading = String.valueOf(1000 + units);
-        s.readingDate = "05-OCT-26";
-        s.fetchedAt = ts;
-        return s;
+    static String readFile(String path) throws Exception {
+        return new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(path)),
+                java.nio.charset.StandardCharsets.UTF_8);
     }
 
     static void runV3731Tests() throws Exception {
-        // ---- 1. snapshot record + latest ----
-        java.util.Map<String, String> m =
-                new java.util.LinkedHashMap<String, String>();
-        BillSnapshots.Storage st = memStore(m);
-        String key = "lesco:ref:02118240618604U";
-        check("snap empty latest null",
-                BillSnapshots.latest(st, key), null);
-        BillSnapshots.record(st, key,
-                mkSnap("AUG 26", 180, 9500, "15-SEP-26", "420.50",
-                        "Domestic (Protected)", 1000L));
-        BillSnapshots.record(st, key,
-                mkSnap("SEP 26", 250, 12800, "15-OCT-26", "610.75",
-                        "Domestic (Protected)", 2000L));
-        check("snap list size 2", BillSnapshots.list(st, key).size(), 2);
-        check("snap latest month",
-                BillSnapshots.latest(st, key).billMonth, "SEP 26");
-        check("snap latest units",
-                BillSnapshots.latest(st, key).units, 250);
-
-        // ---- 2. same-month re-fetch replaces, never duplicates ----
-        BillSnapshots.record(st, key,
-                mkSnap("SEP 26", 250, 12900, "15-OCT-26", "610.75",
-                        "Domestic (Protected)", 3000L));
-        check("snap same-month no dup",
-                BillSnapshots.list(st, key).size(), 2);
-        check("snap same-month updated",
-                BillSnapshots.latest(st, key).amount, 12900.0);
-
-        // ---- 3. cap 3 per meter ----
-        BillSnapshots.record(st, key,
-                mkSnap("OCT 26", 210, 11000, "15-NOV-26", "500",
-                        "Domestic (Protected)", 4000L));
-        BillSnapshots.record(st, key,
-                mkSnap("NOV 26", 190, 9800, "15-DEC-26", "480",
-                        "Domestic (Protected)", 5000L));
-        check("snap cap 3", BillSnapshots.list(st, key).size(), 3);
-        check("snap oldest evicted",
-                BillSnapshots.list(st, key).get(2).billMonth, "SEP 26");
-
-        // ---- 4. latestAny picks the newest meter ----
-        String key2 = "lesco:ref:02118240618605U";
-        BillSnapshots.Snapshot s2 = mkSnap("SEP 26", 120, 6200,
-                "15-OCT-26", "300", "Domestic (Protected)", 9000L);
-        s2.ref = "02118240618605U";
-        BillSnapshots.record(st, key2, s2);
-        BillSnapshots.Latest any = BillSnapshots.latestAny(st);
-        check("snap latestAny key", any.key, key2);
-        check("snap latestAny units", any.snap.units, 120);
-
-        // ---- 5. encode/decode round-trip survives a fresh read ----
-        java.util.List<BillSnapshots.Snapshot> again =
-                BillSnapshots.list(st, key);
-        check("snap roundtrip month", again.get(0).billMonth, "NOV 26");
-        check("snap roundtrip fpa", again.get(0).fpa, "480");
-        check("snap roundtrip amount", again.get(0).amount, 9800.0);
-
-        // ---- 6. brain: no bills -> plain message ----
-        java.util.List<BillSnapshots.Snapshot> empty =
-                new java.util.ArrayList<BillSnapshots.Snapshot>();
-        String noBill = AssistantBrain.answer(
-                "mera bill kyun zyada aaya?", empty, "");
-        check("brain no-bill honest",
-                noBill.contains("koi bill save nahi"), true);
-
-        // ---- 7. brain: why-high with previous month ----
-        java.util.List<BillSnapshots.Snapshot> two =
-                new java.util.ArrayList<BillSnapshots.Snapshot>();
-        two.add(mkSnap("SEP 26", 250, 12800, "15-OCT-26", "610.75",
-                "Domestic (Protected)", 2000L));
-        two.add(mkSnap("AUG 26", 180, 9500, "15-SEP-26", "420.50",
-                "Domestic (Protected)", 1000L));
-        String why = AssistantBrain.answer(
-                "mera bill kyun zyada aaya?", two, "Test User");
-        check("brain why delta", why.contains("70 unit zyada"), true);
-        check("brain why protected cliff",
-                why.contains("Protected status khatam"), true);
-        check("brain why fpa", why.contains("FPA Rs 611"), true);
-
-        // ---- 8. brain: Non-Protected is NOT read as Protected ----
-        java.util.List<BillSnapshots.Snapshot> np =
-                new java.util.ArrayList<BillSnapshots.Snapshot>();
-        BillSnapshots.Snapshot nps = mkSnap("SEP 26", 150, 8000,
-                "15-OCT-26", "400", "Domestic (Non-Protected)", 2000L);
-        np.add(nps);
-        String whyNp = AssistantBrain.answer(
-                "mera bill kyun zyada aaya?", np, "Test User");
-        check("brain non-protected not protected",
-                whyNp.contains("abhi bhi Protected"), false);
-
-        // ---- 9. brain: due date (far-future date -> days left).
-        //      NOTE: "15-JAN-50" parses as 1950 (2-digit-year pivot),
-        //      so the test uses 2030, unambiguously in the future. ----
-        java.util.List<BillSnapshots.Snapshot> due =
-                new java.util.ArrayList<BillSnapshots.Snapshot>();
-        BillSnapshots.Snapshot ds = mkSnap("SEP 26", 150, 8000,
-                "15-JAN-30", "400", "Domestic (Protected)", 2000L);
-        due.add(ds);
-        String dueAns = AssistantBrain.answer(
-                "mera bill kab due hai?", due, "Test User");
-        check("brain due date quoted",
-                dueAns.contains("15-JAN-30"), true);
-        check("brain due days left",
-                dueAns.contains("din reh gaye hain"), true);
-
-        // ---- 10. brain: previous bill ----
-        String prevAns = AssistantBrain.answer(
-                "pichle mahine ka bill kitna tha?", two, "Test User");
-        check("brain prev amount", prevAns.contains("9,500"), true);
-        check("brain prev units", prevAns.contains("180 unit"), true);
-
-        // ---- 11. brain: guard danger vs safe ----
-        String guardDanger = AssistantBrain.answer(
-                "200 unit guard kya kehta hai?", two, "Test User");
-        check("brain guard danger", guardDanger.contains("Khatra"), true);
-        java.util.List<BillSnapshots.Snapshot> safe =
-                new java.util.ArrayList<BillSnapshots.Snapshot>();
-        safe.add(mkSnap("SEP 26", 150, 8000, "15-OCT-26", "400",
-                "Domestic (Protected)", 2000L));
-        String guardSafe = AssistantBrain.answer(
-                "200 unit guard kya kehta hai?", safe, "Test User");
-        check("brain guard safe", guardSafe.contains("mehfooz"), true);
-
-        // ---- 12. brain: greeting + suggestions ----
-        check("brain greeting no-bill",
-                AssistantBrain.greeting(empty, "").contains(
-                        "koi bill save nahi"), true);
-        check("brain suggestions 3",
-                AssistantBrain.suggestions(true).size(), 3);
-
-        // ---- 13. EN/UR parity for the new v3.7.31 strings ----
+        // ---- 1. Voice-feature files gone from the tree ----
+        java.nio.file.Path srcDir =
+                java.nio.file.Paths.get("java/com/hatch/bijlibill");
+        String[] goneFiles = {"AssistantActivity.java",
+                "AssistantBrain.java", "GeminiLiveClient.java",
+                "ApiKeys.java", "BillSnapshots.java"};
+        for (String f : goneFiles) {
+            check("v3737 gone " + f,
+                    java.nio.file.Files.exists(srcDir.resolve(f)), false);
+        }
+        // ---- 2. Voice-feature-only drawables gone ----
+        check("v3737 gone ic_assistant",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_assistant.xml")), false);
+        check("v3737 gone ic_mic",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable/ic_mic.xml")), false);
+        // ---- 3. No reference in app source: java + res + manifest
+        //      + build script + gitignore. (This test file itself is
+        //      the only place the removed names may appear, as
+        //      removal assertions.) ----
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String man = readFile("AndroidManifest.xml");
+        String buildSh = readFile("build.sh");
+        String gitignore = readFile(".gitignore");
+        String enXml = readFile("res/values/strings.xml");
+        String urXml = readFile("res/values-ur/strings.xml");
+        String[] srcTexts = {home, bill, man, buildSh, gitignore,
+                enXml, urXml};
+        String[] banned = {"Assistant", "assistant", "Gemini", "gemini",
+                "ApiKeys", "GEMINI", "assistantBubble",
+                "EXTRA_AUTO_LISTEN", "BillSnapshots"};
+        for (int i = 0; i < srcTexts.length; i++) {
+            for (String b : banned) {
+                check("v3737 no " + b + " in src[" + i + "]",
+                        srcTexts[i].contains(b), false);
+            }
+        }
+        // ---- 4. No mic permission left (only the voice feature
+        //      used it) ----
+        check("v3737 no record audio",
+                man.contains("android.permission.RECORD_AUDIO"), false);
+        // ---- 5. Rate Us card kept (v3.7.36 restore, still in) ----
+        check("v3737 rate us card", home.contains("quick_rate_us"), true);
+        check("v3737 rate us sub",
+                home.contains("quick_rate_us_sub"), true);
+        check("v3737 rate us star icon",
+                home.contains("ic_star"), true);
+        check("v3737 rate us market link",
+                home.contains("market://details?id="), true);
+        check("v3737 rate us web fallback",
+                home.contains(
+                        "https://play.google.com/store/apps/details?id="),
+                true);
+        check("v3737 second row kept", home.contains("row2"), true);
+        check("v3737 task cards kept",
+                home.contains("quick_unit_check")
+                        && home.contains("quick_bill_history"), true);
+        // Rate Us strings in both locales, same format args.
         java.util.Map<String, String> en =
                 readStrings("res/values/strings.xml");
         java.util.Map<String, String> ur =
                 readStrings("res/values-ur/strings.xml");
-        String[] newKeys = {"quick_assistant", "quick_assistant_sub",
-                "assistant_title", "assistant_sub", "assistant_hint",
-                "assistant_voice_on", "assistant_voice_off",
-                "assistant_mic_denied", "assistant_mic_unavailable",
-                "assistant_mic_failed",
-                "assistant_status_listening",
-                "assistant_status_speaking", "assistant_status_tap"};
-        for (String k : newKeys) {
-            check("v3731 key en " + k, en.containsKey(k), true);
-            check("v3731 key ur " + k, ur.containsKey(k), true);
-            check("v3731 fmt " + k, fmtArgs(en.get(k)),
+        String[] rateKeys = {"quick_rate_us", "quick_rate_us_sub"};
+        for (String k : rateKeys) {
+            check("v3737 key en " + k, en.containsKey(k), true);
+            check("v3737 key ur " + k, ur.containsKey(k), true);
+            check("v3737 fmt " + k, fmtArgs(en.get(k)),
                     fmtArgs(ur.get(k)));
         }
+        // ---- 6. Bill fetch no longer records anything for the
+        //      removed voice feature ----
+        check("v3737 bill no snapshot call",
+                bill.contains("BillSnapshots"), false);
+        // ---- 7. Version 169 / 3.7.37 in the manifest ----
+        check("v3737 manifest version 169",
+                man.contains("android:versionCode=\"169\""), true);
+        check("v3737 manifest name 3.7.37",
+                man.contains("android:versionName=\"3.7.37\""), true);
 
-        // ---- 14. wiring: Home opens the Assistant, BillActivity
-        //      records snapshots, manifest declares it ----
-        String home = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get(
-                        "java/com/hatch/bijlibill/HomeActivity.java")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3731 home assistant card",
-                home.contains("AssistantActivity.class"), true);
-        String bill = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get(
-                        "java/com/hatch/bijlibill/BillActivity.java")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3731 bill records snapshot",
-                bill.contains("BillSnapshots.record("), true);
-        String man = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get("AndroidManifest.xml")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3731 manifest activity",
-                man.contains(".AssistantActivity"), true);
-        check("v3731 manifest mic permission",
-                man.contains("android.permission.RECORD_AUDIO"), true);
-        check("v3736 manifest version 168",
-                man.contains("android:versionCode=\"168\""), true);
-
-        // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
+        // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
         //      when characters are deleted) ----
         check("v3731 captcha button watcher",
@@ -4926,431 +4814,6 @@ public class TestBillFetch {
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v3731 captcha grey drawable",
                 grey.contains("BDBDBD"), true);
-
-        // ---- 16. v3.7.32: floating Assistant bubble + auto-listen;
-        //      a missed hearing stays in-chat (no Toast anywhere) ----
-        String[] bubbleKeys = {"assistant_hear_retry",
-                "assistant_hear_type", "assistant_voice_greeting",
-                "assistant_bubble_desc"};
-        for (String k : bubbleKeys) {
-            check("v3732 key en " + k, en.containsKey(k), true);
-            check("v3732 key ur " + k, ur.containsKey(k), true);
-            check("v3732 fmt " + k, fmtArgs(en.get(k)),
-                    fmtArgs(ur.get(k)));
-        }
-        check("v3732 home bubble",
-                home.contains("assistantBubble()"), true);
-        check("v3732 home bubble launches auto-listen",
-                home.contains("EXTRA_AUTO_LISTEN"), true);
-        String asst = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get(
-                        "java/com/hatch/bijlibill/AssistantActivity.java")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3732 assistant auto-listen extra",
-                asst.contains("EXTRA_AUTO_LISTEN"), true);
-        check("v3732 assistant greeting spoken",
-                asst.contains("assistant_greeting"), true);
-        check("v3732 assistant retry once",
-                asst.contains("onNotUnderstood"), true);
-        check("v3732 assistant no toast",
-                !asst.contains("Toast.makeText"), true);
-
-        // ---- 17. v3.7.33: voice-only Assistant + Punjabi ----
-        // 17a. No text input anywhere on the Assistant screen.
-        check("v3733 no EditText", !asst.contains("EditText"), true);
-        check("v3733 no send button",
-                !asst.contains("assistant_send"), true);
-        check("v3733 no input hint",
-                !asst.contains("assistant_input_hint"), true);
-        check("v3733 no old listening hint",
-                !asst.contains("assistant_listening"), true);
-        // 17b. Voice-call UI: big mic; its colour is the only status
-        // (v3.7.34 removed the status text and bubbles entirely).
-        check("v3734 big mic", asst.contains("bigMic"), true);
-        check("v3734 mic state", asst.contains("setMicState"), true);
-        check("v3734 no status text", !asst.contains("statusText"), true);
-        check("v3734 no addBubble", !asst.contains("addBubble"), true);
-        check("v3734 no setStatus", !asst.contains("setStatus("), true);
-        // 17c. pa-PK fallback: device support checked before retry.
-        check("v3733 pa fallback lang",
-                asst.contains("\"pa-PK\""), true);
-        check("v3733 pa support query",
-                asst.contains("ACTION_GET_LANGUAGE_DETAILS"), true);
-        check("v3733 pa supported list",
-                asst.contains("EXTRA_SUPPORTED_LANGUAGES"), true);
-        // 17d. Continuous voice conversation: reply ends -> listen.
-        check("v3733 reply utterance",
-                asst.contains("\"assistant_reply\""), true);
-        check("v3733 listen after reply",
-                asst.contains("listenAfterReply"), true);
-        check("v3733 user stopped flag",
-                asst.contains("userStopped"), true);
-        // 17e. New status strings in both locales, same format args.
-        String[] statusKeys = {"assistant_status_listening",
-                "assistant_status_speaking", "assistant_status_tap"};
-        for (String k : statusKeys) {
-            check("v3733 key en " + k, en.containsKey(k), true);
-            check("v3733 key ur " + k, ur.containsKey(k), true);
-            check("v3733 fmt " + k, fmtArgs(en.get(k)),
-                    fmtArgs(ur.get(k)));
-        }
-        // 17f. Punjabi detection (whole words only).
-        check("v3733 punjabi ki haal",
-                AssistantBrain.isPunjabi("ki haal hai?"), true);
-        check("v3733 punjabi kinna",
-                AssistantBrain.isPunjabi("mera bill kinna aaya?"), true);
-        check("v3733 punjabi tusi",
-                AssistantBrain.isPunjabi("tusi daso bill kinna hai"),
-                true);
-        check("v3733 urdu not punjabi",
-                AssistantBrain.isPunjabi("mera bill kyun zyada aaya?"),
-                false);
-        check("v3733 kitna not punjabi",
-                AssistantBrain.isPunjabi("bill kitna hai?"), false);
-        // 17g. Punjabi answers, main intents (same numbers).
-        String whyPa = AssistantBrain.answer(
-                "mera bill kyun wadh gaya?", two, "Test User");
-        check("v3733 punjabi why delta",
-                whyPa.contains("unit zyada"), true);
-        check("v3733 punjabi why words",
-                whyPa.contains("lage"), true);
-        String duePa = AssistantBrain.answer(
-                "aakhri tareekh kado hai?", due, "Test User");
-        check("v3733 punjabi due",
-                duePa.contains("aakhri tareekh"), true);
-        check("v3733 punjabi due days",
-                duePa.contains("din reh gaye ne"), true);
-        String prevPa = AssistantBrain.answer(
-                "pichla bill kinna si?", two, "Test User");
-        check("v3733 punjabi prev", prevPa.contains("9,500"), true);
-        check("v3733 punjabi prev words",
-                prevPa.contains("da bill"), true);
-        String guardPa = AssistantBrain.answer(
-                "200 unit guard ki kehnda hai?", two, "Test User");
-        check("v3733 punjabi guard", guardPa.contains("Khatra"), true);
-        check("v3733 punjabi guard words",
-                guardPa.contains("mahine de aakhir"), true);
-        String unitsPa = AssistantBrain.answer(
-                "is mahine kinne unit lage?", two, "Test User");
-        check("v3733 punjabi units", unitsPa.contains("250 unit"), true);
-        check("v3733 punjabi units words",
-                unitsPa.contains("lage"), true);
-        String amtPa = AssistantBrain.answer(
-                "mera bill kinna aaya?", two, "Test User");
-        check("v3733 punjabi amount", amtPa.contains("12,800"), true);
-        String greetPa = AssistantBrain.answer(
-                "ki haal hai?", empty, "");
-        check("v3733 punjabi greeting",
-                greetPa.contains("Sat Sri Akal"), true);
-        // 17h. Urdu still answers exactly as before.
-        String whyUr = AssistantBrain.answer(
-                "mera bill kyun zyada aaya?", two, "Test User");
-        check("v3733 urdu why still",
-                whyUr.contains("70 unit zyada"), true);
-
-        // ---- 18. v3.7.34: live-call Assistant (no text, fast reply,
-        //      smooth voice) + Rate Us card ----
-        // 18a. No text anywhere on the Assistant screen.
-        check("v3734 no chips", !asst.contains("assistant_chip"), true);
-        // 18b. Fast end-of-speech: partial results + short silence
-        // timeouts, so the reply starts the moment speech ends.
-        check("v3734 partial results",
-                asst.contains("EXTRA_PARTIAL_RESULTS"), true);
-        check("v3734 partial handler",
-                asst.contains("onPartialResults"), true);
-        check("v3734 quiet check",
-                asst.contains("partialQuietCheck"), true);
-        check("v3734 complete silence",
-                asst.contains(
-                        "EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS"),
-                true);
-        check("v3734 possibly complete silence",
-                asst.contains(
-                        "EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS"),
-                true);
-        // 18c. Smooth voice: best Urdu voice + chunked speech.
-        check("v3734 urdu voice pick",
-                asst.contains("selectBestUrduVoice"), true);
-        check("v3734 chunked speech",
-                asst.contains("splitForSpeech"), true);
-        check("v3734 speech rate",
-                asst.contains("setSpeechRate(0.95f)"), true);
-        check("v3734 spoken errors",
-                asst.contains("speakError"), true);
-        check("v3734 error restarts listen",
-                asst.contains("listenAfterErrorSpoken"), true);
-        // ---- 19. v3.7.35: Quick Tools second row removed (user:
-        //      keep only the task cards). No Assistant card and no
-        //      Rate Us card on Home; the floating bubble is now the
-        //      only way into the Assistant.
-        //      v3.7.36 CORRECTION (user 2026-11-21, naraz): v3.7.35
-        //      removed the WHOLE second row by mistake — the user
-        //      only asked to remove the AI Assistant card. The Rate
-        //      Us card is restored as a full-width second row,
-        //      exactly as in v3.7.34. The AI Assistant card stays
-        //      OUT of Quick Tools; the bubble is the only way in. ----
-        check("v3735 no quick assistant card",
-                !home.contains("quick_assistant"), true);
-        check("v3736 rate us card back",
-                home.contains("quick_rate_us"), true);
-        check("v3736 rate us sub",
-                home.contains("quick_rate_us_sub"), true);
-        check("v3736 rate us star icon",
-                home.contains("ic_star"), true);
-        check("v3736 rate us market link",
-                home.contains("market://details?id="), true);
-        check("v3736 rate us web fallback",
-                home.contains(
-                        "https://play.google.com/store/apps/details?id="),
-                true);
-        check("v3736 second row back",
-                home.contains("row2"), true);
-        check("v3735 task cards kept",
-                home.contains("quick_unit_check")
-                        && home.contains("quick_bill_history"), true);
-        check("v3735 bubble still opens assistant",
-                home.contains("assistantBubble"), true);
-        check("v3735 bubble opens assistant activity",
-                home.contains("AssistantActivity.class"), true);
-        // Strings + star drawable in use again (Rate Us card).
-        String[] rateKeys = {"quick_rate_us", "quick_rate_us_sub"};
-        for (String k : rateKeys) {
-            check("v3735 key en " + k, en.containsKey(k), true);
-            check("v3735 key ur " + k, ur.containsKey(k), true);
-            check("v3735 fmt " + k, fmtArgs(en.get(k)),
-                    fmtArgs(ur.get(k)));
-        }
-        String star = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get("res/drawable/ic_star.xml")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3735 star drawable", star.contains("M12 17.27"), true);
-        // 18e. Version 168 / 3.7.36 in the manifest.
-        check("v3736 manifest version 168",
-                man.contains("android:versionCode=\"168\""), true);
-        check("v3736 manifest name 3.7.36",
-                man.contains("android:versionName=\"3.7.36\""), true);
-
-        // ---- 20. v3.7.35: Gemini Live voice assistant (TEST build) ----
-        // 20a. Key config: only a real, non-placeholder key counts.
-        // The key itself lives in the gitignored ApiKeys.java — the
-        // test never reads its value, only the shape of the rule.
-        check("v3735 key stub not configured",
-                GeminiLiveClient.isConfiguredKey("REPLACE_ME"), false);
-        check("v3735 key empty not configured",
-                GeminiLiveClient.isConfiguredKey(""), false);
-        check("v3735 key null not configured",
-                GeminiLiveClient.isConfiguredKey(null), false);
-        check("v3735 key real configured",
-                GeminiLiveClient.isConfiguredKey("AIzaSyFakeTestKey123"),
-                true);
-        String apiKeys = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get(
-                        "java/com/hatch/bijlibill/ApiKeys.java")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3735 apikeys file declares key",
-                apiKeys.contains("GEMINI_API_KEY"), true);
-        String gitignore = new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Paths.get(".gitignore")),
-                java.nio.charset.StandardCharsets.UTF_8);
-        check("v3735 apikeys gitignored",
-                gitignore.contains(
-                        "java/com/hatch/bijlibill/ApiKeys.java"), true);
-        check("v3735 build recreates placeholder",
-                new String(java.nio.file.Files.readAllBytes(
-                        java.nio.file.Paths.get("build.sh")),
-                        java.nio.charset.StandardCharsets.UTF_8)
-                        .contains("ApiKeys.java"), true);
-        // 20b. Setup JSON: free-tier Live model + AUDIO + voice +
-        // system instruction, with JSON escaping.
-        String setup = GeminiLiveClient.buildSetupJson(
-                GeminiLiveClient.MODEL, GeminiLiveClient.VOICE,
-                "say \"hi\"\nnext line");
-        check("v3735 setup model",
-                setup.contains("\"model\":\"models/gemini-3.8-live\""),
-                true);
-        check("v3735 setup audio modality",
-                setup.contains("\"responseModalities\":[\"AUDIO\"]"), true);
-        check("v3735 setup voice",
-                setup.contains("\"voiceName\":\"Aoede\""), true);
-        check("v3735 setup escapes quote",
-                setup.contains("say \\\"hi\\\""), true);
-        check("v3735 setup escapes newline",
-                setup.contains("\\nnext line"), true);
-        check("v3735 setup transcriptions",
-                setup.contains("\"inputAudioTranscription\":{}"), true);
-        // 20c. Mic audio JSON: base64 PCM, 16kHz mime type.
-        String audioJson = GeminiLiveClient.buildAudioJson(
-                new byte[]{0x4d, 0x61, 0x6e});
-        check("v3735 audio json base64",
-                audioJson.contains("\"data\":\"TWFu\""), true);
-        check("v3735 audio json mime",
-                audioJson.contains("audio/pcm;rate=16000"), true);
-        // 20d. Greeting turn: clientContent, turn complete.
-        String greet = GeminiLiveClient.buildGreetingJson("hello");
-        check("v3735 greeting turn",
-                greet.contains("\"clientContent\""), true);
-        check("v3735 greeting complete",
-                greet.contains("\"turnComplete\":true"), true);
-        // 20e. System instruction: real snapshot data only.
-        String instr = GeminiLiveClient.buildSystemInstruction(
-                two, "Test User (LESCO, 02118240618604U)");
-        check("v3735 instr units", instr.contains("250 units"), true);
-        check("v3735 instr amount", instr.contains("Rs 12,800"), true);
-        check("v3735 instr due", instr.contains("15-OCT-26"), true);
-        check("v3735 instr prev month",
-                instr.contains("180 units"), true);
-        check("v3735 instr guard above",
-                instr.contains("ABOVE 200"), true);
-        check("v3735 instr roman urdu",
-                instr.contains("Roman Urdu"), true);
-        check("v3735 instr no invent",
-                instr.contains("Never invent"), true);
-        String instrEmpty = GeminiLiveClient.buildSystemInstruction(
-                empty, "");
-        check("v3735 instr no-bill honest",
-                instrEmpty.contains("No bill has been fetched yet"),
-                true);
-        // 20f. Base64 (pure Java): known vectors + round-trip.
-        check("v3735 b64 Man",
-                GeminiLiveClient.base64Encode(
-                        new byte[]{0x4d, 0x61, 0x6e}), "TWFu");
-        check("v3735 b64 M pad",
-                GeminiLiveClient.base64Encode(new byte[]{0x4d}), "TQ==");
-        check("v3735 b64 Ma pad",
-                GeminiLiveClient.base64Encode(
-                        new byte[]{0x4d, 0x61}), "TWE=");
-        byte[] pcm640 = new byte[640];
-        for (int i = 0; i < pcm640.length; i++) {
-            pcm640[i] = (byte) (i * 7);
-        }
-        check("v3735 b64 roundtrip",
-                java.util.Arrays.equals(pcm640,
-                        GeminiLiveClient.base64Decode(
-                                GeminiLiveClient.base64Encode(pcm640))),
-                true);
-        check("v3735 b64 decode",
-                new String(GeminiLiveClient.base64Decode("TWFu"),
-                        java.nio.charset.StandardCharsets.UTF_8),
-                "Man");
-        // 20g. JSON escaping.
-        check("v3735 escape quote",
-                GeminiLiveClient.escapeJson("a\"b"), "a\\\"b");
-        check("v3735 escape backslash",
-                GeminiLiveClient.escapeJson("a\\b"), "a\\\\b");
-        check("v3735 escape newline",
-                GeminiLiveClient.escapeJson("a\nb"), "a\\nb");
-        // 20h. Sec-WebSocket-Accept (RFC 6455 example vector).
-        check("v3735 ws accept",
-                GeminiLiveClient.computeAccept(
-                        "dGhlIHNhbXBsZSBub25jZQ=="),
-                "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
-        // 20i. HTTP status + header parsing.
-        check("v3735 http 101",
-                GeminiLiveClient.parseHttpStatus(
-                        "HTTP/1.1 101 Switching Protocols\r\n\r\n"),
-                101);
-        check("v3735 http 400",
-                GeminiLiveClient.parseHttpStatus(
-                        "HTTP/1.1 400 Bad Request\r\n\r\n"), 400);
-        check("v3735 header accept",
-                GeminiLiveClient.headerValue(
-                        "HTTP/1.1 101 Switching Protocols\r\n"
-                        + "Sec-WebSocket-Accept: abc123\r\n\r\n",
-                        "sec-websocket-accept"), "abc123");
-        // 20j. Server-message extractors (audio / turn / interrupt).
-        String srvAudio = "{\"serverContent\":{\"modelTurn\":{\"parts\":"
-                + "[{\"inlineData\":{\"mimeType\":\"audio/pcm;rate=24000\","
-                + "\"data\":\"TWFu\"}}]}}}";
-        check("v3735 srv audio one",
-                GeminiLiveClient.extractServerAudioParts(srvAudio).size(),
-                1);
-        check("v3735 srv audio data",
-                GeminiLiveClient.extractServerAudioParts(srvAudio).get(0),
-                "TWFu");
-        check("v3735 srv audio not turn",
-                GeminiLiveClient.serverTurnComplete(srvAudio), false);
-        check("v3735 srv turn complete",
-                GeminiLiveClient.serverTurnComplete(
-                        "{\"serverContent\":{\"turnComplete\":true}}"),
-                true);
-        check("v3735 srv interrupted",
-                GeminiLiveClient.serverInterrupted(
-                        "{\"serverContent\":{\"interrupted\":true}}"),
-                true);
-        check("v3735 srv setup complete",
-                GeminiLiveClient.serverSetupComplete(
-                        "{\"setupComplete\":{}}"), true);
-        check("v3735 srv bad json safe",
-                GeminiLiveClient.extractServerAudioParts("not json")
-                        .isEmpty(), true);
-        // 20k. WebSocket reader: whole frame, fragmented frames,
-        // ping -> pong. (Server frames are unmasked.)
-        byte[] hello = "Hello".getBytes(
-                java.nio.charset.StandardCharsets.UTF_8);
-        java.io.ByteArrayOutputStream frames =
-                new java.io.ByteArrayOutputStream();
-        frames.write(0x81);
-        frames.write(hello.length);
-        frames.write(hello);
-        java.io.ByteArrayOutputStream pongOut =
-                new java.io.ByteArrayOutputStream();
-        GeminiLiveClient.WsReader reader =
-                new GeminiLiveClient.WsReader(
-                        new java.io.ByteArrayInputStream(
-                                frames.toByteArray()), pongOut);
-        check("v3735 ws read text", reader.readMessage(), "Hello");
-        java.io.ByteArrayOutputStream frag =
-                new java.io.ByteArrayOutputStream();
-        frag.write(0x01); // FIN=0, text
-        frag.write(3);
-        frag.write("Hel".getBytes(
-                java.nio.charset.StandardCharsets.UTF_8));
-        frag.write(0x80); // FIN=1, continuation
-        frag.write(2);
-        frag.write("lo".getBytes(
-                java.nio.charset.StandardCharsets.UTF_8));
-        GeminiLiveClient.WsReader fragReader =
-                new GeminiLiveClient.WsReader(
-                        new java.io.ByteArrayInputStream(
-                                frag.toByteArray()),
-                        new java.io.ByteArrayOutputStream());
-        check("v3735 ws fragmented", fragReader.readMessage(), "Hello");
-        java.io.ByteArrayOutputStream pingOut =
-                new java.io.ByteArrayOutputStream();
-        java.io.ByteArrayOutputStream pingIn =
-                new java.io.ByteArrayOutputStream();
-        pingIn.write(0x89); // ping, empty
-        pingIn.write(0);
-        pingIn.write(0x81); // then a text frame
-        pingIn.write(2);
-        pingIn.write("hi".getBytes(
-                java.nio.charset.StandardCharsets.UTF_8));
-        GeminiLiveClient.WsReader pingReader =
-                new GeminiLiveClient.WsReader(
-                        new java.io.ByteArrayInputStream(
-                                pingIn.toByteArray()), pingOut);
-        check("v3735 ws ping then text",
-                pingReader.readMessage(), "hi");
-        byte[] pong = pingOut.toByteArray();
-        check("v3735 ws pong opcode",
-                pong.length >= 2 && (pong[0] & 0xFF) == 0x8A, true);
-        // 20l. Wiring: Assistant uses Gemini when a key is set,
-        // network error string exists in both locales, no text UI.
-        check("v3735 asst gemini client",
-                asst.contains("GeminiLiveClient"), true);
-        check("v3735 asst gemini session",
-                asst.contains("startGeminiSession"), true);
-        check("v3735 asst gemini fallback",
-                asst.contains("fallBackToOnDevice"), true);
-        check("v3735 asst gemini error string",
-                asst.contains("assistant_gemini_error"), true);
-        check("v3735 key en gemini error",
-                en.containsKey("assistant_gemini_error"), true);
-        check("v3735 key ur gemini error",
-                ur.containsKey("assistant_gemini_error"), true);
-        check("v3735 fmt gemini error",
-                fmtArgs(en.get("assistant_gemini_error")),
-                fmtArgs(ur.get("assistant_gemini_error")));
     }
 
     static void addPoint(

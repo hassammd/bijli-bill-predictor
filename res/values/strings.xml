@@ -363,26 +363,7 @@
     <string name="quick_bill_history_sub">View previous bills</string>
     <string name="ref_empty">Please enter your reference number</string>
 
-    <!-- v3.7.31: AI Assistant (v1, SIMPLE) -->
-    <!-- v3.7.33: voice-only — text input + send removed entirely -->
-    <string name="quick_assistant">AI Assistant</string>
-    <string name="quick_assistant_sub">Ask about your bill</string>
+    <!-- v3.7.36: Rate Us card (Quick Tools, second row) -->
     <string name="quick_rate_us">Rate us</string>
     <string name="quick_rate_us_sub">Give us a star rating</string>
-    <string name="assistant_title">AI Assistant</string>
-    <string name="assistant_sub">Answers from your saved bills only</string>
-    <string name="assistant_hint">Bol kar poochein — main awaz mein jawab dunga</string>
-    <string name="assistant_voice_on">Voice: On</string>
-    <string name="assistant_voice_off">Voice: Off</string>
-    <string name="assistant_mic_denied">Mic ki ijazat nahi mili — mic dabaa kar dobara koshish karain</string>
-    <string name="assistant_mic_unavailable">Voice input is not available on this phone</string>
-    <string name="assistant_mic_failed">Awaz sun nahi paya — dobara boliye</string>
-    <string name="assistant_hear_retry">Sun nahi paya, ek baar phir boliye…</string>
-    <string name="assistant_hear_type">Phir bhi sun nahi paya — mic dabaa kar dobara boliye, main sun raha hun.</string>
-    <string name="assistant_voice_greeting">Assalamualaikum! Main aapka Bijli Bill Assistant hun. Apna sawal boliye.</string>
-    <string name="assistant_gemini_error">internet nahi chal raha, dobara try karein</string>
-    <string name="assistant_bubble_desc">AI Assistant — bol kar poochein</string>
-    <string name="assistant_status_listening">Sun raha hoon…</string>
-    <string name="assistant_status_speaking">Jawab de raha hoon…</string>
-    <string name="assistant_status_tap">Bolne ke liye mic dabayen</string>
 </resources>

@@ -1608,9 +1608,6 @@ public class BillActivity extends BaseActivity {
             // v2.5.0: auto-save this meter (holder name shown in
             // "Mere Meter").
             autoSaveMeter(b);
-            // v3.7.31: record a snapshot for the AI Assistant (v1) —
-            // the Assistant answers only from these saved snapshots.
-            BillSnapshots.record(this, disco.code, mode, ref, b);
         }
 
         // Parse failed but the page is still shown: say so honestly.

@@ -596,52 +596,7 @@ public class HomeActivity extends BaseActivity {
         // v3.6.5: shared bottom nav (no top dash — active = color only).
         root.addView(Ds.bottomNav(this, Ds.TAB_HOME));
 
-        // v3.7.32: floating Assistant bubble (bottom-right, above the
-        // banner + bottom nav) — tap opens the Assistant and it starts
-        // listening right away. v3.7.35: the Quick Tools Assistant
-        // card is gone (user), so the bubble is now the only way in.
-        FrameLayout frame = new FrameLayout(this);
-        frame.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        frame.addView(root);
-        frame.addView(assistantBubble());
-        setContentView(frame);
-    }
-
-    // ---- v3.7.32: floating AI Assistant bubble ----
-
-    private View assistantBubble() {
-        ImageButton bubble = new ImageButton(this);
-        bubble.setImageResource(R.drawable.ic_mic);
-        bubble.setColorFilter(Color.WHITE);
-        bubble.setContentDescription(
-                getString(R.string.assistant_bubble_desc));
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.OVAL);
-        bg.setColor(Ds.ndTealAccent());
-        bubble.setBackground(bg);
-        bubble.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        int pad = Ui.dp(this, 14);
-        bubble.setPadding(pad, pad, pad, pad);
-        int size = Ui.dp(this, 56);
-        FrameLayout.LayoutParams lp =
-                new FrameLayout.LayoutParams(size, size);
-        lp.gravity = Gravity.BOTTOM | Gravity.END;
-        lp.rightMargin = Ui.dp(this, 16);
-        // Above bottom nav (~64dp) + banner (~50dp) + 16dp gap.
-        lp.bottomMargin = Ui.dp(this, 132);
-        bubble.setLayoutParams(lp);
-        bubble.setElevation(Ui.dp(this, 6));
-        bubble.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                Intent i = new Intent(HomeActivity.this,
-                        AssistantActivity.class);
-                i.putExtra(AssistantActivity.EXTRA_AUTO_LISTEN, true);
-                startActivity(i);
-            }
-        });
-        return bubble;
+        setContentView(root);
     }
 
     // ---- top bar: logo + name + language toggle ----
@@ -1185,13 +1140,12 @@ public class HomeActivity extends BaseActivity {
         sec.addView(row);
 
         // v3.7.36: Rate Us card restored (user correction 2026-11-21:
-        // v3.7.35 removed the whole second row by mistake — the user
-        // only asked to remove the AI Assistant card). The Rate Us
-        // card is back as a full-width second row, exactly as in
+        // v3.7.35 removed the whole second row by mistake). The Rate
+        // Us card is back as a full-width second row, exactly as in
         // v3.7.34 (star icon, Play Store listing via market:// with
-        // web fallback). The AI Assistant card stays OUT of Quick
-        // Tools — the floating bubble is the only way into the
-        // Assistant.
+        // web fallback).
+        // v3.7.37: the voice feature is gone entirely (user order
+        // 2026-11-21) — no card, no bubble, no voice screen.
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setLayoutParams(new LinearLayout.LayoutParams(

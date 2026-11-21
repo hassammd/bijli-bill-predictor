@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hatch.bijlibill"
-    android:versionCode="168"
-    android:versionName="3.7.36">
+    android:versionCode="169"
+    android:versionName="3.7.37">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
 
@@ -13,9 +13,6 @@
     <!-- v2.1.0: Meter Check video capture (runtime request in
          MeterCheckActivity; the system camera app does the capture) -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- v3.7.31: AI Assistant voice input (runtime request in
-         AssistantActivity; SpeechRecognizer only) -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- v2.3.0: due-date reminder notification (runtime request on
          Android 13+, once, with a plain-words rationale) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -108,14 +105,6 @@
         <!-- v3.2.0: What-if Compare screen -->
         <activity
             android:name=".WhatIfActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-
-        <!-- v3.7.31: AI Assistant (v1, SIMPLE) — chat screen answering
-             only from the locally saved bill snapshots -->
-        <activity
-            android:name=".AssistantActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|keyboardHidden" />

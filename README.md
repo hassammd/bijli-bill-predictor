@@ -2,7 +2,7 @@
 
 **Know your bijli bill before it arrives.**
 
-Bijli Bill Predictor is Pakistan's most complete electricity bill assistant —
+Bijli Bill Predictor is Pakistan's most complete electricity bill companion —
 built around the 200-unit Protected threshold that decides whether your bill
 stays low or jumps.
 
