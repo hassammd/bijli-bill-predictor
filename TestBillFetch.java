@@ -2169,9 +2169,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"163\""), true);
+                man.contains("android:versionCode=\"164\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.31\""), true);
+                man.contains("android:versionName=\"3.7.32\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3874,9 +3874,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"163\""), true);
+                man.contains("android:versionCode=\"164\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.31\""), true);
+                man.contains("android:versionName=\"3.7.32\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4247,10 +4247,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"163\""),
+                manifest.contains("android:versionCode=\"164\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.31\""),
+                manifest.contains("android:versionName=\"3.7.32\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4409,10 +4409,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"163\""),
+                manifest.contains("android:versionCode=\"164\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.31\""),
+                manifest.contains("android:versionName=\"3.7.32\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4832,8 +4832,8 @@ public class TestBillFetch {
                 man.contains(".AssistantActivity"), true);
         check("v3731 manifest mic permission",
                 man.contains("android.permission.RECORD_AUDIO"), true);
-        check("v3731 manifest version 163",
-                man.contains("android:versionCode=\"163\""), true);
+        check("v3732 manifest version 164",
+                man.contains("android:versionCode=\"164\""), true);
 
         // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -4850,6 +4850,34 @@ public class TestBillFetch {
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v3731 captcha grey drawable",
                 grey.contains("BDBDBD"), true);
+
+        // ---- 16. v3.7.32: floating Assistant bubble + auto-listen;
+        //      a missed hearing stays in-chat (no Toast anywhere) ----
+        String[] bubbleKeys = {"assistant_hear_retry",
+                "assistant_hear_type", "assistant_voice_greeting",
+                "assistant_bubble_desc"};
+        for (String k : bubbleKeys) {
+            check("v3732 key en " + k, en.containsKey(k), true);
+            check("v3732 key ur " + k, ur.containsKey(k), true);
+            check("v3732 fmt " + k, fmtArgs(en.get(k)),
+                    fmtArgs(ur.get(k)));
+        }
+        check("v3732 home bubble",
+                home.contains("assistantBubble()"), true);
+        check("v3732 home bubble launches auto-listen",
+                home.contains("EXTRA_AUTO_LISTEN"), true);
+        String asst = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(
+                        "java/com/hatch/bijlibill/AssistantActivity.java")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3732 assistant auto-listen extra",
+                asst.contains("EXTRA_AUTO_LISTEN"), true);
+        check("v3732 assistant greeting spoken",
+                asst.contains("assistant_greeting"), true);
+        check("v3732 assistant retry once",
+                asst.contains("onNotUnderstood"), true);
+        check("v3732 assistant no toast",
+                !asst.contains("Toast.makeText"), true);
     }
 
     static void addPoint(

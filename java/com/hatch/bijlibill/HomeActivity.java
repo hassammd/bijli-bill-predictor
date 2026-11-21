@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
@@ -16,6 +17,7 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -593,7 +595,52 @@ public class HomeActivity extends BaseActivity {
         // v3.6.5: shared bottom nav (no top dash — active = color only).
         root.addView(Ds.bottomNav(this, Ds.TAB_HOME));
 
-        setContentView(root);
+        // v3.7.32: floating Assistant bubble (bottom-right, above the
+        // banner + bottom nav) — tap opens the Assistant and it starts
+        // listening right away. The Quick Tools card stays as the
+        // other way in; the bubble is only an extra shortcut.
+        FrameLayout frame = new FrameLayout(this);
+        frame.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        frame.addView(root);
+        frame.addView(assistantBubble());
+        setContentView(frame);
+    }
+
+    // ---- v3.7.32: floating AI Assistant bubble ----
+
+    private View assistantBubble() {
+        ImageButton bubble = new ImageButton(this);
+        bubble.setImageResource(R.drawable.ic_mic);
+        bubble.setColorFilter(Color.WHITE);
+        bubble.setContentDescription(
+                getString(R.string.assistant_bubble_desc));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(Ds.ndTealAccent());
+        bubble.setBackground(bg);
+        bubble.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        int pad = Ui.dp(this, 14);
+        bubble.setPadding(pad, pad, pad, pad);
+        int size = Ui.dp(this, 56);
+        FrameLayout.LayoutParams lp =
+                new FrameLayout.LayoutParams(size, size);
+        lp.gravity = Gravity.BOTTOM | Gravity.END;
+        lp.rightMargin = Ui.dp(this, 16);
+        // Above bottom nav (~64dp) + banner (~50dp) + 16dp gap.
+        lp.bottomMargin = Ui.dp(this, 132);
+        bubble.setLayoutParams(lp);
+        bubble.setElevation(Ui.dp(this, 6));
+        bubble.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Intent i = new Intent(HomeActivity.this,
+                        AssistantActivity.class);
+                i.putExtra(AssistantActivity.EXTRA_AUTO_LISTEN, true);
+                startActivity(i);
+            }
+        });
+        return bubble;
     }
 
     // ---- top bar: logo + name + language toggle ----

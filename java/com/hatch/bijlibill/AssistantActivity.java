@@ -10,6 +10,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +23,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * v3.7.31 — AI Assistant (v1, SIMPLE). A chat-style screen that
+ * v3.7.32 — AI Assistant (v1, SIMPLE). A chat-style screen that
  * answers the user's questions using ONLY the locally saved bill
  * snapshots — no internet, no API key, no server, no cost.
  *
@@ -38,13 +38,25 @@ import java.util.Locale;
  * TTS data is missing). Typed questions work the same. Answers are
  * decided by {@link AssistantBrain} in simple Roman Urdu.
  *
+ * v3.7.32: floating-bubble entry (Home) opens the Assistant with
+ * EXTRA_AUTO_LISTEN — it greets by voice and starts listening at
+ * once, no extra tap. When speech is not understood, the Assistant
+ * says so INSIDE the chat and listens again (once); a second miss
+ * points at the text field. No Toast / system notification is ever
+ * shown for a missed hearing.
+ *
  * Out of scope for v1 (later, gradually): photo/OCR, daily summary
  * notifications, challenges, comparisons, storytelling, anything
  * needing the internet — and NEVER any CAPTCHA auto-solve.
  */
 public class AssistantActivity extends BaseActivity {
 
+    /** Open with auto-listen: greet by voice, then start listening. */
+    public static final String EXTRA_AUTO_LISTEN = "auto_listen";
+
     private static final int REQ_MIC = 101;
+    /** One free retry after a missed hearing; then point at typing. */
+    private static final int MAX_LISTEN_RETRIES = 1;
 
     private LinearLayout messages;
     private ScrollView scrollView;
@@ -57,6 +69,11 @@ public class AssistantActivity extends BaseActivity {
     private TextToSpeech tts;
     private boolean ttsReady = false;
     private SpeechRecognizer recognizer;
+
+    // v3.7.32: bubble entry — auto greeting + auto listen.
+    private boolean autoStart = false;
+    private boolean pendingAutoListen = false;
+    private int listenFailures = 0;
 
     private List<BillSnapshots.Snapshot> snaps =
             new ArrayList<BillSnapshots.Snapshot>();
@@ -217,6 +234,13 @@ public class AssistantActivity extends BaseActivity {
 
         initTts();
         addBubble(AssistantBrain.greeting(snaps, meterLabel), false);
+
+        // v3.7.32: bubble entry — greet by voice, then listen at once.
+        autoStart = getIntent().getBooleanExtra(EXTRA_AUTO_LISTEN, false);
+        if (autoStart) {
+            pendingAutoListen = true;
+            tryAutoStart();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -297,7 +321,15 @@ public class AssistantActivity extends BaseActivity {
                     new TextToSpeech.OnInitListener() {
                         @Override public void onInit(int status) {
                             if (status != TextToSpeech.SUCCESS
-                                    || tts == null) return;
+                                    || tts == null) {
+                                // No voice out — still listen if the
+                                // bubble asked for it.
+                                if (pendingAutoListen) {
+                                    pendingAutoListen = false;
+                                    startListening();
+                                }
+                                return;
+                            }
                             int r = tts.setLanguage(
                                     new Locale("ur", "PK"));
                             if (r == TextToSpeech.LANG_MISSING_DATA
@@ -307,10 +339,68 @@ public class AssistantActivity extends BaseActivity {
                                 tts.setLanguage(Locale.getDefault());
                             }
                             ttsReady = true;
+                            tryAutoStart();
+                        }
+                    });
+            // v3.7.32: when the spoken greeting ends (or fails), start
+            // listening — the user never taps the mic after the bubble.
+            tts.setOnUtteranceProgressListener(
+                    new UtteranceProgressListener() {
+                        @Override public void onStart(String id) {}
+                        @Override public void onDone(String id) {
+                            if ("assistant_greeting".equals(id)) {
+                                listenAfterGreeting();
+                            }
+                        }
+                        @Override public void onError(String id) {
+                            if ("assistant_greeting".equals(id)) {
+                                listenAfterGreeting();
+                            }
                         }
                     });
         } catch (Exception ignored) {
             tts = null;
+            if (pendingAutoListen) {
+                pendingAutoListen = false;
+                startListening();
+            }
+        }
+    }
+
+    private void listenAfterGreeting() {
+        runOnUiThread(new Runnable() {
+            @Override public void run() {
+                if (!isFinishing() && !listening) startListening();
+            }
+        });
+    }
+
+    /** v3.7.32: bubble entry — speak the short greeting, then listen. */
+    private void tryAutoStart() {
+        if (!pendingAutoListen || isFinishing()) return;
+        if (!voiceOn) {
+            // Voice replies off: skip the greeting, just listen.
+            pendingAutoListen = false;
+            startListening();
+            return;
+        }
+        if (ttsReady && tts != null) {
+            pendingAutoListen = false;
+            speakGreeting();
+        }
+        // Else TTS is still initialising — onInit calls tryAutoStart().
+    }
+
+    private void speakGreeting() {
+        if (!voiceOn || !ttsReady || tts == null) {
+            startListening();
+            return;
+        }
+        try {
+            tts.speak(getString(R.string.assistant_voice_greeting),
+                    TextToSpeech.QUEUE_FLUSH, null, "assistant_greeting");
+        } catch (Exception ignored) {
+            startListening();
         }
     }
 
@@ -334,9 +424,8 @@ public class AssistantActivity extends BaseActivity {
             return;
         }
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
-            Toast.makeText(this, getString(
-                    R.string.assistant_mic_unavailable),
-                    Toast.LENGTH_SHORT).show();
+            // v3.7.32: in-chat, never a Toast / notification.
+            addBubble(getString(R.string.assistant_mic_unavailable), false);
             return;
         }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
@@ -345,6 +434,7 @@ public class AssistantActivity extends BaseActivity {
                     new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC);
             return;
         }
+        listenFailures = 0;
         startListening();
     }
 
@@ -356,11 +446,11 @@ public class AssistantActivity extends BaseActivity {
         if (requestCode == REQ_MIC) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                listenFailures = 0;
                 startListening();
             } else {
-                Toast.makeText(this, getString(
-                        R.string.assistant_mic_denied),
-                        Toast.LENGTH_SHORT).show();
+                // v3.7.32: in-chat, never a Toast / notification.
+                addBubble(getString(R.string.assistant_mic_denied), false);
             }
         }
     }
@@ -384,8 +474,8 @@ public class AssistantActivity extends BaseActivity {
         } catch (Exception e) {
             listening = false;
             input.setHint(getString(R.string.assistant_input_hint));
-            Toast.makeText(this, getString(R.string.assistant_mic_failed),
-                    Toast.LENGTH_SHORT).show();
+            // v3.7.32: in-chat, never a Toast / notification.
+            addBubble(getString(R.string.assistant_mic_failed), false);
         }
     }
 
@@ -412,11 +502,16 @@ public class AssistantActivity extends BaseActivity {
         @Override public void onError(int error) {
             listening = false;
             input.setHint(getString(R.string.assistant_input_hint));
-            if (error != SpeechRecognizer.ERROR_NO_MATCH
-                    && error != SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                Toast.makeText(AssistantActivity.this, getString(
-                        R.string.assistant_mic_failed),
-                        Toast.LENGTH_SHORT).show();
+            if (error == SpeechRecognizer.ERROR_NO_MATCH
+                    || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                // v3.7.32: not understood — say so in-chat and listen
+                // again once; never a Toast / notification.
+                onNotUnderstood();
+            } else if (error
+                    == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+                addBubble(getString(R.string.assistant_mic_denied), false);
+            } else {
+                addBubble(getString(R.string.assistant_mic_failed), false);
             }
         }
 
@@ -426,8 +521,24 @@ public class AssistantActivity extends BaseActivity {
             ArrayList<String> heard = results.getStringArrayList(
                     SpeechRecognizer.RESULTS_RECOGNITION);
             if (heard != null && !heard.isEmpty()
-                    && heard.get(0) != null) {
+                    && heard.get(0) != null
+                    && !heard.get(0).trim().isEmpty()) {
+                listenFailures = 0;
                 sendQuestion(heard.get(0));
+            } else {
+                onNotUnderstood();
+            }
+        }
+
+        /** v3.7.32: missed hearing — retry once, then point at typing. */
+        private void onNotUnderstood() {
+            listenFailures++;
+            if (listenFailures <= MAX_LISTEN_RETRIES) {
+                addBubble(getString(R.string.assistant_hear_retry), false);
+                startListening();
+            } else {
+                listenFailures = 0;
+                addBubble(getString(R.string.assistant_hear_type), false);
             }
         }
     }

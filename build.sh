@@ -1,4 +1,16 @@
 #!/bin/bash
+# Bijli Bill v3.7.32 (164) — Assistant bubble entry (user QA 2026-11-21):
+#   - Home gets a floating round teal bubble (bottom-right, above banner
+#     + bottom nav). Tap opens the Assistant with EXTRA_AUTO_LISTEN: it
+#     greets by voice and starts listening at once — no extra mic tap.
+#   - "Samajh nahi aaya" Toast/notification REMOVED: a missed hearing
+#     now shows an in-chat message and listens again once; a second
+#     miss points at the text field. No Toast is shown anywhere in the
+#     Assistant any more (mic unavailable / denied / failed are also
+#     in-chat bubbles). Quick Tools card stays as the other way in.
+#   - Nothing else changes: still free, on-device, Roman Urdu, answers
+#     only from saved bills. Live test is the user's phone (PITC is
+#     geo-blocked from this VM); build + unit tests verify here.
 # Bijli Bill v3.7.30 (162) — in-app PITC image CAPTCHA (Tareeqa 1):
 #   - LescoBillFetcher stops at the form GET when the page carries a
 #     CAPTCHA, throws CaptchaRequiredException with the live session

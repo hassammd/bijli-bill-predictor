@@ -377,4 +377,8 @@
     <string name="assistant_mic_unavailable">Voice input is not available on this phone</string>
     <string name="assistant_mic_failed">Could not hear you — please try again or type your question</string>
     <string name="assistant_listening">Listening…</string>
+    <string name="assistant_hear_retry">Sun nahi paya, ek baar phir boliye…</string>
+    <string name="assistant_hear_type">Phir bhi sun nahi paya — neeche likh kar bhej dein, main jawab dunga.</string>
+    <string name="assistant_voice_greeting">Assalamualaikum! Main aapka Bijli Bill Assistant hun. Apna sawal boliye.</string>
+    <string name="assistant_bubble_desc">AI Assistant — bol kar poochein</string>
 </resources>
