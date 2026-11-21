@@ -1331,145 +1331,6 @@ public class BillActivity extends BaseActivity {
         */
     }
 
-    /**
-     * v3.3.0: "Andaza vs Asal Bill" accuracy tracker. Consumes the
-     * meter's pending estimate (saved by MeterCheckActivity's result
-     * screen), compares it against this freshly fetched bill, shows
-     * a comparison card, and files the result into the per-meter
-     * history (last 6). No pending estimate -> no card, nothing
-     * recorded. A tracking failure must never break the bill screen.
-     */
-    private void addAccuracyCard(LinearLayout inner, BillInfo b,
-            List<BillSummary.Field> fs) {
-        try {
-            String meterKey = disco.code + ":" + mode + ":" + ref;
-            AccuracyTracker.Pending pend =
-                    AccuracyTracker.takePending(this, meterKey);
-            if (pend == null) return; // never estimated -> no card
-            double billTotal = MeterCheckCalc.parseAmount(
-                    BillSummary.value(fs, "payable"));
-            int billUnits = b.unitsAsInt();
-            if (!(billTotal > 0) || billUnits <= 0) return;
-            AccuracyTracker.Comparison c =
-                    new AccuracyTracker.Comparison();
-            c.billMonth = b.billMonth == null ? ""
-                    : b.billMonth.trim();
-            c.estUnits = pend.estUnits;
-            c.estTotal = pend.estTotal;
-            c.billUnits = billUnits;
-            c.billTotal = billTotal;
-            c.pct = AccuracyTracker.pct(pend.estTotal, billTotal);
-            AccuracyTracker.addComparison(this, meterKey, c);
-            View card = accuracyCardView(c, meterKey);
-            if (card != null) inner.addView(card);
-        } catch (Exception ignored) {
-        }
-    }
-
-    /** The comparison card + history list. Null-safe; null on failure. */
-    private View accuracyCardView(AccuracyTracker.Comparison c,
-            String meterKey) {
-        try {
-            LinearLayout card = new LinearLayout(this);
-            card.setOrientation(LinearLayout.VERTICAL);
-            card.setBackgroundResource(R.drawable.ds_alert_blue);
-            card.setPadding(dp(15), dp(15), dp(15), dp(15));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(dp(16), dp(8), dp(16), 0);
-            card.setLayoutParams(lp);
-
-            LinearLayout titleRow = new LinearLayout(this);
-            titleRow.setOrientation(LinearLayout.HORIZONTAL);
-            titleRow.setGravity(Gravity.CENTER_VERTICAL);
-            ImageView ic = new ImageView(this);
-            ic.setImageResource(R.drawable.ic_check);
-            int s = dp(20);
-            LinearLayout.LayoutParams ilp =
-                    new LinearLayout.LayoutParams(s, s);
-            ilp.rightMargin = dp(10);
-            ic.setLayoutParams(ilp);
-            titleRow.addView(ic);
-            TextView title = new TextView(this);
-            title.setText(getString(R.string.acc_title));
-            title.setTextSize(14);
-            title.setTextColor(Ds.ink());
-            Ds.heading(this, title);
-            titleRow.addView(title);
-            card.addView(titleRow);
-            card.addView(Ui.spacer(this, 8));
-
-            card.addView(accLine(getString(R.string.acc_est_line,
-                    fmtUnitsShort(c.estUnits),
-                    Tariff.money(c.estTotal))));
-            card.addView(accLine(getString(R.string.acc_bill_line,
-                    String.valueOf(c.billUnits),
-                    Tariff.money(c.billTotal))));
-
-            TextView pctV = new TextView(this);
-            pctV.setText(getString(R.string.acc_pct_line,
-                    fmtPct(c.pct)));
-            pctV.setTextSize(20);
-            pctV.setTextColor(Ds.deepGreen());
-            Ds.heading(this, pctV);
-            pctV.setGravity(Gravity.CENTER);
-            card.addView(Ui.spacer(this, 4));
-            card.addView(pctV);
-
-            int dUnits = c.billUnits - (int) Math.round(c.estUnits);
-            card.addView(accLine(getString(R.string.acc_units_delta,
-                    (dUnits >= 0 ? "+" : "") + dUnits)));
-
-            List<AccuracyTracker.Comparison> hist =
-                    AccuracyTracker.history(this, meterKey);
-            // The just-added comparison is last; show earlier ones.
-            if (hist.size() > 1) {
-                card.addView(Ui.spacer(this, 8));
-                TextView ht = new TextView(this);
-                ht.setText(getString(R.string.acc_history_title));
-                ht.setTextSize(12);
-                ht.setTextColor(Ds.muted());
-                Ds.heading(this, ht);
-                card.addView(ht);
-                for (int i = 0; i < hist.size() - 1; i++) {
-                    AccuracyTracker.Comparison h = hist.get(i);
-                    String month = h.billMonth == null
-                            || h.billMonth.isEmpty() ? "—"
-                            : h.billMonth;
-                    card.addView(accLine(getString(
-                            R.string.acc_hist_row, month,
-                            fmtPct(h.pct))));
-                }
-            }
-            return card;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /** Small body line inside the accuracy card. */
-    private TextView accLine(String text) {
-        TextView t = new TextView(this);
-        t.setText(text);
-        t.setTextSize(13);
-        t.setTextColor(Ds.ink());
-        Ds.body(this, t, 500);
-        t.setPadding(0, dp(2), 0, dp(2));
-        return t;
-    }
-
-    /** "113" for 113.0, "113.5" otherwise. */
-    private static String fmtUnitsShort(double u) {
-        long r = Math.round(u);
-        if (Math.abs(u - r) < 0.005) return String.valueOf(r);
-        return String.format(java.util.Locale.US, "%.1f", u);
-    }
-
-    /** "99.9%" — 1 decimal, percent sign baked in. */
-    private static String fmtPct(double p) {
-        return String.format(java.util.Locale.US, "%.1f%%", p);
-    }
 
     /** Arms the AlarmManager alarm and persists it (re-fetch = reschedule). */
     private void doScheduleReminder(String dueText, long remMs) {
@@ -1587,10 +1448,9 @@ public class BillActivity extends BaseActivity {
             // v3.6.55: "View Full Bill" button BELOW pay card (v3.6.53 layout).
             View vfb = viewBillBtn(p.html);
             if (vfb != null) inner.addView(vfb);
-            // v3.3.0: "Andaza vs Asal Bill" — compare the meter's
-            // pending estimate against this fresh bill (no card when
-            // the user never ran an estimate).
-            addAccuracyCard(inner, b, fs);
+            // v3.7.48: "Estimate vs Actual Bill" card REMOVED
+            // (user order 2026-11-22 — the card is not wanted on
+            // the bill detail screen under any condition).
             View detail = detailCard(b, fs);
             if (detail != null) inner.addView(detail);
 

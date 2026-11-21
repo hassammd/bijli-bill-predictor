@@ -1,4 +1,17 @@
 #!/bin/bash
+# Bijli Bill v3.7.48 (180) — user order, 2026-11-22, ONE build:
+#   - "ESTIMATE VS ACTUAL BILL" CARD REMOVED from the bill detail
+#     screen (user: "ye box Q show ho raha hai, isko remove kro,
+#     ye ni chye"). The v3.3.0 card compared the meter's pending
+#     Unit Check estimate against the fresh bill (e.g. estimate
+#     5 units / Rs 257.11 vs actual 130 units / Rs 6,953 ->
+#     Accuracy 3.7%, +125 units) — it showed whenever a pending
+#     estimate existed for that meter. Now the wiring is gone:
+#     addAccuracyCard + accuracyCardView + accLine + fmt helpers
+#     removed from BillActivity; the card can never render, in
+#     any case. AccuracyTracker itself is untouched (Unit Check
+#     still saves pending estimates; they simply are never
+#     consumed into a card anymore) — no risky cleanup.
 # Bijli Bill v3.7.47 (179) — user order, 2026-11-22, ONE build:
 #   - UNIT CHECK LAST-BILL FIX: "Bill reading: 820" was stuck —
 #     the last-bill pointer (metercheck_last_*) was written ONLY
@@ -385,16 +398,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.47.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.47.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.48.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.48.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.47.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.47.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.48.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.48.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.47.apk" "$OUTDIR/bijli-bill-publish-3.7.47.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.48.apk" "$OUTDIR/bijli-bill-publish-3.7.48.aab"
 echo BUILD_OK

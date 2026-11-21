@@ -1090,6 +1090,11 @@ public class TestBillFetch {
         //      includes LPS/arrears ----
         runV3747Tests();
 
+        // ---- v3.7.48: "Estimate vs Actual Bill" card REMOVED
+        //      from the bill detail screen (user order) — the
+        //      card must never render, in any case ----
+        runV3748Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2255,9 +2260,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3970,9 +3975,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4122,12 +4127,19 @@ public class TestBillFetch {
                 "java/com/hatch/bijlibill/MeterCheckActivity.java");
         check("v330 meter saves pending",
                 msrc.contains("AccuracyTracker.savePending"), true);
-        check("v330 bill takes pending",
-                bsrc.contains("AccuracyTracker.takePending"), true);
-        check("v330 bill adds comparison",
-                bsrc.contains("AccuracyTracker.addComparison"), true);
-        check("v330 bill accuracy card",
-                bsrc.contains("addAccuracyCard("), true);
+        // v3.7.48: the bill-detail card is REMOVED (user order) —
+        // BillActivity must no longer take the pending estimate,
+        // file a comparison, or wire the card, in ANY case. The
+        // tracker itself (AccuracyTracker) is untouched; only the
+        // bill-detail UI is gone.
+        check("v3748 bill no takePending",
+                !bsrc.contains("AccuracyTracker.takePending"), true);
+        check("v3748 bill no addComparison",
+                !bsrc.contains("AccuracyTracker.addComparison"), true);
+        check("v3748 bill no accuracy card",
+                !bsrc.contains("addAccuracyCard("), true);
+        check("v3748 bill no acc strings",
+                !bsrc.contains("R.string.acc_"), true);
 
         // ============ F. NEW STRINGS ============
         String[] accKeys = {"acc_title", "acc_est_line",
@@ -4343,10 +4355,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"179\""),
+                manifest.contains("android:versionCode=\"180\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.47\""),
+                manifest.contains("android:versionName=\"3.7.48\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4505,10 +4517,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"179\""),
+                manifest.contains("android:versionCode=\"180\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.47\""),
+                manifest.contains("android:versionName=\"3.7.48\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4897,9 +4909,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5094,9 +5106,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5162,9 +5174,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5578,9 +5590,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5639,9 +5651,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5746,9 +5758,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5924,9 +5936,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6044,9 +6056,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6168,9 +6180,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6273,9 +6285,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"179\""), true);
+                man.contains("android:versionCode=\"180\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.47\""), true);
+                man.contains("android:versionName=\"3.7.48\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6414,6 +6426,68 @@ public class TestBillFetch {
         double energyP = Tariff.energyCharges(80.0, Tariff.PROTECTED);
         checkClose("v3747 protected unpaid excludes arrears",
                 rp.estimatedTotal, energyP * 1.35, 1e-6);
+    }
+
+    static void runV3748Tests() throws Exception {
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Version 180 / 3.7.48 in the manifest ----
+        check("v3748 manifest version 180",
+                man.contains("android:versionCode=\"180\""), true);
+        check("v3748 manifest name 3.7.48",
+                man.contains("android:versionName=\"3.7.48\""), true);
+
+        // ---- 2. The "Estimate vs Actual Bill" card is GONE from
+        //      BillActivity — view, wiring and helpers, all of it.
+        //      (User 2026-11-22: "ye box Q show ho raha hai, isko
+        //      remove kro, ye ni chye".) ----
+        check("v3748 no addAccuracyCard",
+                !bill.contains("addAccuracyCard"), true);
+        check("v3748 no accuracyCardView",
+                !bill.contains("accuracyCardView"), true);
+        check("v3748 no accLine",
+                !bill.contains("accLine("), true);
+        check("v3748 no AccuracyTracker in BillActivity",
+                !bill.contains("AccuracyTracker"), true);
+        check("v3748 no acc strings in BillActivity",
+                !bill.contains("R.string.acc_"), true);
+        check("v3748 no fmtUnitsShort",
+                !bill.contains("fmtUnitsShort"), true);
+
+        // ---- 3. REGRESSION (the user's screenshot case): a
+        //      pending estimate EXISTS for the meter (Unit Check
+        //      ran: 5 units / Rs 257.11) and the fresh bill is
+        //      130 units / Rs 6,953 — the old card would have
+        //      shown "Accuracy: 3.7%, Units difference: +125".
+        //      showBillPage must still add exactly the four real
+        //      cards (holder, pay, view-full-bill, detail) and
+        //      nothing else — no accuracy wiring anywhere in it.
+        int sb0 = bill.indexOf("private void showBillPage(BillPage p)");
+        int sb1 = bill.indexOf(
+                "// Parse failed but the page is still shown");
+        String show = (sb0 >= 0 && sb1 > sb0)
+                ? bill.substring(sb0, sb1) : "";
+        check("v3748 showBillPage found", !show.isEmpty(), true);
+        check("v3748 showBillPage no accuracy",
+                !show.contains("Accuracy"), true);
+        check("v3748 showBillPage four cards only",
+                countOcc(show, "inner.addView(") == 4, true);
+        // The tracker itself still works (Unit Check still saves
+        // pending estimates); only the bill-detail card is gone.
+        AccuracyTracker.MemStore st = new AccuracyTracker.MemStore();
+        AccuracyTracker.savePending(st, "lesco:ref:02118240618604",
+                5.0, 257.11);
+        AccuracyTracker.Pending p =
+                AccuracyTracker.takePending(st,
+                        "lesco:ref:02118240618604");
+        check("v3748 pending still saved/consumed by tracker",
+                p != null && p.estUnits == 5.0
+                        && Math.abs(p.estTotal - 257.11) < 1e-9, true);
+        check("v3748 pending consumed once",
+                AccuracyTracker.takePending(st,
+                        "lesco:ref:02118240618604") == null, true);
     }
 
     static void addPoint(
