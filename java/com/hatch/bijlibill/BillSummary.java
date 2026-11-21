@@ -58,6 +58,30 @@ public final class BillSummary {
         return out;
     }
 
+    /**
+     * v3.7.49: bill-category chip key. The bill prints its category
+     * as "TARIFF CAT" (MDI bill: "Commercial") or "Category"
+     * (domestic fixture: "RESIDENTIAL"). Normalized: "COMMERCIAL" /
+     * "DOMESTIC"; any other printed category is returned as-is,
+     * uppercased (e.g. "INDUSTRIAL"); null when the bill carries no
+     * category — the chip is then hidden, never invented. Pure Java
+     * so TestBillFetch can assert it (BillActivity is not in the
+     * headless test compile).
+     */
+    public static String categoryChipKey(BillInfo b) {
+        if (b == null) return null;
+        String raw = b.tariffCategory != null ? b.tariffCategory : b.category;
+        if (raw == null) return null;
+        String t = raw.trim();
+        if (t.isEmpty()) return null;
+        String low = t.toLowerCase();
+        if (low.contains("commercial")) return "COMMERCIAL";
+        if (low.contains("domestic") || low.contains("residential")) {
+            return "DOMESTIC";
+        }
+        return t.toUpperCase();
+    }
+
     /** Value of a single key, or null when absent. */
     public static String value(List<Field> fields, String key) {
         if (fields == null) return null;

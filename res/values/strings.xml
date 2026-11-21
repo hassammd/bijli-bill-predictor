@@ -255,6 +255,10 @@
          figure (never the current bill's paid state) -->
     <string name="arrears_chip_has">PREVIOUS ARREARS: Rs %1$s</string>
     <string name="arrears_chip_none">NO ARREARS</string>
+    <!-- v3.7.49: bill-category chip beside the dues chip (user order
+         2026-11-22: "Arrears KO remove na krna or category show krwao") -->
+    <string name="category_chip_commercial">COMMERCIAL</string>
+    <string name="category_chip_domestic">DOMESTIC</string>
     <string name="andaza_how_title">How was this estimate made?</string>
     <string name="andaza_row_energy">Electricity: %1$s units × slab rate = %2$s (at your slab\'s rate)</string>
     <string name="andaza_row_taxes">Taxes: %1$s (~%2$s%% in the previous bill — estimate)</string>

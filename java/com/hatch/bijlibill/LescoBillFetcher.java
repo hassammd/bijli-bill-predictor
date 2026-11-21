@@ -1606,6 +1606,10 @@ public final class LescoBillFetcher {
             }
         }
 
+        // v3.7.49: commercial (MDI) meter table (see
+        // parseMeterInfoTable) — readings + units for MDI bills.
+        parseMeterInfoTable(b, html);
+
         // 4. Fallback: first element whose id/class contains "amount".
         if (b.amount == null) {
             String disp = displayAmountFallback(html);
@@ -1965,6 +1969,10 @@ public final class LescoBillFetcher {
             }
         }
 
+        // v3.7.49: commercial (MDI) meter table (see
+        // parseMeterInfoTable) — readings + units for MDI bills.
+        parseMeterInfoTable(b, html);
+
         // Phase 2: same-line "label: value" text outside tables.
         mapLineLabels(b, html);
 
@@ -2139,6 +2147,10 @@ public final class LescoBillFetcher {
         parseNewSlip(b, nc);
         parseNewLpSurcharge(b, nc);
         parseNewCharges(b, nc);
+        // v3.7.49: commercial (MDI) meter table — fills readings +
+        // units the label-rows never carry (domestic values win:
+        // parseMeterInfoTable only fills null fields).
+        parseMeterInfoTable(b, nc);
         try {
             parseNewHistory(b, nc);
         } catch (RuntimeException e) {
@@ -2440,7 +2452,12 @@ public final class LescoBillFetcher {
             if (b.feeder == null) b.feeder = value;
         } else if (label.contains("sub division") || label.contains("subdivision")) {
             if (b.subDivision == null) b.subDivision = value;
-        } else if (label.contains("tariff category")) {
+        } else if (label.contains("tariff cat")) {
+            // v3.7.49: "tariff cat" covers BOTH spellings — "TARIFF
+            // CAT" on the commercial (MDI) bill and "TARIFF CATEGORY"
+            // ("tariff category" contains "tariff cat"). Must stay
+            // BEFORE the plain "tariff" branch below, or the
+            // category value ("Commercial") would land in b.tariff.
             if (b.tariffCategory == null) b.tariffCategory = value;
         } else if (label.contains("tariff")) {
             if (b.tariff == null) b.tariff = value;
@@ -2650,6 +2667,129 @@ public final class LescoBillFetcher {
      * never overwrites a value an earlier harvester already set.
      * Never throws.
      */
+
+    /**
+     * v3.7.49: commercial (MDI) meter table. The MDI bill prints its
+     * readings as a METER INFO table — columns METER | TYPE |
+     * PREVIOUS | PRESENT | MF | UNITS — not the domestic "Previous
+     * Reading" / "Present Reading" / "Units Consumed" label-rows, so
+     * the generic harvesters find nothing and the bill detail shows
+     * no meter reading and no units (live case: Abdul Qadeer Sheikh,
+     * ref 44115130438868, OCT 26). The KWH row carries two registers
+     * (off-peak / peak): PREVIOUS "47403 12213", PRESENT "48288
+     * 12732", UNITS "(O) 885 (P) 519". Readings are kept as printed
+     * ("48288 / 12732"); units is the O+P sum (1404). Fallback: when
+     * the UNITS cell is missing, sum the per-register
+     * (present - previous) differences. Domestic label-row values
+     * always win — this only fills fields still null. Never throws.
+     */
+    static void parseMeterInfoTable(BillInfo b, String html) {
+        if (b == null || html == null) return;
+        try {
+            for (List<String[]> tbl : tables(html)) {
+                if (tbl == null || tbl.size() < 2) continue;
+                int prevIdx = -1, presIdx = -1, unitsIdx = -1, typeIdx = -1;
+                int headerRow = -1;
+                for (int r = 0; r < tbl.size(); r++) {
+                    String[] row = tbl.get(r);
+                    int p = -1, q = -1, u = -1, t = -1;
+                    for (int c = 0; c < row.length; c++) {
+                        String cell = row[c] == null ? ""
+                                : row[c].trim().toLowerCase();
+                        if (cell.contains("previous")) p = c;
+                        else if (cell.contains("present")) q = c;
+                        else if (cell.equals("units")) u = c;
+                        else if (cell.equals("type")) t = c;
+                    }
+                    if (p >= 0 && q >= 0) {
+                        prevIdx = p; presIdx = q;
+                        unitsIdx = u; typeIdx = t;
+                        headerRow = r;
+                        break;
+                    }
+                }
+                if (headerRow < 0) continue;
+                for (int r = headerRow + 1; r < tbl.size(); r++) {
+                    String[] row = tbl.get(r);
+                    boolean isKwh = false;
+                    if (typeIdx >= 0 && typeIdx < row.length
+                            && row[typeIdx] != null
+                            && row[typeIdx].trim().equalsIgnoreCase("KWH")) {
+                        isKwh = true;
+                    } else {
+                        for (String cell : row) {
+                            if (cell != null && cell.trim()
+                                    .equalsIgnoreCase("KWH")) {
+                                isKwh = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!isKwh) continue;
+                    List<Integer> prevNums = numbersIn(
+                            prevIdx >= 0 && prevIdx < row.length
+                                    ? row[prevIdx] : null);
+                    List<Integer> presNums = numbersIn(
+                            presIdx >= 0 && presIdx < row.length
+                                    ? row[presIdx] : null);
+                    if (b.prevReading == null && !prevNums.isEmpty()) {
+                        b.prevReading = joinNums(prevNums);
+                    }
+                    if (b.currReading == null && !presNums.isEmpty()) {
+                        b.currReading = joinNums(presNums);
+                    }
+                    if (b.units == null) {
+                        List<Integer> unitNums = numbersIn(
+                                unitsIdx >= 0 && unitsIdx < row.length
+                                        ? row[unitsIdx] : null);
+                        int total = 0;
+                        for (int n : unitNums) total += n;
+                        if (total > 0) {
+                            b.units = String.valueOf(total);
+                        } else if (prevNums.size() == presNums.size()
+                                && !prevNums.isEmpty()) {
+                            int diff = 0;
+                            for (int i = 0; i < prevNums.size(); i++) {
+                                diff += presNums.get(i) - prevNums.get(i);
+                            }
+                            if (diff > 0) b.units = String.valueOf(diff);
+                        }
+                    }
+                    return; // KWH row found — one meter table is enough.
+                }
+            }
+        } catch (RuntimeException e) {
+            // Best-effort: a broken meter table must never block the bill.
+        }
+    }
+
+    /** All integer runs in s (commas stripped), or an empty list. */
+    private static List<Integer> numbersIn(String s) {
+        List<Integer> out = new ArrayList<Integer>();
+        if (s == null) return out;
+        Matcher m = Pattern.compile("[\\d,]+").matcher(s);
+        while (m.find()) {
+            String num = m.group().replace(",", "");
+            if (num.isEmpty()) continue;
+            try {
+                out.add(Integer.parseInt(num));
+            } catch (NumberFormatException e) {
+                // Skip a run too big for an int — never fail the bill.
+            }
+        }
+        return out;
+    }
+
+    /** Numbers joined as printed, e.g. "48288 / 12732". */
+    private static String joinNums(List<Integer> nums) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < nums.size(); i++) {
+            if (i > 0) sb.append(" / ");
+            sb.append(nums.get(i));
+        }
+        return sb.toString();
+    }
+
     static void parsePaidBox(BillInfo b, String html) {
         if (b == null || html == null) return;
         try {
@@ -2837,6 +2977,10 @@ public final class LescoBillFetcher {
             if (b.meterNo == null) b.meterNo = value;
         } else if (label.contains("category") || label.contains("connection type")) {
             if (b.category == null) b.category = value;
+        } else if (label.contains("tariff cat")) {
+            // v3.7.49: same as applyFullLabel — "TARIFF CAT" on the
+            // commercial (MDI) bill, before plain "tariff".
+            if (b.tariffCategory == null) b.tariffCategory = value;
         } else if (label.contains("tariff")) {
             if (b.tariff == null) b.tariff = value;
         } else if (label.contains("grand total")) {

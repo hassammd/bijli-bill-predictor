@@ -1095,6 +1095,10 @@ public class TestBillFetch {
         //      card must never render, in any case ----
         runV3748Tests();
 
+        // ---- v3.7.49: category chip beside the dues chip (dues
+        //      untouched) + commercial (MDI) meter-table parse ----
+        runV3749Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2260,9 +2264,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3975,9 +3979,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4355,10 +4359,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"180\""),
+                manifest.contains("android:versionCode=\"181\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.48\""),
+                manifest.contains("android:versionName=\"3.7.49\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4517,10 +4521,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"180\""),
+                manifest.contains("android:versionCode=\"181\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.48\""),
+                manifest.contains("android:versionName=\"3.7.49\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4909,9 +4913,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5106,9 +5110,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5174,9 +5178,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5590,9 +5594,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5651,9 +5655,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5758,9 +5762,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5936,9 +5940,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6056,9 +6060,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6180,9 +6184,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6285,9 +6289,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6435,9 +6439,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 180 / 3.7.48 in the manifest ----
         check("v3748 manifest version 180",
-                man.contains("android:versionCode=\"180\""), true);
+                man.contains("android:versionCode=\"181\""), true);
         check("v3748 manifest name 3.7.48",
-                man.contains("android:versionName=\"3.7.48\""), true);
+                man.contains("android:versionName=\"3.7.49\""), true);
 
         // ---- 2. The "Estimate vs Actual Bill" card is GONE from
         //      BillActivity — view, wiring and helpers, all of it.
@@ -6488,6 +6492,165 @@ public class TestBillFetch {
         check("v3748 pending consumed once",
                 AccuracyTracker.takePending(st,
                         "lesco:ref:02118240618604") == null, true);
+    }
+
+    static void runV3749Tests() throws Exception {
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String fetch = readFile(
+                "java/com/hatch/bijlibill/LescoBillFetcher.java");
+        String man = readFile("AndroidManifest.xml");
+        String enStrings = readFile("res/values/strings.xml");
+        String urStrings = readFile("res/values-ur/strings.xml");
+
+        // ---- 1. Version 181 / 3.7.49 in the manifest ----
+        check("v3749 manifest version 181",
+                man.contains("android:versionCode=\"181\""), true);
+        check("v3749 manifest name 3.7.49",
+                man.contains("android:versionName=\"3.7.49\""), true);
+
+        // ---- 2. Arrears (dues) chip UNTOUCHED (user order
+        //      2026-11-22: "Arrears KO remove na krna") ----
+        check("v3749 duesChip still exists",
+                bill.contains("private View duesChip(BillInfo b)"), true);
+        check("v3749 duesChip still called",
+                bill.contains("duesChip(b)"), true);
+        check("v3749 arrears strings intact",
+                enStrings.contains("name=\"arrears_chip_none\"")
+                        && enStrings.contains("name=\"arrears_chip_has\""),
+                true);
+
+        // ---- 3. MDI fixture — the user's commercial bill (Abdul
+        //      Qadeer Sheikh, ref 44115130438868, OCT 26): METER
+        //      INFO table + TARIFF CAT Commercial ----
+        LescoBillFetcher.BillInfo info =
+                LescoBillFetcher.parseBillHtml(
+                        mdiBillHtml(), "44115130438868");
+        check("v3749 mdi prevReading", info.prevReading,
+                "47403 / 12213");
+        check("v3749 mdi currReading", info.currReading,
+                "48288 / 12732");
+        check("v3749 mdi units", info.units, "1404");
+        check("v3749 mdi tariffCategory", info.tariffCategory,
+                "Commercial");
+        check("v3749 mdi dueDate parsed", info.dueDate, "16 NOV 26");
+        check("v3749 mdi amount", info.amount, "121,207");
+        check("v3749 mdi amountPaid", info.amountPaid, "121,207");
+        check("v3749 mdi paymentDate", info.paymentDate, "16-Nov-26");
+        check("v3749 mdi category key",
+                com.hatch.bijlibill.BillSummary.categoryChipKey(info),
+                "COMMERCIAL");
+
+        // ---- 4. DUE-DATE FINDING (verified, no code change): due
+        //      16 NOV 26 DOES parse — the due chip hides only
+        //      because the date is past (guard "days >= 0",
+        //      BillActivity:1970), which is correct for a paid
+        //      overdue bill. Guard must stay untouched. ----
+        long dueMs = com.hatch.bijlibill.BillReminder.parseDueDate(
+                info.dueDate);
+        check("v3749 mdi due parses", dueMs > 0, true);
+        check("v3749 mdi due is past",
+                dueMs < System.currentTimeMillis(), true);
+        check("v3749 due guard untouched",
+                bill.contains("if (days >= 0 && due != null"), true);
+
+        // ---- 5. Domestic regression: paid NOV 26 fixture ----
+        String dom = readFile(
+                "testdata/lesco-bill-paid-nov26-SYNTHETIC.html");
+        LescoBillFetcher.BillInfo d =
+                LescoBillFetcher.parseBillHtml(dom, "02118240618604");
+        check("v3749 dom prevReading", d.prevReading, "818");
+        check("v3749 dom currReading", d.currReading, "820");
+        check("v3749 dom units", d.units, "2");
+        check("v3749 dom no category",
+                com.hatch.bijlibill.BillSummary.categoryChipKey(d), null);
+        // Domestic fixture with "Category RESIDENTIAL" -> DOMESTIC.
+        String full = readFile(
+                "testdata/lesco-bill-full-SYNTHETIC.html");
+        LescoBillFetcher.BillInfo f =
+                LescoBillFetcher.parseBillHtml(full, "06113530462901");
+        check("v3749 dom residential key",
+                com.hatch.bijlibill.BillSummary.categoryChipKey(f),
+                "DOMESTIC");
+        check("v3749 dom tariff not polluted",
+                f.tariff, "A-1 RESIDENTIAL");
+
+        // ---- 6. Category chip wiring + strings, both locales ----
+        check("v3749 categoryChip exists",
+                bill.contains("private View categoryChip(BillInfo b)"),
+                true);
+        check("v3749 categoryChip called in payCard",
+                bill.contains("categoryChip(b)"), true);
+        check("v3749 en commercial string",
+                enStrings.contains("name=\"category_chip_commercial\""),
+                true);
+        check("v3749 en domestic string",
+                enStrings.contains("name=\"category_chip_domestic\""),
+                true);
+        check("v3749 ur commercial string",
+                urStrings.contains("name=\"category_chip_commercial\""),
+                true);
+        check("v3749 ur domestic string",
+                urStrings.contains("name=\"category_chip_domestic\""),
+                true);
+        // Parser accepts "tariff cat" (MDI) as well as the old
+        // "tariff category" spelling.
+        check("v3749 tariff cat label",
+                fetch.contains("label.contains(\"tariff cat\")"), true);
+    }
+
+    /** Synthetic commercial (MDI) bill: the user's live case (Abdul
+     * Qadeer Sheikh, ref 44115130438868, OCT 26, Rs 121,207, Paid
+     * 16-Nov-26). Label-rows as on the PITC new-design page, plus
+     * the METER INFO table exactly as the bill document prints it
+     * (two registers per row, UNITS "(O) 885 (P) 519"). */
+    static String mdiBillHtml() {
+        StringBuilder h = new StringBuilder();
+        h.append("<html><head><title>LESCO Online Bill</title></head><body>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "REFERENCE NO</span>44 11513 0438868</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "NAME &amp; ADDRESS</span>Abdul Qadeer Sheikh, "
+                + "Garden Town</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "TARIFF</span>A-2C(06)T</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "TARIFF CAT</span>Commercial</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "BILL MONTH</span>OCT 26</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "READING DATE</span>27 OCT 26</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "ISSUE DATE</span>02 NOV 26</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "DUE DATE</span>16 NOV 26</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "PAYABLE WITHIN DUE DATE</span>121,207</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "AMOUNT PAID</span>121,207</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "PAYMENT DATE</span>16-Nov-26</div>");
+        h.append("<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "METER NO</span>68181</div>");
+        // Barcode line, as printed on the real bill — carries the
+        // contiguous reference digits isNewBillPage() needs.
+        h.append("<div>OCT 26 - 7136648 - 44115130438868U - 000121207"
+                + " - 16 NOV 26</div>");
+        h.append("<table>");
+        h.append("<tr><td colspan=\"6\">METER INFO</td></tr>");
+        h.append("<tr><th>METER</th><th>TYPE</th><th>PREVIOUS</th>"
+                + "<th>PRESENT</th><th>MF</th><th>UNITS</th></tr>");
+        h.append("<tr><td>68181</td><td>KWH</td>"
+                + "<td>47403<br/>12213</td><td>48288<br/>12732</td>"
+                + "<td>1</td><td>(O) 885 (P) 519</td></tr>");
+        h.append("<tr><td>68181</td><td>KVARH</td>"
+                + "<td>23963<br/>2555</td><td>23963<br/>2555</td>"
+                + "<td>1</td><td>(O) 0 (P) 0</td></tr>");
+        h.append("<tr><td></td><td>MDI</td><td>-</td>"
+                + "<td>10<br/>5</td><td>1</td><td>(O) 10 (P) 5</td></tr>");
+        h.append("</table>");
+        h.append("</body></html>");
+        return h.toString();
     }
 
     static void addPoint(

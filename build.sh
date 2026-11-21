@@ -1,4 +1,21 @@
 #!/bin/bash
+# Bijli Bill v3.7.49 (181) — user order, 2026-11-22, ONE build:
+#   - CATEGORY CHIP on the bill detail (user: "Arrears KO remove na
+#     krna or category show krwao"): a COMMERCIAL / DOMESTIC pill
+#     sits BESIDE the dues chip; the NO ARREARS / PICHLA BAQAYA chip
+#     is untouched. Source: the bill's "TARIFF CAT" field (parser
+#     now accepts "tariff cat" as well as "tariff category").
+#     Unknown category -> no chip (never invented).
+#   - COMMERCIAL (MDI) BILL PARSE: the MDI bill prints readings as
+#     a METER INFO table (METER | TYPE | PREVIOUS | PRESENT | MF |
+#     UNITS), not domestic label-rows — so meter reading + units
+#     were missing (live case: Abdul Qadeer Sheikh, ref
+#     44115130438868, OCT 26, Rs 121,207). New parseMeterInfoTable
+#     reads the KWH row: prev "47403 / 12213", curr "48288 /
+#     12732", units 1404 (885 + 519). Domestic parsing untouched.
+#   - DUE-DATE FINDING (verified, no code change): the MDI bill's
+#     due date (16 NOV 26) DOES parse — the due chip hides only
+#     because the date is past (chip guard: days >= 0).
 # Bijli Bill v3.7.48 (180) — user order, 2026-11-22, ONE build:
 #   - "ESTIMATE VS ACTUAL BILL" CARD REMOVED from the bill detail
 #     screen (user: "ye box Q show ho raha hai, isko remove kro,
@@ -398,16 +415,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.48.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.48.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.49.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.49.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.48.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.48.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.49.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.49.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.48.apk" "$OUTDIR/bijli-bill-publish-3.7.48.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.49.apk" "$OUTDIR/bijli-bill-publish-3.7.49.aab"
 echo BUILD_OK

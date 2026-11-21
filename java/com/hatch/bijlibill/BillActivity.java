@@ -1822,6 +1822,36 @@ public class BillActivity extends BaseActivity {
     }
 
     /**
+     * v3.7.49: category pill — "COMMERCIAL" / "DOMESTIC" (localized
+     * for the two known keys, raw value otherwise). Shown BESIDE the
+     * dues chip; the dues chip itself is untouched (user order
+     * 2026-11-22: "Arrears KO remove na krna"). Null when the bill
+     * carries no category.
+     */
+    private View categoryChip(BillInfo b) {
+        String key = BillSummary.categoryChipKey(b);
+        if (key == null) return null;
+        LinearLayout pill = new LinearLayout(this);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setBackgroundResource(R.drawable.ds_pill_green);
+        pill.setPadding(dp(12), dp(6), dp(12), dp(6));
+        TextView t = new TextView(this);
+        if ("COMMERCIAL".equals(key)) {
+            t.setText(getString(R.string.category_chip_commercial));
+        } else if ("DOMESTIC".equals(key)) {
+            t.setText(getString(R.string.category_chip_domestic));
+        } else {
+            t.setText(key);
+        }
+        t.setTextSize(11.5f);
+        t.setTextColor(Ds.g800());
+        Ds.heading(this, t);
+        pill.addView(t);
+        return pill;
+    }
+
+    /**
      * v3.6.54: new design pay card — document icon + dues status,
      * huge amount, illustration, due chip + units, View Full Bill
      * button INSIDE the card.
@@ -1848,17 +1878,42 @@ public class BillActivity extends BaseActivity {
         lp.setMargins(dp(16), dp(12), dp(16), 0);
         c.setLayoutParams(lp);
 
-        // Dues chip at top.
+        // Dues chip + category chip at top (v3.7.49: the category
+        // sits BESIDE the dues chip; the dues chip itself is
+        // untouched — user order 2026-11-22: "Arrears KO remove na
+        // krna or category show krwao"). Either chip may be absent;
+        // the row is skipped when both are.
         View dues = duesChip(b);
-        if (dues != null) {
-            LinearLayout.LayoutParams dlp =
+        View cat = categoryChip(b);
+        if (dues != null || cat != null) {
+            LinearLayout statusRow = new LinearLayout(this);
+            statusRow.setOrientation(LinearLayout.HORIZONTAL);
+            statusRow.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams slp =
                     new LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT);
             // v3.6.53: END in Urdu (right side).
-            dlp.gravity = urdu ? Gravity.END : Gravity.START;
-            dues.setLayoutParams(dlp);
-            c.addView(dues);
+            slp.gravity = urdu ? Gravity.END : Gravity.START;
+            slp.bottomMargin = dp(6);
+            statusRow.setLayoutParams(slp);
+            // Urdu: category first so the dues chip stays rightmost
+            // (its old END position); English: dues first.
+            View first = urdu ? cat : dues;
+            View second = urdu ? dues : cat;
+            if (first != null) {
+                LinearLayout.LayoutParams flp =
+                        new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT);
+                if (second != null) flp.rightMargin = dp(8);
+                first.setLayoutParams(flp);
+                statusRow.addView(first);
+            }
+            if (second != null) {
+                statusRow.addView(second);
+            }
+            c.addView(statusRow);
         }
 
         // "TOTAL PAYABLE" label.

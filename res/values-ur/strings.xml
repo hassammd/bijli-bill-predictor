@@ -255,6 +255,9 @@
          figure (never the current bill's paid state) -->
     <string name="arrears_chip_has">پچھلا بقایا: روپے %1$s</string>
     <string name="arrears_chip_none">کوئی بقایا نہیں</string>
+    <!-- v3.7.49: bill-category chip beside the dues chip -->
+    <string name="category_chip_commercial">کمرشل</string>
+    <string name="category_chip_domestic">ڈومیسٹک</string>
     <string name="andaza_how_title">اندازہ بل کیسے بنا؟</string>
     <string name="andaza_row_energy">بجلی: %1$s یونٹس \u00d7 سلیب ریٹ = %2$s (آپ کے سلیب کے حساب سے)</string>
     <string name="andaza_row_taxes">ٹیکسز: %1$s (پچھلے بل میں تقریباً %2$s%% \u2014 تخمینہ)</string>
