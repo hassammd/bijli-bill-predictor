@@ -1609,6 +1609,16 @@ public class BillActivity extends BaseActivity {
             // v2.5.0: auto-save this meter (holder name shown in
             // "Mere Meter").
             autoSaveMeter(b);
+            // v3.7.47: Unit Check must follow the LAST bill the user
+            // actually fetched — this pointer used to be written
+            // only by the Home form submit, so bills opened from
+            // the Bills tab left Unit Check stuck on the first bill
+            // ever fetched (the 820 reading). Update it on EVERY
+            // successful bill display (cache hit, fresh fetch and
+            // CAPTCHA fetch all end here with parseOk);
+            // MeterCheckActivity re-parses the cached HTML, so the
+            // rates follow the same bill.
+            HomeActivity.rememberLastBill(this, disco.code, mode, ref);
             // v3.7.40: record this meter's latest bill (amount +
             // paid state) for Home's "Total Payable" card. One
             // record per meter; the next fetch overwrites it.

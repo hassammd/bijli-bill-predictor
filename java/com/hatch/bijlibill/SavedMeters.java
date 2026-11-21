@@ -139,6 +139,29 @@ public final class SavedMeters {
     // ------------------------------------------------------------------
 
     /**
+     * v3.7.47: Unit Check fallback picker — the MOST RECENTLY saved
+     * meter whose bill HTML is cached (by savedAt, never by list
+     * order). cachedKeys holds "disco:mode:ref" keys with a live
+     * (24h) cache. Pure — unit-testable. Returns null when nothing
+     * qualifies. Used by HomeActivity.refreshMeterCheckButton when
+     * the last-bill pointer's cache has expired.
+     */
+    public static Meter pickMostRecentCached(
+            java.util.List<Meter> meters,
+            java.util.Set<String> cachedKeys) {
+        if (meters == null || cachedKeys == null) return null;
+        Meter best = null;
+        for (Meter m : meters) {
+            if (m == null || m.disco == null || m.idType == null
+                    || m.idValue == null) continue;
+            String key = m.disco + ":" + m.idType + ":" + m.idValue;
+            if (!cachedKeys.contains(key)) continue;
+            if (best == null || m.savedAt > best.savedAt) best = m;
+        }
+        return best;
+    }
+
+    /**
      * Masked id for the list row, e.g. "0211********04" for a 14-digit
      * reference or "123****" style for short ids. Pure function.
      */

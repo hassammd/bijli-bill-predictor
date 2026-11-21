@@ -1775,11 +1775,10 @@ public class HomeActivity extends BaseActivity {
         hideError();
         clearInputOnResume = true;
         // v2.1.0: remember for the Unit Check entry point.
-        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putString(KEY_LAST_MODE, mode)
-                .putString(KEY_LAST_REF, value)
-                .putString(KEY_LAST_DISCO, disco.code)
-                .apply();
+        // v3.7.47: shared writer — BillActivity.showBillPage
+        // calls the same one on EVERY successful bill display,
+        // so Unit Check follows the last bill actually fetched.
+        rememberLastBill(this, disco.code, mode, value);
         openBill(disco, mode, value);
     }
 
@@ -1792,9 +1791,29 @@ public class HomeActivity extends BaseActivity {
     }
 
     /**
+     * v3.7.47: the "last bill" pointer Unit Check follows. Written on
+     * EVERY successful bill display (BillActivity.showBillPage), not
+     * only by the Home form submit — bills opened from the Bills tab
+     * (or any other path) used to leave Unit Check stuck on the
+     * first bill ever fetched (the 820 reading). Same
+     * SharedPreferences file/keys HomeActivity has always used.
+     */
+    public static void rememberLastBill(Context ctx,
+            String discoCode, String mode, String ref) {
+        if (ctx == null || discoCode == null || mode == null
+                || ref == null) return;
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putString(KEY_LAST_MODE, mode)
+                .putString(KEY_LAST_REF, ref)
+                .putString(KEY_LAST_DISCO, discoCode)
+                .apply();
+    }
+
+    /**
      * v2.1.0: shows UNIT CHECK when a cached (24h) bill exists — first
-     * the last-fetched entry, then any saved meter. The cached raw HTML
-     * is re-parsed by MeterCheckActivity itself.
+     * the last-fetched entry, then the most recently saved meter
+     * with a live cache. The cached raw HTML is re-parsed by
+     * MeterCheckActivity itself.
      */
     private void refreshMeterCheckButton() {
         meterCheckMode = null;
@@ -1812,17 +1831,29 @@ public class HomeActivity extends BaseActivity {
             meterCheckRef = lr;
             meterCheckDisco = ld;
         } else {
-            for (SavedMeters.Meter m
-                    : SavedMeters.load(MeterUi.store(this))) {
-                Disco md = Disco.fromCode(m.disco);
+            // v3.7.47: fallback is the MOST RECENTLY saved meter
+            // with a live cache (by savedAt) — never the oldest.
+            // The pointer above is now updated on every fetch, so
+            // this only runs when its cache has expired.
+            java.util.List<SavedMeters.Meter> meters =
+                    SavedMeters.load(MeterUi.store(this));
+            java.util.Set<String> cached =
+                    new java.util.HashSet<String>();
+            for (SavedMeters.Meter m : meters) {
+                if (m == null || m.idValue == null) continue;
                 if (BillCache.getHtml(this,
-                        md.code + ":" + m.idType + ":" + m.idValue)
+                        m.disco + ":" + m.idType + ":" + m.idValue)
                         != null) {
-                    meterCheckMode = m.idType;
-                    meterCheckRef = m.idValue;
-                    meterCheckDisco = md;
-                    break;
+                    cached.add(m.disco + ":" + m.idType + ":"
+                            + m.idValue);
                 }
+            }
+            SavedMeters.Meter best =
+                    SavedMeters.pickMostRecentCached(meters, cached);
+            if (best != null) {
+                meterCheckMode = best.idType;
+                meterCheckRef = best.idValue;
+                meterCheckDisco = Disco.fromCode(best.disco);
             }
         }
         // v3.6.5: Unit Check button + Guard/What-if row moved to Bills tab —

@@ -1084,6 +1084,12 @@ public class TestBillFetch {
         //      gap) + wrap preserved ----
         runV3746Tests();
 
+        // ---- v3.7.47: Unit Check follows the LAST fetched bill
+        //      (pointer updated on every fetch + most-recent
+        //      fallback) + unpaid-with-arrears estimate never
+        //      includes LPS/arrears ----
+        runV3747Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2249,9 +2255,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3964,9 +3970,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4337,10 +4343,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"178\""),
+                manifest.contains("android:versionCode=\"179\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.46\""),
+                manifest.contains("android:versionName=\"3.7.47\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4499,10 +4505,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"178\""),
+                manifest.contains("android:versionCode=\"179\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.46\""),
+                manifest.contains("android:versionName=\"3.7.47\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4891,9 +4897,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5088,9 +5094,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5156,9 +5162,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5572,9 +5578,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5633,9 +5639,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5740,9 +5746,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5918,9 +5924,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6038,9 +6044,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6158,11 +6164,13 @@ public class TestBillFetch {
                 "java/com/hatch/bijlibill/FlowLayout.java");
         String man = readFile("AndroidManifest.xml");
 
-        // ---- 1. Version 178 / 3.7.46 in the manifest ----
+        // ---- 1. Version 179 / 3.7.47 in the manifest (bumped
+        //      by v3.7.47; the v3746 block's asserts track the
+        //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"178\""), true);
+                man.contains("android:versionCode=\"179\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.46\""), true);
+                man.contains("android:versionName=\"3.7.47\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6254,6 +6262,158 @@ public class TestBillFetch {
         check("v3746 null bill unknown",
                 com.hatch.bijlibill.PaidStatus.resolveBill(null).state,
                 com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
+    }
+
+    static void runV3747Tests() throws Exception {
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Version 179 / 3.7.47 in the manifest ----
+        check("v3747 manifest version 179",
+                man.contains("android:versionCode=\"179\""), true);
+        check("v3747 manifest name 3.7.47",
+                man.contains("android:versionName=\"3.7.47\""), true);
+
+        // ---- 2. Last-bill pointer: ONE shared writer used by
+        //      BOTH the Home form submit and BillActivity's
+        //      showBillPage (every successful bill display). ----
+        check("v3747 rememberLastBill exists",
+                home.contains("public static void rememberLastBill("),
+                true);
+        check("v3747 rememberLastBill writes mode",
+                home.contains("putString(KEY_LAST_MODE, mode)"), true);
+        check("v3747 rememberLastBill writes ref",
+                home.contains("putString(KEY_LAST_REF, ref)"), true);
+        check("v3747 rememberLastBill writes disco",
+                home.contains("putString(KEY_LAST_DISCO, discoCode)"),
+                true);
+        check("v3747 submit uses rememberLastBill",
+                home.contains(
+                        "rememberLastBill(this, disco.code, mode, value)"),
+                true);
+        check("v3747 one writer only",
+                countOcc(home, "putString(KEY_LAST_MODE, mode)") == 1,
+                true);
+        int sb0 = bill.indexOf("private void showBillPage(BillPage p)");
+        int sb1 = bill.indexOf(
+                "// Parse failed but the page is still shown");
+        String show = (sb0 >= 0 && sb1 > sb0)
+                ? bill.substring(sb0, sb1) : "";
+        check("v3747 showBillPage updates pointer",
+                show.contains("HomeActivity.rememberLastBill("
+                        + "this, disco.code, mode, ref)"), true);
+        check("v3747 pointer gated on parseOk",
+                show.contains("if (p.parseOk && p.info != null)"), true);
+
+        // ---- 3. Fallback = MOST RECENT saved meter with a live
+        //      cache (by savedAt), never list order / oldest. ----
+        java.util.List<SavedMeters.Meter> meters =
+                new java.util.ArrayList<SavedMeters.Meter>();
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "02118240618604", "Namoos Tahira Minhas", 1000L));
+        meters.add(new SavedMeters.Meter("mepco", "ref",
+                "15158130010993", "Saba Tabasum Faisal", 3000L));
+        // Synthetic stand-in for the masked Abdul Sattar ref
+        // (0511********04) — newest saved, savedAt 5000.
+        meters.add(new SavedMeters.Meter("lesco", "ref",
+                "05110000000004", "Abdul Sattar", 5000L));
+        java.util.Set<String> cached = new java.util.HashSet<String>();
+        cached.add("lesco:ref:02118240618604");
+        cached.add("mepco:ref:15158130010993");
+        // Newest (Abdul Sattar) has NO live cache -> the next
+        // newest cached one (MEPCO 2912) wins, NOT the oldest.
+        check("v3747 fallback newest cached",
+                SavedMeters.pickMostRecentCached(
+                        meters, cached).idValue,
+                "15158130010993");
+        // Same meters, newest also cached -> newest wins even
+        // though it is LAST in the list (savedAt decides, not
+        // list order).
+        cached.add("lesco:ref:05110000000004");
+        check("v3747 fallback newest wins",
+                SavedMeters.pickMostRecentCached(
+                        meters, cached).idValue,
+                "05110000000004");
+        check("v3747 fallback none cached",
+                SavedMeters.pickMostRecentCached(
+                        meters, new java.util.HashSet<String>()), null);
+        check("v3747 fallback null list",
+                SavedMeters.pickMostRecentCached(
+                        null, cached), null);
+        check("v3747 fallback null keys",
+                SavedMeters.pickMostRecentCached(
+                        meters, null), null);
+        check("v3747 home uses pickMostRecentCached",
+                home.contains("pickMostRecentCached(meters, cached)"),
+                true);
+        String saved = readFile(
+                "java/com/hatch/bijlibill/SavedMeters.java");
+        check("v3747 picker lives in SavedMeters",
+                saved.contains(
+                        "public static Meter pickMostRecentCached("),
+                true);
+
+        // ---- 4. JURMANA REGRESSION (user rule, voice call
+        //      2026-11-22): an UNPAID bill's arrears + LP surcharge
+        //      must NEVER enter the Unit Check estimate. The
+        //      estimate is units + slab rates + tax ratio only. ----
+        // Real-ish case: Abdul Sattar LESCO NOV 26 — UNPAID,
+        // Rs 4,637, present reading 48724, 100 units billed.
+        // Arrears + LP surcharge sit on the BillInfo but must
+        // contribute exactly zero to the estimate.
+        BillInfo unpaid = new BillInfo();
+        unpaid.currReading = "48724";
+        unpaid.arrears = "4,637";
+        unpaid.lpSurcharge = "159";
+        unpaid.payableAfter25 = "4,796";
+        unpaid.category = "Non-Protected";
+        unpaid.taxes = "400";
+        unpaid.gst = "700";
+        unpaid.fpa = "150";
+        unpaid.electricityCharges = "2500";
+        MeterCheckCalc.Result r = MeterCheckCalc.compute(
+                unpaid.currReading, "48824", unpaid.category,
+                unpaid.taxes, unpaid.gst, unpaid.fpa,
+                unpaid.electricityCharges, 15);
+        check("v3747 unpaid no error", r.error, null);
+        checkClose("v3747 unpaid units", r.unitsUsed, 100.0, 1e-9);
+        double energy = Tariff.energyCharges(100.0,
+                Tariff.NON_PROTECTED);
+        double expected = energy * (1.0 + (400.0 + 700.0 + 150.0)
+                / 2500.0);
+        checkClose("v3747 unpaid total excludes arrears+LPS",
+                r.estimatedTotal, expected, 1e-6);
+        checkClose("v3747 unpaid tax ratio", r.taxRatio, 0.5, 1e-9);
+        // Same inputs with the arrears/LPS fields zeroed give the
+        // IDENTICAL estimate — proof the penalty cannot leak in.
+        BillInfo paidTwin = new BillInfo();
+        paidTwin.currReading = "48724";
+        paidTwin.arrears = "0";
+        paidTwin.lpSurcharge = "0";
+        paidTwin.payableAfter25 = "4,637";
+        paidTwin.category = "Non-Protected";
+        paidTwin.taxes = "400";
+        paidTwin.gst = "700";
+        paidTwin.fpa = "150";
+        paidTwin.electricityCharges = "2500";
+        MeterCheckCalc.Result r2 = MeterCheckCalc.compute(
+                paidTwin.currReading, "48824", paidTwin.category,
+                paidTwin.taxes, paidTwin.gst, paidTwin.fpa,
+                paidTwin.electricityCharges, 15);
+        checkClose("v3747 arrears-zero twin identical",
+                r2.estimatedTotal, r.estimatedTotal, 1e-9);
+        // Protected unpaid case too: 820 base (the stuck reading),
+        // 80 units since the bill, arrears present in principle —
+        // the formula takes no arrears input at all.
+        MeterCheckCalc.Result rp = MeterCheckCalc.compute(
+                "820", "900", "Protected", "100", "200", "50",
+                "1000", 15);
+        double energyP = Tariff.energyCharges(80.0, Tariff.PROTECTED);
+        checkClose("v3747 protected unpaid excludes arrears",
+                rp.estimatedTotal, energyP * 1.35, 1e-6);
     }
 
     static void addPoint(

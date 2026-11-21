@@ -1,4 +1,20 @@
 #!/bin/bash
+# Bijli Bill v3.7.47 (179) — user order, 2026-11-22, ONE build:
+#   - UNIT CHECK LAST-BILL FIX: "Bill reading: 820" was stuck —
+#     the last-bill pointer (metercheck_last_*) was written ONLY
+#     by the Home form submit, so bills opened from the Bills tab
+#     left Unit Check on the first bill ever fetched. Now
+#     BillActivity.showBillPage updates the pointer on EVERY
+#     successful bill display (cache hit, fresh fetch, CAPTCHA
+#     fetch), and the fallback picks the MOST RECENTLY saved
+#     meter with a live cache (pickFallbackMeter, by savedAt).
+#     MeterCheckActivity re-parses the cached HTML, so the rates
+#     (category, taxes, GST, FPA) follow the same last bill.
+#   - JURMANA RULE (user-confirmed, formula UNCHANGED): the Unit
+#     Check estimate NEVER includes arrears / LP surcharge —
+#     regression test proves it (unpaid bill with arrears 4,637
+#     + LPS 159 estimates identically to the same bill with
+#     arrears/LPS zeroed).
 # Bijli Bill v3.7.46 (178) — user order, 2026-11-22, ONE build:
 #   - STAMP SMALLER: 72dp -> 56dp wide (user: still too big).
 #   - STATUS TEXT SMALLER: "Paid on 7 Nov 26" / "Unpaid" 12sp
@@ -369,16 +385,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.46.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.46.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.47.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.47.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.46.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.46.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.47.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.47.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.46.apk" "$OUTDIR/bijli-bill-publish-3.7.46.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.47.apk" "$OUTDIR/bijli-bill-publish-3.7.47.aab"
 echo BUILD_OK
