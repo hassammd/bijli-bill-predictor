@@ -2173,9 +2173,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"167\""), true);
+                man.contains("android:versionCode=\"168\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.35\""), true);
+                man.contains("android:versionName=\"3.7.36\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3878,9 +3878,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"167\""), true);
+                man.contains("android:versionCode=\"168\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.35\""), true);
+                man.contains("android:versionName=\"3.7.36\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4251,10 +4251,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"167\""),
+                manifest.contains("android:versionCode=\"168\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.35\""),
+                manifest.contains("android:versionName=\"3.7.36\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4413,10 +4413,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"167\""),
+                manifest.contains("android:versionCode=\"168\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.35\""),
+                manifest.contains("android:versionName=\"3.7.36\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4908,8 +4908,8 @@ public class TestBillFetch {
                 man.contains(".AssistantActivity"), true);
         check("v3731 manifest mic permission",
                 man.contains("android.permission.RECORD_AUDIO"), true);
-        check("v3735 manifest version 167",
-                man.contains("android:versionCode=\"167\""), true);
+        check("v3736 manifest version 168",
+                man.contains("android:versionCode=\"168\""), true);
 
         // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5082,14 +5082,29 @@ public class TestBillFetch {
         // ---- 19. v3.7.35: Quick Tools second row removed (user:
         //      keep only the task cards). No Assistant card and no
         //      Rate Us card on Home; the floating bubble is now the
-        //      only way into the Assistant. The strings and the star
-        //      drawable stay (unused, harmless). ----
+        //      only way into the Assistant.
+        //      v3.7.36 CORRECTION (user 2026-11-21, naraz): v3.7.35
+        //      removed the WHOLE second row by mistake — the user
+        //      only asked to remove the AI Assistant card. The Rate
+        //      Us card is restored as a full-width second row,
+        //      exactly as in v3.7.34. The AI Assistant card stays
+        //      OUT of Quick Tools; the bubble is the only way in. ----
         check("v3735 no quick assistant card",
                 !home.contains("quick_assistant"), true);
-        check("v3735 no quick rate us card",
-                !home.contains("quick_rate_us"), true);
-        check("v3735 no second row",
-                !home.contains("row2"), true);
+        check("v3736 rate us card back",
+                home.contains("quick_rate_us"), true);
+        check("v3736 rate us sub",
+                home.contains("quick_rate_us_sub"), true);
+        check("v3736 rate us star icon",
+                home.contains("ic_star"), true);
+        check("v3736 rate us market link",
+                home.contains("market://details?id="), true);
+        check("v3736 rate us web fallback",
+                home.contains(
+                        "https://play.google.com/store/apps/details?id="),
+                true);
+        check("v3736 second row back",
+                home.contains("row2"), true);
         check("v3735 task cards kept",
                 home.contains("quick_unit_check")
                         && home.contains("quick_bill_history"), true);
@@ -5097,7 +5112,7 @@ public class TestBillFetch {
                 home.contains("assistantBubble"), true);
         check("v3735 bubble opens assistant activity",
                 home.contains("AssistantActivity.class"), true);
-        // Strings + star drawable remain (unused for now).
+        // Strings + star drawable in use again (Rate Us card).
         String[] rateKeys = {"quick_rate_us", "quick_rate_us_sub"};
         for (String k : rateKeys) {
             check("v3735 key en " + k, en.containsKey(k), true);
@@ -5109,11 +5124,11 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("res/drawable/ic_star.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v3735 star drawable", star.contains("M12 17.27"), true);
-        // 18e. Version 167 / 3.7.35 in the manifest.
-        check("v3735 manifest version 167",
-                man.contains("android:versionCode=\"167\""), true);
-        check("v3735 manifest name 3.7.35",
-                man.contains("android:versionName=\"3.7.35\""), true);
+        // 18e. Version 168 / 3.7.36 in the manifest.
+        check("v3736 manifest version 168",
+                man.contains("android:versionCode=\"168\""), true);
+        check("v3736 manifest name 3.7.36",
+                man.contains("android:versionName=\"3.7.36\""), true);
 
         // ---- 20. v3.7.35: Gemini Live voice assistant (TEST build) ----
         // 20a. Key config: only a real, non-placeholder key counts.

@@ -1184,11 +1184,49 @@ public class HomeActivity extends BaseActivity {
 
         sec.addView(row);
 
-        // v3.7.35: second Quick Tools row removed (user:
-        // keep only the task cards - Unit Check + Bill
-        // History). The AI Assistant card is gone; the
-        // floating bubble is now the only way into the
-        // Assistant. The Rate Us card is gone too.
+        // v3.7.36: Rate Us card restored (user correction 2026-11-21:
+        // v3.7.35 removed the whole second row by mistake — the user
+        // only asked to remove the AI Assistant card). The Rate Us
+        // card is back as a full-width second row, exactly as in
+        // v3.7.34 (star icon, Play Store listing via market:// with
+        // web fallback). The AI Assistant card stays OUT of Quick
+        // Tools — the floating bubble is the only way into the
+        // Assistant.
+        LinearLayout row2 = new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        row2.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        row2.setClipChildren(false);
+        row2.setClipToPadding(false);
+        row2.setPadding(shp, shp, shp, shp);
+        View rateCard = quickToolCard(
+                R.drawable.ic_star,
+                "#FDF3D8", // amber circle
+                getString(R.string.quick_rate_us),
+                getString(R.string.quick_rate_us_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        String pkg = getPackageName();
+                        try {
+                            Intent i = new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(
+                                            "market://details?id=" + pkg));
+                            i.setPackage("com.android.vending");
+                            startActivity(i);
+                        } catch (Exception e) {
+                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(
+                                            "https://play.google.com/store/apps/details?id="
+                                                    + pkg)));
+                        }
+                    }
+                });
+        LinearLayout.LayoutParams rateLp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        rateCard.setLayoutParams(rateLp);
+        row2.addView(rateCard);
+        sec.addView(row2);
 
         return sec;
     }

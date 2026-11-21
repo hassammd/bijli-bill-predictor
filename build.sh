@@ -1,4 +1,11 @@
 #!/bin/bash
+# Bijli Bill v3.7.36 (168) — Rate Us card restored (user correction)
+# v3.7.36 (user, 2026-11-21): v3.7.35 removed the whole Quick Tools
+# second row by mistake — the user only asked to remove the AI
+# Assistant card. Rate Us card is back as a full-width second row
+# (v3.7.34 style: star icon, Play Store listing via market:// with
+# web fallback). AI Assistant card stays OUT of Quick Tools; the
+# floating bubble is the only way into the Assistant.
 # Bijli Bill v3.7.35 (167) — Gemini Live voice assistant (TEST build)
 # + Quick Tools: only task cards left
 # v3.7.35 (user, voice call 2026-11-21): the on-device Assistant
@@ -15,7 +22,8 @@
 # v3.7.35 (user, voice call 2026-11-21): Quick Tools second row
 # removed — AI Assistant card + Rate Us card gone; only Unit
 # Check + Bill History remain. The floating bubble is now the
-# only way into the Assistant.
+# only way into the Assistant. v3.7.36: Rate Us card restored
+# (user correction) — AI card stays out.
 # (user instruction, voice call 2026-11-21):
 #   - Assistant is now fully voice-only: transcript bubbles,
 #     suggestion chips, status line and voice toggle are GONE —
