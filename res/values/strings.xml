@@ -364,21 +364,22 @@
     <string name="ref_empty">Please enter your reference number</string>
 
     <!-- v3.7.31: AI Assistant (v1, SIMPLE) -->
+    <!-- v3.7.33: voice-only — text input + send removed entirely -->
     <string name="quick_assistant">AI Assistant</string>
     <string name="quick_assistant_sub">Ask about your bill</string>
     <string name="assistant_title">AI Assistant</string>
     <string name="assistant_sub">Answers from your saved bills only</string>
-    <string name="assistant_hint">Tap mic to speak, or type your question</string>
-    <string name="assistant_input_hint">Type your question…</string>
-    <string name="assistant_send">Send</string>
+    <string name="assistant_hint">Bol kar poochein — main awaz mein jawab dunga</string>
     <string name="assistant_voice_on">Voice: On</string>
     <string name="assistant_voice_off">Voice: Off</string>
-    <string name="assistant_mic_denied">Mic permission not given — you can type your question instead</string>
+    <string name="assistant_mic_denied">Mic ki ijazat nahi mili — mic dabaa kar dobara koshish karain</string>
     <string name="assistant_mic_unavailable">Voice input is not available on this phone</string>
-    <string name="assistant_mic_failed">Could not hear you — please try again or type your question</string>
-    <string name="assistant_listening">Listening…</string>
+    <string name="assistant_mic_failed">Awaz sun nahi paya — dobara boliye</string>
     <string name="assistant_hear_retry">Sun nahi paya, ek baar phir boliye…</string>
-    <string name="assistant_hear_type">Phir bhi sun nahi paya — neeche likh kar bhej dein, main jawab dunga.</string>
+    <string name="assistant_hear_type">Phir bhi sun nahi paya — mic dabaa kar dobara boliye, main sun raha hun.</string>
     <string name="assistant_voice_greeting">Assalamualaikum! Main aapka Bijli Bill Assistant hun. Apna sawal boliye.</string>
     <string name="assistant_bubble_desc">AI Assistant — bol kar poochein</string>
+    <string name="assistant_status_listening">Sun raha hoon…</string>
+    <string name="assistant_status_speaking">Jawab de raha hoon…</string>
+    <string name="assistant_status_tap">Bolne ke liye mic dabayen</string>
 </resources>

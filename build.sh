@@ -1,4 +1,25 @@
 #!/bin/bash
+# Bijli Bill v3.7.33 (165) — Assistant v2: voice-only + Punjabi
+# (user instruction, voice call 2026-11-21):
+#   - Text input field + send button REMOVED entirely from the
+#     Assistant — typing ka koi rasta nahi. Screen is voice-call
+#     style: big round mic + status ("Sun raha hoon…",
+#     "Jawab de raha hoon…", "Bolne ke liye mic dabayen"). After a
+#     spoken reply ends, the Assistant listens again at once — a
+#     direct voice conversation, like a phone call. Suggestion
+#     chips stay, but tapping one gives a SPOKEN answer.
+#   - Punjabi support: SpeechRecognizer tries ur-PK first; on a
+#     no-match it retries in pa-PK, but ONLY if the device reports
+#     pa-PK support (ACTION_GET_LANGUAGE_DETAILS). AssistantBrain
+#     detects Roman Punjabi (whole-word markers) and answers the
+#     main intents in Roman Punjabi; TTS stays ur-PK (Punjabi TTS
+#     data is not on every phone; ur-PK reads Roman Punjabi).
+#   - Nothing else changes: floating bubble, auto-listen + greeting,
+#     in-chat retry (no Toast), free, on-device, saved bills only.
+#   - NOTE: this tree ALSO carries a sibling agent's v3.7.33
+#     session-out fix (LescoBillFetcher: a POST re-serving the form
+#     with a fresh CAPTCHA goes straight to the captcha screen
+#     instead of NOT_FOUND). Both land in this 165 build.
 # Bijli Bill v3.7.32 (164) — Assistant bubble entry (user QA 2026-11-21):
 #   - Home gets a floating round teal bubble (bottom-right, above banner
 #     + bottom nav). Tap opens the Assistant with EXTRA_AUTO_LISTEN: it

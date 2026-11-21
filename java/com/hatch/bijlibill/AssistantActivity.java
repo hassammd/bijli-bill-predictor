@@ -1,6 +1,8 @@
 package com.hatch.bijlibill;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -15,9 +17,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -29,23 +29,31 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * v3.7.32 — AI Assistant (v1, SIMPLE). A chat-style screen that
- * answers the user's questions using ONLY the locally saved bill
+ * v3.7.33 — AI Assistant (v2, VOICE-ONLY). A voice-call-style screen
+ * that answers the user's questions using ONLY the locally saved bill
  * snapshots — no internet, no API key, no server, no cost.
  *
- * Voice in via Android SpeechRecognizer (ur-PK) + voice out via
- * TextToSpeech (ur-PK, falls back to the device default when Urdu
- * TTS data is missing). Typed questions work the same. Answers are
- * decided by {@link AssistantBrain} in simple Roman Urdu.
+ * There is NO text input any more: the user taps the big mic (or the
+ * floating bubble on Home) and talks, the Assistant answers by voice
+ * — a direct voice conversation, like a phone call. Suggestion chips
+ * still exist, but tapping one gives a SPOKEN answer, never a typed
+ * one. Roman Urdu AND Roman Punjabi are both understood; the answer
+ * comes back in the user's own language.
+ *
+ * Voice in via Android SpeechRecognizer (ur-PK first; if it hears
+ * nothing and the device reports pa-PK support, it retries in
+ * pa-PK) + voice out via TextToSpeech (ur-PK, falls back to the
+ * device default when Urdu TTS data is missing). Answers are
+ * decided by {@link AssistantBrain} in simple Roman Urdu/Punjabi.
  *
  * v3.7.32: floating-bubble entry (Home) opens the Assistant with
  * EXTRA_AUTO_LISTEN — it greets by voice and starts listening at
  * once, no extra tap. When speech is not understood, the Assistant
  * says so INSIDE the chat and listens again (once); a second miss
- * points at the text field. No Toast / system notification is ever
- * shown for a missed hearing.
+ * asks the user to tap the mic and speak again. No Toast / system
+ * notification is ever shown.
  *
- * Out of scope for v1 (later, gradually): photo/OCR, daily summary
+ * Out of scope (later, gradually): photo/OCR, daily summary
  * notifications, challenges, comparisons, storytelling, anything
  * needing the internet — and NEVER any CAPTCHA auto-solve.
  */
@@ -55,16 +63,20 @@ public class AssistantActivity extends BaseActivity {
     public static final String EXTRA_AUTO_LISTEN = "auto_listen";
 
     private static final int REQ_MIC = 101;
-    /** One free retry after a missed hearing; then point at typing. */
+    /** One free retry after a missed hearing; then ask to tap mic. */
     private static final int MAX_LISTEN_RETRIES = 1;
 
     private LinearLayout messages;
     private ScrollView scrollView;
-    private EditText input;
-    private ImageButton micBtn;
+    /** Big round mic (voice-call style) + status line below it. */
+    private ImageButton bigMic;
+    private TextView statusText;
     private Button voiceToggle;
     private boolean voiceOn = true;
     private boolean listening = false;
+    /** True after the user deliberately stops listening — the
+     *  auto-listen-after-reply loop must not restart it then. */
+    private boolean userStopped = false;
 
     private TextToSpeech tts;
     private boolean ttsReady = false;
@@ -74,6 +86,12 @@ public class AssistantActivity extends BaseActivity {
     private boolean autoStart = false;
     private boolean pendingAutoListen = false;
     private int listenFailures = 0;
+
+    // v3.7.33: recognizer language. ur-PK first; pa-PK retry only
+    // when the device says it supports it (not every phone does).
+    private String listenLang = "ur-PK";
+    private boolean paSupported = false;
+    private boolean triedPa = false;
 
     private List<BillSnapshots.Snapshot> snaps =
             new ArrayList<BillSnapshots.Snapshot>();
@@ -140,7 +158,52 @@ public class AssistantActivity extends BaseActivity {
         chipScroll.addView(chips);
         root.addView(chipScroll);
 
-        // Voice on/off + hint row.
+        // v3.7.33: voice-call panel — NO text input anywhere.
+        // Big round mic + status line; tapping the mic starts or
+        // stops listening. The Assistant answers by voice only.
+        LinearLayout voicePanel = new LinearLayout(this);
+        voicePanel.setOrientation(LinearLayout.VERTICAL);
+        voicePanel.setGravity(Gravity.CENTER_HORIZONTAL);
+        voicePanel.setPadding(mp, Ui.dp(this, 6), mp, Ui.dp(this, 4));
+
+        bigMic = new ImageButton(this);
+        bigMic.setImageResource(R.drawable.ic_mic);
+        bigMic.setColorFilter(Color.WHITE);
+        bigMic.setContentDescription(
+                getString(R.string.assistant_bubble_desc));
+        GradientDrawable micBg = new GradientDrawable();
+        micBg.setShape(GradientDrawable.OVAL);
+        micBg.setColor(Ui.teal());
+        bigMic.setBackground(micBg);
+        bigMic.setScaleType(
+                android.widget.ImageView.ScaleType.CENTER_INSIDE);
+        int micPad = Ui.dp(this, 22);
+        bigMic.setPadding(micPad, micPad, micPad, micPad);
+        int micSize = Ui.dp(this, 88);
+        LinearLayout.LayoutParams micLp = new LinearLayout.LayoutParams(
+                micSize, micSize);
+        micLp.gravity = Gravity.CENTER_HORIZONTAL;
+        bigMic.setLayoutParams(micLp);
+        bigMic.setElevation(Ui.dp(this, 4));
+        bigMic.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { onBigMicClicked(); }
+        });
+        voicePanel.addView(bigMic);
+
+        statusText = new TextView(this);
+        statusText.setText(getString(R.string.assistant_status_tap));
+        statusText.setTextSize(14);
+        statusText.setTextColor(Ds.muted());
+        Ds.body(this, statusText, 400);
+        statusText.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams stLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        stLp.topMargin = Ui.dp(this, 8);
+        statusText.setLayoutParams(stLp);
+        voicePanel.addView(statusText);
+
+        // Voice on/off row (spoken replies on or off).
         LinearLayout hintRow = new LinearLayout(this);
         hintRow.setOrientation(LinearLayout.HORIZONTAL);
         hintRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -170,58 +233,8 @@ public class AssistantActivity extends BaseActivity {
             }
         });
         hintRow.addView(voiceToggle);
-        root.addView(hintRow);
-
-        // Input row: text field + mic + send.
-        LinearLayout inputRow = new LinearLayout(this);
-        inputRow.setOrientation(LinearLayout.HORIZONTAL);
-        inputRow.setGravity(Gravity.CENTER_VERTICAL);
-        inputRow.setPadding(mp, Ui.dp(this, 4), mp, Ui.dp(this, 12));
-        input = new EditText(this);
-        input.setHint(getString(R.string.assistant_input_hint));
-        input.setTextSize(15);
-        input.setTextColor(Ui.dark());
-        input.setHintTextColor(Ui.grey());
-        input.setBackgroundResource(R.drawable.textfield_bg);
-        int ip = Ui.dp(this, 12);
-        input.setPadding(ip, ip, ip, ip);
-        input.setMinHeight(Ui.dp(this, 48));
-        input.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        inputRow.addView(input);
-
-        micBtn = new ImageButton(this);
-        micBtn.setImageResource(R.drawable.ic_mic);
-        micBtn.setBackgroundColor(Color.TRANSPARENT);
-        int ms = Ui.dp(this, 48);
-        LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ms, ms);
-        mlp.leftMargin = Ui.dp(this, 4);
-        micBtn.setLayoutParams(mlp);
-        micBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { onMicClicked(); }
-        });
-        inputRow.addView(micBtn);
-
-        Button sendBtn = new Button(this);
-        sendBtn.setText(getString(R.string.assistant_send));
-        sendBtn.setTextSize(14);
-        sendBtn.setAllCaps(false);
-        sendBtn.setBackgroundResource(R.drawable.btn_primary);
-        sendBtn.setTextColor(Color.WHITE);
-        sendBtn.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        sendBtn.setMinHeight(Ui.dp(this, 48));
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.leftMargin = Ui.dp(this, 4);
-        sendBtn.setLayoutParams(slp);
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                sendQuestion(input.getText().toString());
-            }
-        });
-        inputRow.addView(sendBtn);
-        root.addView(inputRow);
+        voicePanel.addView(hintRow);
+        root.addView(voicePanel);
 
         // Banner (same as other pages).
         LinearLayout bannerBox = new LinearLayout(this);
@@ -232,6 +245,7 @@ public class AssistantActivity extends BaseActivity {
 
         setContentView(root);
 
+        queryPaSupport();
         initTts();
         addBubble(AssistantBrain.greeting(snaps, meterLabel), false);
 
@@ -250,8 +264,8 @@ public class AssistantActivity extends BaseActivity {
     private void sendQuestion(String raw) {
         String q = raw == null ? "" : raw.trim();
         if (q.isEmpty()) return;
-        input.setText("");
-        hideKeyboard();
+        // The user bubble is the transcript of what was asked (by
+        // voice, or a tapped chip) — the answer is always SPOKEN.
         addBubble(q, true);
         String ans = AssistantBrain.answer(q, snaps, meterLabel);
         addBubble(ans, false);
@@ -300,15 +314,8 @@ public class AssistantActivity extends BaseActivity {
                 + SavedMeters.maskId(s.ref) + ")";
     }
 
-    private void hideKeyboard() {
-        try {
-            InputMethodManager imm = (InputMethodManager)
-                    getSystemService(INPUT_METHOD_SERVICE);
-            if (imm != null && input != null) {
-                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
-            }
-        } catch (Exception ignored) {
-        }
+    private void setStatus(int resId) {
+        if (statusText != null) statusText.setText(getString(resId));
     }
 
     // ------------------------------------------------------------------
@@ -344,17 +351,23 @@ public class AssistantActivity extends BaseActivity {
                     });
             // v3.7.32: when the spoken greeting ends (or fails), start
             // listening — the user never taps the mic after the bubble.
+            // v3.7.33: when a spoken REPLY ends, listen again at once —
+            // a direct voice conversation, like a phone call.
             tts.setOnUtteranceProgressListener(
                     new UtteranceProgressListener() {
                         @Override public void onStart(String id) {}
                         @Override public void onDone(String id) {
                             if ("assistant_greeting".equals(id)) {
                                 listenAfterGreeting();
+                            } else if ("assistant_reply".equals(id)) {
+                                listenAfterReply();
                             }
                         }
                         @Override public void onError(String id) {
                             if ("assistant_greeting".equals(id)) {
                                 listenAfterGreeting();
+                            } else if ("assistant_reply".equals(id)) {
+                                listenAfterReply();
                             }
                         }
                     });
@@ -371,6 +384,19 @@ public class AssistantActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override public void run() {
                 if (!isFinishing() && !listening) startListening();
+            }
+        });
+    }
+
+    /** v3.7.33: reply spoken — listen again for the next question,
+     *  unless the user deliberately stopped listening. */
+    private void listenAfterReply() {
+        runOnUiThread(new Runnable() {
+            @Override public void run() {
+                setStatus(R.string.assistant_status_tap);
+                if (!isFinishing() && !listening && !userStopped) {
+                    startListening();
+                }
             }
         });
     }
@@ -405,12 +431,22 @@ public class AssistantActivity extends BaseActivity {
     }
 
     private void speak(String text) {
-        if (!voiceOn || !ttsReady || tts == null) return;
+        if (!voiceOn) return;
+        if (!ttsReady || tts == null) {
+            // No voice out right now — keep the conversation going
+            // by listening again instead of stalling.
+            if (!isFinishing() && !listening && !userStopped) {
+                startListening();
+            }
+            return;
+        }
+        setStatus(R.string.assistant_status_speaking);
         try {
             String spoken = text.replace("\n", ". ");
             tts.speak(spoken, TextToSpeech.QUEUE_FLUSH, null,
                     "assistant_reply");
         } catch (Exception ignored) {
+            setStatus(R.string.assistant_status_tap);
         }
     }
 
@@ -418,11 +454,47 @@ public class AssistantActivity extends BaseActivity {
     // Voice in (SpeechRecognizer)
     // ------------------------------------------------------------------
 
-    private void onMicClicked() {
+    /**
+     * v3.7.33: ask the recognizer which languages this phone
+     * supports, so the pa-PK fallback is only tried when it can
+     * actually work (not every phone has Punjabi recognition).
+     */
+    private void queryPaSupport() {
+        try {
+            Intent details = new Intent(
+                    RecognizerIntent.ACTION_GET_LANGUAGE_DETAILS);
+            sendOrderedBroadcast(details, null, new BroadcastReceiver() {
+                @Override public void onReceive(Context context,
+                        Intent intent) {
+                    try {
+                        Bundle extras = getResultExtras(true);
+                        if (extras == null) return;
+                        java.util.ArrayList<String> langs =
+                                extras.getStringArrayList(
+                                        RecognizerIntent
+                                                .EXTRA_SUPPORTED_LANGUAGES);
+                        if (langs != null) {
+                            paSupported = langs.contains("pa-PK")
+                                    || langs.contains("pa");
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }, null, RESULT_OK, null, null);
+        } catch (Exception ignored) {
+            paSupported = false;
+        }
+    }
+
+    private void onBigMicClicked() {
         if (listening) {
+            // User deliberately stopped — do not auto-listen again
+            // until they tap the mic.
+            userStopped = true;
             stopListening();
             return;
         }
+        userStopped = false;
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
             // v3.7.32: in-chat, never a Toast / notification.
             addBubble(getString(R.string.assistant_mic_unavailable), false);
@@ -447,6 +519,7 @@ public class AssistantActivity extends BaseActivity {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 listenFailures = 0;
+                userStopped = false;
                 startListening();
             } else {
                 // v3.7.32: in-chat, never a Toast / notification.
@@ -466,14 +539,14 @@ public class AssistantActivity extends BaseActivity {
                     RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ur-PK");
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, listenLang);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
             listening = true;
-            input.setHint(getString(R.string.assistant_listening));
+            setStatus(R.string.assistant_status_listening);
             recognizer.startListening(intent);
         } catch (Exception e) {
             listening = false;
-            input.setHint(getString(R.string.assistant_input_hint));
+            setStatus(R.string.assistant_status_tap);
             // v3.7.32: in-chat, never a Toast / notification.
             addBubble(getString(R.string.assistant_mic_failed), false);
         }
@@ -481,9 +554,20 @@ public class AssistantActivity extends BaseActivity {
 
     private void stopListening() {
         listening = false;
-        input.setHint(getString(R.string.assistant_input_hint));
+        setStatus(R.string.assistant_status_tap);
+        resetMicScale();
         try {
             if (recognizer != null) recognizer.stopListening();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void resetMicScale() {
+        try {
+            if (bigMic != null) {
+                bigMic.setScaleX(1f);
+                bigMic.setScaleY(1f);
+            }
         } catch (Exception ignored) {
         }
     }
@@ -492,7 +576,19 @@ public class AssistantActivity extends BaseActivity {
             implements RecognitionListener {
         @Override public void onReadyForSpeech(Bundle params) {}
         @Override public void onBeginningOfSpeech() {}
-        @Override public void onRmsChanged(float rmsdB) {}
+        @Override public void onRmsChanged(float rmsdB) {
+            // v3.7.33: the big mic pulses with the voice — the
+            // user sees the Assistant is hearing them.
+            try {
+                if (bigMic != null && listening) {
+                    float s = 1f + Math.min(Math.max(rmsdB, 0f), 10f)
+                            / 40f;
+                    bigMic.setScaleX(s);
+                    bigMic.setScaleY(s);
+                }
+            } catch (Exception ignored) {
+            }
+        }
         @Override public void onBufferReceived(byte[] buffer) {}
         @Override public void onEndOfSpeech() {}
         @Override public void onPartialResults(Bundle partialResults) {}
@@ -501,9 +597,19 @@ public class AssistantActivity extends BaseActivity {
 
         @Override public void onError(int error) {
             listening = false;
-            input.setHint(getString(R.string.assistant_input_hint));
+            resetMicScale();
+            setStatus(R.string.assistant_status_tap);
             if (error == SpeechRecognizer.ERROR_NO_MATCH
                     || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                // v3.7.33: nothing heard in ur-PK — try Punjabi
+                // once, but only if this phone supports pa-PK.
+                if ("ur-PK".equals(listenLang) && paSupported
+                        && !triedPa) {
+                    triedPa = true;
+                    listenLang = "pa-PK";
+                    startListening();
+                    return;
+                }
                 // v3.7.32: not understood — say so in-chat and listen
                 // again once; never a Toast / notification.
                 onNotUnderstood();
@@ -517,27 +623,38 @@ public class AssistantActivity extends BaseActivity {
 
         @Override public void onResults(Bundle results) {
             listening = false;
-            input.setHint(getString(R.string.assistant_input_hint));
+            resetMicScale();
+            setStatus(R.string.assistant_status_tap);
             ArrayList<String> heard = results.getStringArrayList(
                     SpeechRecognizer.RESULTS_RECOGNITION);
             if (heard != null && !heard.isEmpty()
                     && heard.get(0) != null
                     && !heard.get(0).trim().isEmpty()) {
                 listenFailures = 0;
+                // Next listen starts in ur-PK again; pa-PK is only
+                // a per-hearing fallback.
+                listenLang = "ur-PK";
+                triedPa = false;
                 sendQuestion(heard.get(0));
             } else {
                 onNotUnderstood();
             }
         }
 
-        /** v3.7.32: missed hearing — retry once, then point at typing. */
+        /** v3.7.33: missed hearing — retry once, then ask the user
+         *  to tap the mic and speak again. There is no typing
+         *  fallback any more (voice-only Assistant). */
         private void onNotUnderstood() {
             listenFailures++;
             if (listenFailures <= MAX_LISTEN_RETRIES) {
                 addBubble(getString(R.string.assistant_hear_retry), false);
+                listenLang = "ur-PK";
+                triedPa = false;
                 startListening();
             } else {
                 listenFailures = 0;
+                listenLang = "ur-PK";
+                triedPa = false;
                 addBubble(getString(R.string.assistant_hear_type), false);
             }
         }

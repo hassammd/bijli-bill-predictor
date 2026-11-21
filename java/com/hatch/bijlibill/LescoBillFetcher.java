@@ -1357,15 +1357,61 @@ public final class LescoBillFetcher {
         dbg.rawHtml = resultHtml;
         lastDebug = dbg;
 
+        // v3.7.33: session-out fix — if the portal answers the
+        // search POST by re-serving the form WITH a fresh CAPTCHA
+        // challenge, go straight to the captcha screen. Without
+        // this the response falls into parseBillHtml() and comes
+        // out as NOT_FOUND ("No bill found") — the user sees a
+        // wrong error, taps Try Again, and only then gets the
+        // captcha. Direct captcha is the correct behaviour after
+        // a session-out.
+        CaptchaChallenge postChallenge =
+                parseCaptchaChallenge(resultHtml, pageUrl);
+        if (postChallenge != null) {
+            throw newCaptchaRequired(t, jar, pageUrl, resultHtml,
+                    searchMode, searchText, urbanRural, refForInfo,
+                    postChallenge, tokens);
+        }
+
         return parseBillHtml(resultHtml, refForInfo, debugMeta);
     }
 
     /**
-     * v3.7.30: the search-form POST body WITH the CAPTCHA code
-     * appended (same fields as {@link #buildPostBody} plus the code
-     * field). The field name comes from the challenge (parsed from
-     * the form HTML, or the flagged fallback).
+     * v3.7.33: builds a CaptchaRequiredException from a CAPTCHA
+     * challenge found in a POST response (session-out in
+     * {@link #doFetchWith} or re-challenge in
+     * {@link #doFetchWithCaptcha}). The challenge image is
+     * downloaded with the same cookie jar; the tokens are
+     * re-parsed from the response form (they belong to the form
+     * the challenge came from), falling back to the tokens from
+     * the challenge GET when the response has none to parse.
      */
+    private static CaptchaRequiredException newCaptchaRequired(
+            HttpTransport t, CookieJar jar, String pageUrl, String html,
+            String searchMode, String searchText, String urbanRural,
+            String refForInfo, CaptchaChallenge challenge,
+            String[] fallbackTokens) {
+        challenge.imageBytes =
+                downloadCaptchaImage(t, challenge.imageUrl, jar);
+        String[] tokens = fallbackTokens;
+        try {
+            tokens = requireTokens(html);
+        } catch (FetchException e) {
+            // Response has no tokens to parse — keep the tokens
+            // from the challenge GET; the resume POST will fail
+            // honestly (TOKEN_ERROR) instead of crashing here.
+        }
+        CaptchaSession session = new CaptchaSession();
+        session.jar = jar;
+        session.tokens = tokens;
+        session.pageUrl = pageUrl;
+        session.challenge = challenge;
+        session.searchMode = searchMode;
+        session.searchText = searchText;
+        session.urbanRural = urbanRural;
+        session.refForInfo = refForInfo;
+        return new CaptchaRequiredException(session);
+    }
     public static String buildPostBodyWithCaptcha(String[] tokens,
             String searchMode, String searchText, String urbanRural,
             String captchaField, String captchaCode) {
@@ -1429,6 +1475,25 @@ public final class LescoBillFetcher {
         dbg.redirectHops = post.hops;
         dbg.rawHtml = resultHtml;
         lastDebug = dbg;
+
+        // v3.7.33: re-challenge — same session-out fix as
+        // doFetchWith: if the portal answers the captcha POST by
+        // re-serving the form with a FRESH challenge, go straight
+        // to a fresh captcha screen. But a wrong-code rejection
+        // must keep its honest message, so only do this when the
+        // response carries no captcha-error text (parseBillHtml
+        // step 0 handles that case).
+        if (captchaErrorText(resultHtml) == null) {
+            CaptchaChallenge reChallenge =
+                    parseCaptchaChallenge(resultHtml, session.pageUrl);
+            if (reChallenge != null) {
+                throw newCaptchaRequired(t, session.jar,
+                        session.pageUrl, resultHtml,
+                        session.searchMode, session.searchText,
+                        session.urbanRural, session.refForInfo,
+                        reChallenge, session.tokens);
+            }
+        }
 
         return parseBillHtml(resultHtml, session.refForInfo, debugMeta);
     }

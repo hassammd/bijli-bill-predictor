@@ -7,7 +7,14 @@ import java.util.Locale;
 /**
  * v3.7.31 — AI Assistant brain (v1, SIMPLE). Rule-based Q&A over the
  * locally saved bill snapshots — no internet, no API key, no LLM,
- * no cost, fully on-device. All answers are in simple Roman Urdu.
+ * no cost, fully on-device. All answers are in simple Roman Urdu
+ * (v3.7.33: Roman Punjabi too — detected and answered in the
+ * user's own language).
+ *
+ * v3.7.33: Roman Punjabi is detected (isPunjabi) and answered in
+ * the user's own language — same numbers, Punjabi wording. TTS
+ * stays ur-PK (Punjabi TTS data is not on every phone; the ur-PK
+ * voice reads Roman Punjabi acceptably).
  *
  * Pure Java, no Android dependencies — headless-unit-testable.
  * The Activity owns speech (SpeechRecognizer / TextToSpeech) and
@@ -71,19 +78,33 @@ public final class AssistantBrain {
     /**
      * Answers a free-text question from the snapshots (newest first).
      * Never returns null; unknown questions get the help text.
+     *
+     * v3.7.33: Roman Punjabi is detected too (isPunjabi) and answered
+     * in the user's own language — same numbers, Punjabi wording.
+     * TTS stays ur-PK (Punjabi TTS data is not on every phone; the
+     * ur-PK voice reads Roman Punjabi acceptably).
      */
     public static String answer(String question,
             List<BillSnapshots.Snapshot> snaps, String meterLabel) {
         String q = question == null ? "" : question.trim().toLowerCase(
                 Locale.US);
-        if (q.isEmpty()) return help(snaps);
+        if (q.isEmpty()) return help(snaps, false);
+        boolean pa = isPunjabi(q);
         if (snaps == null || snaps.isEmpty()) {
             // NOTE: no bare "hi" keyword — it matches inside "mahine"
         // ("ma-hi-ne") and would hijack real questions. Greeting
         // works via "salam"/"hello" instead.
         if (containsAny(q, "salam", "hello", "help", "madad",
-                    "kya kar", "kya pooch", "tum kaun", "kaun ho")) {
-                return greeting(snaps, meterLabel);
+                    "kya kar", "kya pooch", "tum kaun", "kaun ho",
+                    "ki haal", "kiddan", "sat sri akal")) {
+                return pa ? greetingPa() : greeting(snaps, meterLabel);
+            }
+            if (pa) {
+                return "Aje tak koi bill save nahi hoya, is layi main "
+                        + "jawab nahi de sakda. Pehlan Home to apna bill "
+                        + "fetch karo, phir mainu pucho — main das dunga "
+                        + "bill kyun wadh gaya, aakhri tareekh kado hai, "
+                        + "te 200 unit guard ki kehnda hai.";
             }
             return "Abhi tak koi bill save nahi hua, is liye main jawab "
                     + "nahi de sakta. Pehle Home se apna bill fetch karain, "
@@ -96,44 +117,91 @@ public final class AssistantBrain {
                 snaps.size() > 1 ? snaps.get(1) : null;
 
         if (containsAny(q, "salam", "hello", "help", "madad",
-                "kya kar", "kya pooch", "tum kaun", "kaun ho")) {
-            return help(snaps);
+                "kya kar", "kya pooch", "tum kaun", "kaun ho",
+                "ki haal", "kiddan", "sat sri akal")) {
+            return help(snaps, pa);
         }
         if (containsAny(q, "due", "aakhri", "akhri", "last date",
-                "kab tak", "kab dena", "jama", "pay karna")) {
-            return dueAnswer(cur);
+                "kab tak", "kab dena", "jama", "pay karna",
+                "kado", "aakhri tareekh")) {
+            return dueAnswer(cur, pa);
         }
         if (containsAny(q, "pichl", "pehle", "guzra", "last month",
-                "last bill", "pichle mahine")) {
-            return prevAnswer(prev);
+                "last bill", "pichle mahine", "kinna si")) {
+            return prevAnswer(prev, pa);
         }
         if (containsAny(q, "guard", "200", "protected", "limit",
-                "bacha", "bachao")) {
-            return guardAnswer(cur);
+                "bacha", "bachao", "kehnda", "kehndi")) {
+            return guardAnswer(cur, pa);
         }
         if (containsAny(q, "zyada", "ziyada", "barh", "mehnga",
-                "mehanga", "kyun", "kyon", "why")) {
-            return whyHighAnswer(cur, prev);
+                "mehanga", "kyun", "kyon", "why",
+                "wadh", "kiyon", "waja")) {
+            return whyHighAnswer(cur, prev, pa);
         }
         if (containsAny(q, "fpa", "fuel")) {
-            return fpaAnswer(cur);
+            return fpaAnswer(cur, pa);
         }
-        if (containsAny(q, "unit", "units")) {
-            return unitsAnswer(cur, prev);
+        if (containsAny(q, "unit", "units", "kinne")) {
+            return unitsAnswer(cur, prev, pa);
         }
         if (containsAny(q, "kitna", "kitne", "amount", "raqam",
-                "payable", "bill")) {
-            return currentBillAnswer(cur);
+                "payable", "bill", "kinna")) {
+            return currentBillAnswer(cur, pa);
         }
-        return help(snaps);
+        return help(snaps, pa);
+    }
+
+    /**
+     * v3.7.33: true when the question is Roman Punjabi. Matches
+     * whole words only (padded search) so a marker never fires
+     * inside an Urdu word — e.g. "ki" inside "kitna". Public so
+     * the headless tests (default package) can call it directly.
+     */
+    public static boolean isPunjabi(String q) {
+        if (q == null) return false;
+        String p = " " + q.trim().toLowerCase(Locale.US)
+                .replaceAll("[^a-z ]", " ")
+                .replaceAll("\\s+", " ") + " ";
+        return containsAny(p, " ki haal ", " kiddan ", " tusi ",
+                " tuhada ", " tuhadi ", " kinna ", " kinne ",
+                " kinni ", " wadh ", " kiyon ", " kado ",
+                " ki gal ", " dasso ", " daso ", " kehnda ",
+                " kehndi ", " sanu ", " mainu ", " sat sri akal ");
+    }
+
+    /** Short Punjabi greeting (no bill saved yet). */
+    static String greetingPa() {
+        return "Sat Sri Akal! Main tuhada Bijli Bill Assistant haan. "
+                + "Aje tak koi bill save nahi hoya — pehlan Home to "
+                + "apna bill fetch karo, phir mainu pucho. Main das "
+                + "sakda haan bill kyun wadh gaya, aakhri tareekh kado "
+                + "hai, te 200 unit guard ki kehnda hai.";
     }
 
     // ------------------------------------------------------------------
     // Answers
     // ------------------------------------------------------------------
 
-    private static String help(List<BillSnapshots.Snapshot> snaps) {
+    private static String help(List<BillSnapshots.Snapshot> snaps,
+            boolean pa) {
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            sb.append("Main sirf tuhade save kitte bills to jawab de "
+                    + "sakda haan. ");
+            if (snaps == null || snaps.isEmpty()) {
+                sb.append("Aje koi bill save nahi hai — pehlan Home to "
+                        + "apna bill fetch karo.");
+                return sb.toString();
+            }
+            sb.append("Tusi eh puch sakde ho:\n"
+                    + "- Mera bill kyun wadh gaya?\n"
+                    + "- Mere bill di aakhri tareekh kado hai?\n"
+                    + "- Pichla bill kinna si?\n"
+                    + "- 200 unit guard ki kehnda hai?\n"
+                    + "- Is mahine kinne unit lage?");
+            return sb.toString();
+        }
         sb.append("Main sirf aapke save kiye hue bills se jawab de sakta hun. ");
         if (snaps == null || snaps.isEmpty()) {
             sb.append("Abhi koi bill save nahi hai — pehle Home se apna "
@@ -149,8 +217,35 @@ public final class AssistantBrain {
         return sb.toString();
     }
 
-    private static String currentBillAnswer(BillSnapshots.Snapshot cur) {
+    private static String currentBillAnswer(BillSnapshots.Snapshot cur,
+            boolean pa) {
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            sb.append("Tuhada bill");
+            if (!isEmpty(cur.billMonth)) {
+                sb.append(" (").append(cur.billMonth).append(")");
+            }
+            sb.append(": ");
+            boolean said = false;
+            if (cur.units >= 0) {
+                sb.append(cur.units).append(" unit");
+                said = true;
+            }
+            if (cur.amount >= 0) {
+                if (said) sb.append(", ");
+                sb.append("Rs ").append(fmtRs(cur.amount));
+                said = true;
+            }
+            if (!said) {
+                sb.append("da mukammal record save nahi hoya");
+            }
+            sb.append(".");
+            if (!isEmpty(cur.dueDate)) {
+                sb.append(" Aakhri tareekh ").append(cur.dueDate)
+                  .append(" hai.");
+            }
+            return sb.toString();
+        }
         sb.append("Aapka bill");
         if (!isEmpty(cur.billMonth)) {
             sb.append(" (").append(cur.billMonth).append(")");
@@ -177,8 +272,82 @@ public final class AssistantBrain {
     }
 
     private static String whyHighAnswer(BillSnapshots.Snapshot cur,
-            BillSnapshots.Snapshot prev) {
+            BillSnapshots.Snapshot prev, boolean pa) {
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            if (prev != null && prev.units >= 0 && cur.units >= 0) {
+                int delta = cur.units - prev.units;
+                sb.append("Is mahine ").append(cur.units)
+                  .append(" unit lage, pichle mahine ").append(prev.units)
+                  .append(" si — ");
+                if (delta > 0) {
+                    int pct = prev.units > 0
+                            ? Math.round(delta * 100.0f / prev.units) : 0;
+                    sb.append(delta).append(" unit zyada");
+                    if (pct > 0) sb.append(" (").append(pct).append("%)");
+                    sb.append(".");
+                } else if (delta < 0) {
+                    sb.append(-delta).append(" unit GHAT gaye — bill "
+                            + "wadhan di waja unit nahi, thalle vekho.");
+                } else {
+                    sb.append("unit barabar ne — bill wadhan di waja "
+                            + "unit nahi, thalle vekho.");
+                }
+                sb.append(" ");
+            } else if (cur.units >= 0) {
+                sb.append("Is mahine ").append(cur.units)
+                  .append(" unit lage. Pichle mahine da bill save nahi "
+                          + "hai, is layi farq nahi das sakda — agle "
+                          + "mahine to farq vi das dunga. ");
+            }
+            double fpa = BillSnapshots.parseMoney(cur.fpa);
+            if (fpa > 0) {
+                sb.append("Is bill vich FPA Rs ").append(fmtRs(fpa))
+                  .append(" hai. ");
+                if (prev != null) {
+                    double pf = BillSnapshots.parseMoney(prev.fpa);
+                    if (pf >= 0 && fpa > pf) {
+                        sb.append("Pichle mahine FPA Rs ").append(fmtRs(pf))
+                          .append(" si, is layi bill wadh gaya. ");
+                    }
+                }
+            }
+            String prot = protectedWord(cur.category);
+            if (cur.units > 200) {
+                if (prev != null && prev.units >= 0 && prev.units <= 200) {
+                    sb.append("Tusi 200 unit to upar chale gaye — "
+                            + "Protected status khatam ho gaya, is layi "
+                            + "mehenge slab lage.");
+                } else if ("Protected".equals(prot)) {
+                    sb.append("Bill te category Protected likhi hai, "
+                            + "lekin unit 200 to upar ne — agle mahine "
+                            + "Protected status khatam ho sakda hai.");
+                } else {
+                    sb.append("Unit 200 to upar ne, is layi mehenge "
+                            + "slab lage.");
+                }
+            } else if (cur.units >= 0 && "Protected".equals(prot)) {
+                sb.append("Tusi aje vi Protected ho (200 unit to thalle), "
+                        + "is layi saste slab lage.");
+            }
+            if (prev != null && prev.amount >= 0 && cur.amount >= 0) {
+                double d = cur.amount - prev.amount;
+                if (d > 0) {
+                    sb.append(" Bill Rs ").append(fmtRs(cur.amount))
+                      .append(" hai, pichle mahine Rs ")
+                      .append(fmtRs(prev.amount)).append(" si.");
+                } else if (d < 0) {
+                    sb.append(" Bill asal vich Rs ").append(fmtRs(cur.amount))
+                      .append(" hai — pichle mahine Rs ")
+                      .append(fmtRs(prev.amount))
+                      .append(" si, is layi bill ghat gaya hai.");
+                }
+            } else if (cur.amount >= 0) {
+                sb.append(" Bill Rs ").append(fmtRs(cur.amount))
+                  .append(" hai.");
+            }
+            return sb.toString().trim();
+        }
         if (prev != null && prev.units >= 0 && cur.units >= 0) {
             int delta = cur.units - prev.units;
             sb.append("Is mahine ").append(cur.units)
@@ -253,12 +422,48 @@ public final class AssistantBrain {
         return sb.toString().trim();
     }
 
-    private static String dueAnswer(BillSnapshots.Snapshot cur) {
+    private static String dueAnswer(BillSnapshots.Snapshot cur,
+            boolean pa) {
         if (isEmpty(cur.dueDate)) {
+            if (pa) {
+                return "Is bill di aakhri tareekh save nahi hoyi. Bill "
+                        + "dobara fetch karo te main aakhri tareekh vi "
+                        + "das dunga.";
+            }
             return "Is bill ki due date save nahi hui. Bill dobara fetch "
                     + "karain to main due date bhi bata dunga.";
         }
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            sb.append("Tuhade bill di aakhri tareekh ").append(cur.dueDate)
+              .append(" hai. ");
+            String iso = GuardReminder.parseBillDate(cur.dueDate);
+            if (iso != null) {
+                int days = GuardReminder.daysBetween(
+                        GuardReminder.todayIso(), iso);
+                if (days > 0) {
+                    sb.append(days).append(days == 1 ? " din reh gaya hai."
+                            : " din reh gaye ne.");
+                } else if (days == 0) {
+                    sb.append("Ajj aakhri din hai — ajj hi jama karwa deyo.");
+                } else {
+                    sb.append("Aakhri tareekh ").append(-days)
+                      .append(-days == 1 ? " din pehlan langh gayi hai."
+                              : " din pehlan langh gayi hai.")
+                      .append(" Late fee to bachan layi jald jama "
+                              + "karwa deyo.");
+                }
+                sb.append(" ");
+            }
+            if (cur.amountAfterDue >= 0 && cur.amount >= 0
+                    && cur.amountAfterDue > cur.amount) {
+                sb.append("Aakhri tareekh to baad Rs ")
+                  .append(fmtRs(cur.amountAfterDue - cur.amount))
+                  .append(" extra lagange, total Rs ")
+                  .append(fmtRs(cur.amountAfterDue)).append(" ho jayega.");
+            }
+            return sb.toString().trim();
+        }
         sb.append("Aapke bill ki due date ").append(cur.dueDate)
           .append(" hai. ");
         String iso = GuardReminder.parseBillDate(cur.dueDate);
@@ -288,12 +493,38 @@ public final class AssistantBrain {
         return sb.toString().trim();
     }
 
-    private static String prevAnswer(BillSnapshots.Snapshot prev) {
+    private static String prevAnswer(BillSnapshots.Snapshot prev,
+            boolean pa) {
         if (prev == null) {
+            if (pa) {
+                return "Pichle mahine da bill save nahi hai. Jadon agla "
+                        + "bill fetch hovega te main pichla bill vi yaad "
+                        + "rakhanga.";
+            }
             return "Pichle mahine ka bill save nahi hai. Jab agla bill "
                     + "fetch hoga to main pichla bill bhi yaad rakhunga.";
         }
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            sb.append("Pichle mahine");
+            if (!isEmpty(prev.billMonth)) {
+                sb.append(" (").append(prev.billMonth).append(")");
+            }
+            sb.append(" da bill ");
+            boolean said = false;
+            if (prev.amount >= 0) {
+                sb.append("Rs ").append(fmtRs(prev.amount));
+                said = true;
+            }
+            if (prev.units >= 0) {
+                if (said) sb.append(", ");
+                sb.append(prev.units).append(" unit");
+                said = true;
+            }
+            if (!said) sb.append("da mukammal record save nahi hoya");
+            sb.append(" si.");
+            return sb.toString();
+        }
         sb.append("Pichle mahine");
         if (!isEmpty(prev.billMonth)) {
             sb.append(" (").append(prev.billMonth).append(")");
@@ -314,8 +545,13 @@ public final class AssistantBrain {
         return sb.toString();
     }
 
-    private static String guardAnswer(BillSnapshots.Snapshot cur) {
+    private static String guardAnswer(BillSnapshots.Snapshot cur,
+            boolean pa) {
         if (cur.units < 0) {
+            if (pa) {
+                return "Guard layi is bill de unit save nahi hoye. Bill "
+                        + "dobara fetch karo te main guard vi das dunga.";
+            }
             return "Guard ke liye is bill ke units save nahi hue. Bill "
                     + "dobara fetch karain to main guard bhi bata dunga.";
         }
@@ -330,6 +566,32 @@ public final class AssistantBrain {
         GuardCalc.Projection p = GuardCalc.autoProjectFromBill(
                 cur.units, GuardCalc.DEFAULT_CYCLE_DAYS, daysElapsed);
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            sb.append("200-Unit Guard (andaza hai, asal reading naal "
+                    + "badal sakda hai): ");
+            sb.append("is mahine de aakhir tak andazan ")
+              .append(Math.round(p.projectedUnits))
+              .append(" unit ho jange. ");
+            if (p.status == GuardCalc.Status.DANGER) {
+                sb.append("Khatra hai — tusi 200 unit cross karan wale "
+                        + "ho, Protected status khatam ho jayega. ");
+            } else if (p.status == GuardCalc.Status.WARNING) {
+                sb.append("Tusi 200 de bohat nere ho — ehtiyat karo. ");
+            } else {
+                sb.append("Tusi mehfooz ho, 200 to thalle rehan da "
+                        + "andaza hai. ");
+            }
+            if (p.remainingDays > 0 && p.dailyBudget > 0) {
+                sb.append("Baaki ").append(p.remainingDays)
+                  .append(" din layi rozana ")
+                  .append(fmt1(p.dailyBudget))
+                  .append(" unit to zyada na varton te 200 to thalle "
+                          + "raho ge.");
+            } else if (p.remainingDays <= 0) {
+                sb.append("Billing cycle khatam hon wala hai.");
+            }
+            return sb.toString().trim();
+        }
         sb.append("200-Unit Guard (andaza hai, asal reading se badal "
                 + "sakta hai): ");
         sb.append("is mahine ke aakhir tak andazan ")
@@ -354,12 +616,23 @@ public final class AssistantBrain {
         return sb.toString().trim();
     }
 
-    private static String fpaAnswer(BillSnapshots.Snapshot cur) {
+    private static String fpaAnswer(BillSnapshots.Snapshot cur,
+            boolean pa) {
         double fpa = BillSnapshots.parseMoney(cur.fpa);
         if (fpa < 0) {
+            if (pa) {
+                return "Is bill vich FPA save nahi hoya. FPA fuel price "
+                        + "adjustment hunda hai — bijli banan wale fuel "
+                        + "di qeemat badlan te bill vich lagda hai.";
+            }
             return "Is bill mein FPA save nahi hua. FPA fuel price "
                     + "adjustment hota hai — bijli banane wale fuel ki qeemat "
                     + "badalne par bill mein lagta hai.";
+        }
+        if (pa) {
+            return "Is bill vich FPA Rs " + fmtRs(fpa) + " hai. FPA fuel "
+                    + "price adjustment hunda hai — bijli banan wale "
+                    + "fuel di qeemat badlan te bill vich lagda hai.";
         }
         return "Is bill mein FPA Rs " + fmtRs(fpa) + " hai. FPA fuel price "
                 + "adjustment hota hai — bijli banane wale fuel ki qeemat "
@@ -367,12 +640,37 @@ public final class AssistantBrain {
     }
 
     private static String unitsAnswer(BillSnapshots.Snapshot cur,
-            BillSnapshots.Snapshot prev) {
+            BillSnapshots.Snapshot prev, boolean pa) {
         if (cur.units < 0) {
+            if (pa) {
+                return "Is bill de unit save nahi hoye. Bill dobara "
+                        + "fetch karo te main unit vi das dunga.";
+            }
             return "Is bill ke units save nahi hue. Bill dobara fetch "
                     + "karain to main units bhi bata dunga.";
         }
         StringBuilder sb = new StringBuilder();
+        if (pa) {
+            sb.append("Is mahine ").append(cur.units).append(" unit lage");
+            if (!isEmpty(cur.prevReading) && !isEmpty(cur.currReading)) {
+                sb.append(" — pichli reading ").append(cur.prevReading)
+                  .append(", ajj di reading ").append(cur.currReading);
+            }
+            sb.append(".");
+            if (prev != null && prev.units >= 0) {
+                int delta = cur.units - prev.units;
+                if (delta > 0) {
+                    sb.append(" Pichle mahine to ").append(delta)
+                      .append(" unit zyada.");
+                } else if (delta < 0) {
+                    sb.append(" Pichle mahine to ").append(-delta)
+                      .append(" unit ghat.");
+                } else {
+                    sb.append(" Pichle mahine de barabar.");
+                }
+            }
+            return sb.toString();
+        }
         sb.append("Is mahine ").append(cur.units).append(" unit use hue");
         if (!isEmpty(cur.prevReading) && !isEmpty(cur.currReading)) {
             sb.append(" — pichli reading ").append(cur.prevReading)

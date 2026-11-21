@@ -1052,6 +1052,9 @@ public class TestBillFetch {
         // ---- v3.7.31: AI Assistant snapshots + brain ----
         runV3731Tests();
 
+        // ---- v3.7.33: session-out goes straight to CAPTCHA ----
+        runV3733SessionOutTests();
+
         System.out.println();
         if (failures == 0) {
             System.out.println("ALL TESTS PASSED");
@@ -2169,9 +2172,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"164\""), true);
+                man.contains("android:versionCode=\"165\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.32\""), true);
+                man.contains("android:versionName=\"3.7.33\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3874,9 +3877,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"164\""), true);
+                man.contains("android:versionCode=\"165\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.32\""), true);
+                man.contains("android:versionName=\"3.7.33\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4247,10 +4250,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"164\""),
+                manifest.contains("android:versionCode=\"165\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.32\""),
+                manifest.contains("android:versionName=\"3.7.33\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4409,10 +4412,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"164\""),
+                manifest.contains("android:versionCode=\"165\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.32\""),
+                manifest.contains("android:versionName=\"3.7.33\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4632,6 +4635,77 @@ public class TestBillFetch {
         check("captcha resume wrong code rejected", rejected2, true);
     }
 
+    // ---- v3.7.33 tests: session-out goes straight to CAPTCHA ----
+
+    static void runV3733SessionOutTests() throws Exception {
+        String digits = "06113530462901";
+        String base = "https://bill.pitc.com.pk/lescobill";
+
+        // Session-out scenario (user-reported 2026-11-21): the
+        // first fetch after the portal session dies must show the
+        // CAPTCHA directly — never "No bill found" first with the
+        // captcha only appearing after Try Again. Script: seed GET
+        // (plain form, no captcha) -> direct legs miss -> form GET
+        // (plain form, no captcha) -> form POST answers by
+        // re-serving the form WITH a fresh captcha challenge.
+        FakeTransport t = new FakeTransport();
+        t.add(200, fakeFormHtml("T"), base, "Set-Cookie", FAKE_COOKIE);
+        t.add(200, "<html><body>no bill here</body></html>",
+                base + "/general?refno=" + digits);
+        t.add(200, "<html><body>no bill here</body></html>",
+                base + "/general?refno=" + digits + "U");
+        t.add(200, fakeFormHtml("T"), base, "Set-Cookie", FAKE_COOKIE);
+        t.add(200, fakeCaptchaFormHtml(), base, "Set-Cookie", FAKE_COOKIE);
+        t.add(200, "FAKEPNG", base + "/CaptchaImage?x=1");
+        LescoBillFetcher.CaptchaSession session = null;
+        boolean requiredThrown = false;
+        boolean notFoundThrown = false;
+        try {
+            LescoBillFetcher.fetchBillPageWith(t, digits + "U");
+        } catch (LescoBillFetcher.CaptchaRequiredException e) {
+            requiredThrown = true;
+            session = e.session;
+        } catch (LescoBillFetcher.BillErrorException e) {
+            notFoundThrown = true;
+        }
+        check("session-out POST challenge throws CaptchaRequired",
+                requiredThrown, true);
+        check("session-out POST challenge never NOT_FOUND",
+                notFoundThrown, false);
+        check("session-out challenge session kept", session != null, true);
+        check("session-out challenge field", session.challenge.fieldName,
+                "CaptchaCode");
+        check("session-out challenge image bytes",
+                new String(session.challenge.imageBytes,
+                        StandardCharsets.UTF_8),
+                "FAKEPNG");
+        check("session-out challenge search text",
+                session.searchText, digits);
+        check("session-out exchanges", t.exchanges, 6);
+
+        // Genuine NOT_FOUND is unchanged: a POST that answers with
+        // a real portal error (no captcha on the page) still throws
+        // BillErrorException(NOT_FOUND), not a captcha challenge.
+        FakeTransport t2 = new FakeTransport();
+        t2.add(200, fakeFormHtml("T"), base, "Set-Cookie", FAKE_COOKIE);
+        t2.add(200, "<html><body>no bill here</body></html>",
+                base + "/general?refno=" + digits);
+        t2.add(200, "<html><body>no bill here</body></html>",
+                base + "/general?refno=" + digits + "U");
+        t2.add(200, fakeFormHtml("T"), base, "Set-Cookie", FAKE_COOKIE);
+        t2.add(200, "<html><head><title>LESCO Web Bill</title></head>"
+                + "<body><div id=\"ua\">Record not found.</div>"
+                + "</body></html>", base);
+        boolean notFound2 = false;
+        try {
+            LescoBillFetcher.fetchBillPageWith(t2, digits + "U");
+        } catch (LescoBillFetcher.BillErrorException e) {
+            notFound2 = e.kind
+                    == LescoBillFetcher.FetchKind.NOT_FOUND;
+        }
+        check("genuine NOT_FOUND still NOT_FOUND", notFound2, true);
+    }
+
     // ---- v3.7.31 tests: AI Assistant snapshots + brain ----
 
     static BillSnapshots.Storage memStore(
@@ -4800,10 +4874,11 @@ public class TestBillFetch {
                 readStrings("res/values-ur/strings.xml");
         String[] newKeys = {"quick_assistant", "quick_assistant_sub",
                 "assistant_title", "assistant_sub", "assistant_hint",
-                "assistant_input_hint", "assistant_send",
                 "assistant_voice_on", "assistant_voice_off",
                 "assistant_mic_denied", "assistant_mic_unavailable",
-                "assistant_mic_failed", "assistant_listening"};
+                "assistant_mic_failed",
+                "assistant_status_listening",
+                "assistant_status_speaking", "assistant_status_tap"};
         for (String k : newKeys) {
             check("v3731 key en " + k, en.containsKey(k), true);
             check("v3731 key ur " + k, ur.containsKey(k), true);
@@ -4832,8 +4907,8 @@ public class TestBillFetch {
                 man.contains(".AssistantActivity"), true);
         check("v3731 manifest mic permission",
                 man.contains("android.permission.RECORD_AUDIO"), true);
-        check("v3732 manifest version 164",
-                man.contains("android:versionCode=\"164\""), true);
+        check("v3733 manifest version 165",
+                man.contains("android:versionCode=\"165\""), true);
 
         // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -4878,6 +4953,101 @@ public class TestBillFetch {
                 asst.contains("onNotUnderstood"), true);
         check("v3732 assistant no toast",
                 !asst.contains("Toast.makeText"), true);
+
+        // ---- 17. v3.7.33: voice-only Assistant + Punjabi ----
+        // 17a. No text input anywhere on the Assistant screen.
+        check("v3733 no EditText", !asst.contains("EditText"), true);
+        check("v3733 no send button",
+                !asst.contains("assistant_send"), true);
+        check("v3733 no input hint",
+                !asst.contains("assistant_input_hint"), true);
+        check("v3733 no old listening hint",
+                !asst.contains("assistant_listening"), true);
+        // 17b. Voice-call UI: big mic + status line.
+        check("v3733 big mic", asst.contains("bigMic"), true);
+        check("v3733 status text", asst.contains("statusText"), true);
+        check("v3733 status listening",
+                asst.contains("assistant_status_listening"), true);
+        check("v3733 status speaking",
+                asst.contains("assistant_status_speaking"), true);
+        check("v3733 status tap",
+                asst.contains("assistant_status_tap"), true);
+        // 17c. pa-PK fallback: device support checked before retry.
+        check("v3733 pa fallback lang",
+                asst.contains("\"pa-PK\""), true);
+        check("v3733 pa support query",
+                asst.contains("ACTION_GET_LANGUAGE_DETAILS"), true);
+        check("v3733 pa supported list",
+                asst.contains("EXTRA_SUPPORTED_LANGUAGES"), true);
+        // 17d. Continuous voice conversation: reply ends -> listen.
+        check("v3733 reply utterance",
+                asst.contains("\"assistant_reply\""), true);
+        check("v3733 listen after reply",
+                asst.contains("listenAfterReply"), true);
+        check("v3733 user stopped flag",
+                asst.contains("userStopped"), true);
+        // 17e. New status strings in both locales, same format args.
+        String[] statusKeys = {"assistant_status_listening",
+                "assistant_status_speaking", "assistant_status_tap"};
+        for (String k : statusKeys) {
+            check("v3733 key en " + k, en.containsKey(k), true);
+            check("v3733 key ur " + k, ur.containsKey(k), true);
+            check("v3733 fmt " + k, fmtArgs(en.get(k)),
+                    fmtArgs(ur.get(k)));
+        }
+        // 17f. Punjabi detection (whole words only).
+        check("v3733 punjabi ki haal",
+                AssistantBrain.isPunjabi("ki haal hai?"), true);
+        check("v3733 punjabi kinna",
+                AssistantBrain.isPunjabi("mera bill kinna aaya?"), true);
+        check("v3733 punjabi tusi",
+                AssistantBrain.isPunjabi("tusi daso bill kinna hai"),
+                true);
+        check("v3733 urdu not punjabi",
+                AssistantBrain.isPunjabi("mera bill kyun zyada aaya?"),
+                false);
+        check("v3733 kitna not punjabi",
+                AssistantBrain.isPunjabi("bill kitna hai?"), false);
+        // 17g. Punjabi answers, main intents (same numbers).
+        String whyPa = AssistantBrain.answer(
+                "mera bill kyun wadh gaya?", two, "Test User");
+        check("v3733 punjabi why delta",
+                whyPa.contains("unit zyada"), true);
+        check("v3733 punjabi why words",
+                whyPa.contains("lage"), true);
+        String duePa = AssistantBrain.answer(
+                "aakhri tareekh kado hai?", due, "Test User");
+        check("v3733 punjabi due",
+                duePa.contains("aakhri tareekh"), true);
+        check("v3733 punjabi due days",
+                duePa.contains("din reh gaye ne"), true);
+        String prevPa = AssistantBrain.answer(
+                "pichla bill kinna si?", two, "Test User");
+        check("v3733 punjabi prev", prevPa.contains("9,500"), true);
+        check("v3733 punjabi prev words",
+                prevPa.contains("da bill"), true);
+        String guardPa = AssistantBrain.answer(
+                "200 unit guard ki kehnda hai?", two, "Test User");
+        check("v3733 punjabi guard", guardPa.contains("Khatra"), true);
+        check("v3733 punjabi guard words",
+                guardPa.contains("mahine de aakhir"), true);
+        String unitsPa = AssistantBrain.answer(
+                "is mahine kinne unit lage?", two, "Test User");
+        check("v3733 punjabi units", unitsPa.contains("250 unit"), true);
+        check("v3733 punjabi units words",
+                unitsPa.contains("lage"), true);
+        String amtPa = AssistantBrain.answer(
+                "mera bill kinna aaya?", two, "Test User");
+        check("v3733 punjabi amount", amtPa.contains("12,800"), true);
+        String greetPa = AssistantBrain.answer(
+                "ki haal hai?", empty, "");
+        check("v3733 punjabi greeting",
+                greetPa.contains("Sat Sri Akal"), true);
+        // 17h. Urdu still answers exactly as before.
+        String whyUr = AssistantBrain.answer(
+                "mera bill kyun zyada aaya?", two, "Test User");
+        check("v3733 urdu why still",
+                whyUr.contains("70 unit zyada"), true);
     }
 
     static void addPoint(
