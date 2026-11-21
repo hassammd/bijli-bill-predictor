@@ -29,19 +29,44 @@ import java.util.List;
  */
 public class FlowLayout extends ViewGroup {
 
+    /**
+     * v3.7.46: per-child flag for the last child on a line.
+     * alignEnd = true pins that child's right edge (incl. its
+     * right margin) exactly to the line's right edge — no dead
+     * gap on the right. Used by the bill amount row: the status
+     * column (stamp + status text) sits flush against the
+     * card's right edge, whether it shares the line with the
+     * amount or wrapped onto its own line. The amount group
+     * itself never sets this — it stays left.
+     */
+    public static class FlowLayoutParams extends MarginLayoutParams {
+        public boolean alignEnd = false;
+
+        public FlowLayoutParams(int w, int h) {
+            super(w, h);
+        }
+
+        public FlowLayoutParams(ViewGroup.LayoutParams p) {
+            super(p);
+            if (p instanceof FlowLayoutParams) {
+                alignEnd = ((FlowLayoutParams) p).alignEnd;
+            }
+        }
+    }
+
     public FlowLayout(Context ctx) {
         super(ctx);
     }
 
     @Override
     protected LayoutParams generateDefaultLayoutParams() {
-        return new MarginLayoutParams(
+        return new FlowLayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
     @Override
     protected LayoutParams generateLayoutParams(LayoutParams p) {
-        return new MarginLayoutParams(p);
+        return new FlowLayoutParams(p);
     }
 
     @Override
@@ -112,7 +137,7 @@ public class FlowLayout extends ViewGroup {
             int chh = ch.getMeasuredHeight()
                     + lp.topMargin + lp.bottomMargin;
             if (FlowMath.shouldWrap(lineW, cw, avail)) {
-                placeLine(line, x, y, lineH);
+                placeLine(line, x, y, lineH, lineW, avail);
                 y += lineH;
                 line.clear();
                 lineW = 0;
@@ -122,14 +147,24 @@ public class FlowLayout extends ViewGroup {
             lineW += cw;
             lineH = Math.max(lineH, chh);
         }
-        placeLine(line, x, y, lineH);
+        placeLine(line, x, y, lineH, lineW, avail);
     }
 
-    /** Lays one line's children out left to right, bottom-aligned. */
+    /**
+     * Lays one line's children out left to right, bottom-aligned.
+     * v3.7.46: a last child with LayoutParams.alignEnd has its
+     * right edge (incl. right margin) pinned exactly to the
+     * line's right edge — no dead gap on the right. The wrap
+     * rule guarantees the line fits (lineW &lt;= avail), so the
+     * end-aligned child never overlaps the child before it:
+     * its left edge is at startX + avail - rightMargin -
+     * width, which is &gt;= its natural flow position.
+     */
     private void placeLine(List<View> line, int startX, int top,
-            int lineH) {
+            int lineH, int lineW, int avail) {
         int x = startX;
-        for (View ch : line) {
+        for (int i = 0; i < line.size(); i++) {
+            View ch = line.get(i);
             MarginLayoutParams lp = lpOf(ch);
             int cw = ch.getMeasuredWidth();
             int chh = ch.getMeasuredHeight();
@@ -137,8 +172,15 @@ public class FlowLayout extends ViewGroup {
             // baseline as the tallest child (the amount / stamp).
             int childTop = top + lp.topMargin
                     + (lineH - lp.topMargin - lp.bottomMargin - chh);
-            ch.layout(x + lp.leftMargin, childTop,
-                    x + lp.leftMargin + cw, childTop + chh);
+            int childLeft = x + lp.leftMargin;
+            boolean alignEnd = i == line.size() - 1
+                    && lp instanceof FlowLayoutParams
+                    && ((FlowLayoutParams) lp).alignEnd;
+            if (alignEnd) {
+                childLeft = startX + avail - lp.rightMargin - cw;
+            }
+            ch.layout(childLeft, childTop,
+                    childLeft + cw, childTop + chh);
             x += lp.leftMargin + cw + lp.rightMargin;
         }
     }

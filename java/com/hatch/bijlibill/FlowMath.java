@@ -21,6 +21,18 @@ public final class FlowMath {
         return x > 0 && x + w > availWidth;
     }
 
+    /** v3.7.46: left position (relative to the content box's
+     *  left edge) of an end-aligned child on a line of the given
+     *  available width. Its right edge + right margin land
+     *  exactly on the content box's right edge — no dead gap.
+     *  Invariant: endAlignedLeft(w, m, avail) + w + m == avail.
+     *  Callers only use it when the line fits (lineW &lt;= avail),
+     *  so the child never overlaps the child before it. */
+    public static int endAlignedLeft(int childWidth, int rightMargin,
+            int availWidth) {
+        return availWidth - rightMargin - childWidth;
+    }
+
     /** How many lines the given child widths need in the available
      *  width. Empty input needs no lines. */
     public static int lineCount(int[] widths, int availWidth) {

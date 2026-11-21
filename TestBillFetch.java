@@ -1079,6 +1079,11 @@ public class TestBillFetch {
         //      paid evidence = UNPAID + singular day text ----
         runV3745Tests();
 
+        // ---- v3.7.46: stamp 56dp + status 10sp + status
+        //      column flush to the card's right edge (no dead
+        //      gap) + wrap preserved ----
+        runV3746Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2244,9 +2249,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3959,9 +3964,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4332,10 +4337,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"177\""),
+                manifest.contains("android:versionCode=\"178\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.45\""),
+                manifest.contains("android:versionName=\"3.7.46\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4494,10 +4499,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"177\""),
+                manifest.contains("android:versionCode=\"178\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.45\""),
+                manifest.contains("android:versionName=\"3.7.46\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4886,9 +4891,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5083,9 +5088,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5151,9 +5156,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5567,9 +5572,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5628,9 +5633,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5735,9 +5740,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5913,9 +5918,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -5958,7 +5963,7 @@ public class TestBillFetch {
                 !stamp.contains("setRotation"), true);
         check("v3744 stamp no text",
                 !stamp.contains("setText("), true);
-        check("v3744 stamp 72dp", stamp.contains("dp(72)"), true);
+        check("v3744 stamp 56dp", stamp.contains("dp(56)"), true);
 
         // ---- 4. Amount row wraps (FlowLayout): the status
         //      column flows to a second line instead of clipping.
@@ -6033,9 +6038,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"177\""), true);
+                man.contains("android:versionCode=\"178\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.45\""), true);
+                man.contains("android:versionName=\"3.7.46\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6087,7 +6092,7 @@ public class TestBillFetch {
                 !badge.contains("ds_pill_green")
                         && !badge.contains("ds_pill_red"), true);
         check("v3745 badge small text",
-                badge.contains("t.setTextSize(12)"), true);
+                badge.contains("t.setTextSize(10)"), true);
         check("v3745 badge paid on",
                 badge.contains("R.string.badge_paid_on"), true);
         check("v3745 badge unpaid string",
@@ -6096,8 +6101,8 @@ public class TestBillFetch {
         int st1 = bill.indexOf("private String stripGuardian");
         String stamp = (st0 >= 0 && st1 > st0)
                 ? bill.substring(st0, st1) : "";
-        check("v3745 stamp 72dp wide",
-                stamp.contains("dp(72)"), true);
+        check("v3745 stamp 56dp wide",
+                stamp.contains("dp(56)"), true);
         check("v3745 stamp keeps aspect",
                 stamp.contains("setAdjustViewBounds(true)"), true);
 
@@ -6144,6 +6149,111 @@ public class TestBillFetch {
                 pend.contains("R.string.due_day_left")
                         && pend.contains("R.string.pending_overdue_by_day"),
                 true);
+    }
+
+    static void runV3746Tests() throws Exception {
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String flow = readFile(
+                "java/com/hatch/bijlibill/FlowLayout.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Version 178 / 3.7.46 in the manifest ----
+        check("v3746 manifest version 178",
+                man.contains("android:versionCode=\"178\""), true);
+        check("v3746 manifest name 3.7.46",
+                man.contains("android:versionName=\"3.7.46\""), true);
+
+        // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
+        //      still too big), aspect kept, never stretched. ----
+        int st0 = bill.indexOf("private View paidStamp(boolean");
+        int st1 = bill.indexOf("private String stripGuardian");
+        String stamp = (st0 >= 0 && st1 > st0)
+                ? bill.substring(st0, st1) : "";
+        check("v3746 stamp 56dp wide",
+                stamp.contains("dp(56)"), true);
+        check("v3746 stamp not 72dp",
+                !stamp.contains("dp(72)"), true);
+        check("v3746 stamp keeps aspect",
+                stamp.contains("setAdjustViewBounds(true)"), true);
+
+        // ---- 3. Status text 10sp (was 12sp — user: status
+        //      text smaller), tick icon 9dp. Text UNCHANGED:
+        //      "Paid on <date>" + green tick, "Unpaid" red. ----
+        int b0 = bill.indexOf("private View paidBadge(boolean");
+        int b1 = bill.indexOf("private View paidStamp(boolean");
+        String badge = (b0 >= 0 && b1 > b0)
+                ? bill.substring(b0, b1) : "";
+        check("v3746 badge 10sp",
+                badge.contains("t.setTextSize(10)"), true);
+        check("v3746 badge not 12sp",
+                !badge.contains("t.setTextSize(12)"), true);
+        check("v3746 badge paid on kept",
+                badge.contains("R.string.badge_paid_on"), true);
+        check("v3746 badge unpaid kept",
+                badge.contains("R.string.badge_unpaid"), true);
+        check("v3746 badge tick 9dp",
+                badge.contains("dp(9)"), true);
+
+        // ---- 4. Status column flush right: FlowLayout has a
+        //      per-child alignEnd flag; the payCard status
+        //      column uses FlowLayout.LayoutParams with
+        //      alignEnd = true, so its right edge (incl. right
+        //      margin) lands exactly on the card padding's
+        //      right edge — no dead gap on the right. ----
+        check("v3746 flow alignEnd flag",
+                flow.contains("public boolean alignEnd"), true);
+        check("v3746 flow alignEnd in placeLine",
+                flow.contains("((FlowLayoutParams) lp).alignEnd"), true);
+        check("v3746 status column alignEnd",
+                bill.contains("scp.alignEnd = true"), true);
+        check("v3746 status column flow params",
+                bill.contains("new FlowLayout.FlowLayoutParams("), true);
+
+        // ---- 5. End-alignment math (pure Java): right edge +
+        //      right margin == available width, whatever the
+        //      child's width — shared line and wrapped line. ----
+        check("v3746 end align no margin",
+                com.hatch.bijlibill.FlowMath.endAlignedLeft(112, 0, 292)
+                        + 112, 292);
+        check("v3746 end align with margin",
+                com.hatch.bijlibill.FlowMath.endAlignedLeft(100, 12, 292)
+                        + 100 + 12, 292);
+        check("v3746 end align wrapped line",
+                com.hatch.bijlibill.FlowMath.endAlignedLeft(112, 0, 292)
+                        + 112, 292);
+        check("v3746 end align left non-negative",
+                com.hatch.bijlibill.FlowMath.endAlignedLeft(112, 0, 292)
+                        >= 0, true);
+
+        // ---- 6. Wrap with the narrower column (~112dp: 10sp
+        //      status text + 12dp margin; the 56dp stamp is
+        //      narrower than the text). Rs 19,615 now fits on
+        //      ONE line; Rs 1,25,000 still wraps to two. ----
+        check("v3746 wrap 19615 one line",
+                com.hatch.bijlibill.FlowMath.lineCount(
+                        new int[]{179, 112}, 292), 1);
+        check("v3746 wrap 2229 one line",
+                com.hatch.bijlibill.FlowMath.lineCount(
+                        new int[]{127, 112}, 292), 1);
+        check("v3746 wrap 125000 two lines",
+                com.hatch.bijlibill.FlowMath.lineCount(
+                        new int[]{230, 112}, 292), 2);
+
+        // ---- 7. UNPAID rule unchanged (v3.7.45 user rule):
+        //      no paid evidence anywhere -> UNPAID + red stamp,
+        //      never nothing. ----
+        com.hatch.bijlibill.LescoBillFetcher.BillInfo fresh =
+                new com.hatch.bijlibill.LescoBillFetcher.BillInfo();
+        fresh.billMonth = "NOV 26";
+        fresh.paidFieldsChecked = false;
+        fresh.history = null;
+        check("v3746 no evidence unpaid",
+                com.hatch.bijlibill.PaidStatus.resolveBill(fresh).state,
+                com.hatch.bijlibill.PaidStatus.State.UNPAID);
+        check("v3746 null bill unknown",
+                com.hatch.bijlibill.PaidStatus.resolveBill(null).state,
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
     }
 
     static void addPoint(

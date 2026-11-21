@@ -1,4 +1,14 @@
 #!/bin/bash
+# Bijli Bill v3.7.46 (178) — user order, 2026-11-22, ONE build:
+#   - STAMP SMALLER: 72dp -> 56dp wide (user: still too big).
+#   - STATUS TEXT SMALLER: "Paid on 7 Nov 26" / "Unpaid" 12sp
+#     -> 10sp, tick icon 11dp -> 9dp.
+#   - RIGHT EDGE FLUSH: status column (stamp + status) now sits
+#     flush against the card's right edge — FlowLayout gained a
+#     per-child alignEnd flag (FlowMath.endAlignedLeft): no dead
+#     gap on the right, whether the column shares the line with
+#     the amount or wrapped onto its own line. Wrap preserved:
+#     Rs 1,25,000 -> 2 lines; Rs 2,229 / Rs 19,615 -> 1 line.
 # Bijli Bill v3.7.45 (177) — user orders, voice call 2026-11-22, ONE build:
 #   - REAL STAMP IMAGES: user-sent green BILL PAID / red BILL UNPAID
 #     PNGs (res/drawable-nodpi/stamp_paid_img.png /
@@ -359,16 +369,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.45.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.45.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.46.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.46.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.45.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.45.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.46.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.46.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.45.apk" "$OUTDIR/bijli-bill-publish-3.7.45.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.46.apk" "$OUTDIR/bijli-bill-publish-3.7.46.aab"
 echo BUILD_OK

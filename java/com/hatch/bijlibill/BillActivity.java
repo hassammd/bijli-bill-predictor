@@ -1736,6 +1736,8 @@ public class BillActivity extends BaseActivity {
      * invented. Kept the paidBadge name: the v3738 wiring test
      * looks for it. (v3.7.40-44 showed a green/red pill here;
      * the user wants the status small, under the stamp image.)
+     * v3.7.46: text 10sp (was 12sp — user: status text smaller),
+     * tick icon 9dp to match.
      */
     private View paidBadge(boolean paid, String dateDisplay) {
         LinearLayout row = new LinearLayout(this);
@@ -1747,10 +1749,10 @@ public class BillActivity extends BaseActivity {
             ic.setImageResource(R.drawable.ic_check);
             ic.setColorFilter(Color.parseColor("#137333"),
                     PorterDuff.Mode.SRC_IN);
-            int s = dp(11);
+            int s = dp(9);
             LinearLayout.LayoutParams ilp =
                     new LinearLayout.LayoutParams(s, s);
-            ilp.rightMargin = dp(4);
+            ilp.rightMargin = dp(3);
             ic.setLayoutParams(ilp);
             row.addView(ic);
         }
@@ -1763,7 +1765,7 @@ public class BillActivity extends BaseActivity {
             t.setText(getString(paid ? R.string.badge_paid
                     : R.string.badge_unpaid));
         }
-        t.setTextSize(12);
+        t.setTextSize(10);
         t.setTextColor(Color.parseColor(
                 paid ? "#137333" : "#D92D20"));
         Ds.heading(this, t);
@@ -1777,11 +1779,9 @@ public class BillActivity extends BaseActivity {
      * red BILL UNPAID (res/drawable-nodpi/stamp_paid_img.png /
      * stamp_unpaid_img.png, transparent background). The artwork
      * is already tilted, so NO extra rotation is added. SMALL:
-     * 72dp wide, height follows the artwork's own aspect
-     * (adjustViewBounds) — never stretched. v3.7.44 rendered
-     * 64dp tall = ~100dp wide (measured on the user's
-     * screenshot); the user asked for a smaller stamp, so the
-     * width is now fixed at 72dp (~49dp tall) — visibly smaller.
+     * v3.7.46: 56dp wide (was 72dp — user: stamp still too big),
+     * height follows the artwork's own aspect (adjustViewBounds)
+     * — never stretched (~38dp tall).
      */
     private View paidStamp(boolean paid) {
         ImageView st = new ImageView(this);
@@ -1790,7 +1790,7 @@ public class BillActivity extends BaseActivity {
         st.setAdjustViewBounds(true);
         st.setScaleType(ImageView.ScaleType.FIT_CENTER);
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-                dp(72), ViewGroup.LayoutParams.WRAP_CONTENT);
+                dp(56), ViewGroup.LayoutParams.WRAP_CONTENT);
         st.setLayoutParams(slp);
         st.setContentDescription(paid ? "Paid stamp" : "Not paid stamp");
         return st;
@@ -2061,12 +2061,20 @@ public class BillActivity extends BaseActivity {
             LinearLayout statusCol = new LinearLayout(this);
             statusCol.setOrientation(LinearLayout.VERTICAL);
             statusCol.setGravity(Gravity.CENTER_HORIZONTAL);
-            LinearLayout.LayoutParams scp =
-                    new LinearLayout.LayoutParams(
+            // v3.7.46: FlowLayout.FlowLayoutParams with alignEnd —
+            // the column's right edge sits flush against the
+            // card's right edge (no dead gap on the right),
+            // whether it shares the line with the amount or
+            // wrapped onto its own line. leftMargin 12dp is
+            // still the minimum gap to the amount in the wrap
+            // decision.
+            FlowLayout.FlowLayoutParams scp =
+                    new FlowLayout.FlowLayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT);
             scp.leftMargin = dp(12);
             scp.bottomMargin = dp(6);
+            scp.alignEnd = true;
             statusCol.setLayoutParams(scp);
             // Stamp on top, small status text below it.
             statusCol.addView(paidStamp(paid));
