@@ -240,6 +240,8 @@
     <string name="hero_units_label">اس مہینے کے یونٹس</string>
     <string name="hero_units_value">%1$s یونٹس</string>
     <string name="due_days_left">%1$d دن باقی ہیں</string>
+    <!-- v3.7.45: singular — "1 دن باقی ہے". -->
+    <string name="due_day_left">%1$d دن باقی ہے</string>
     <string name="due_today">آج آخری دن ہے</string>
     <string name="due_chip">آخری تاریخ %1$s \u2022 %2$s</string>
     <string name="late_row_label">دیر ہونے پر</string>
@@ -270,6 +272,8 @@
     <!-- v3.7.43: Total Payable improvements (user order 2026-11-21) -->
     <string name="pending_bills_title">بقایا بل</string>
     <string name="pending_overdue_by">%1$d دن کی تاخیر</string>
+    <!-- v3.7.45: singular — Urdu text is the same for 1 day. -->
+    <string name="pending_overdue_by_day">%1$d دن کی تاخیر</string>
     <string name="pending_after_due">آخری تاریخ کے بعد: %1$s روپے</string>
     <string name="pending_all_paid">تمام بل ادا ہو گئے</string>
     <string name="pending_no_due">آخری تاریخ معلوم نہیں</string>

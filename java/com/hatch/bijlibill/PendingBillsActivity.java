@@ -253,7 +253,8 @@ public class PendingBillsActivity extends BaseActivity {
                     : getString(R.string.strip_due_date) + " " + due);
             dueTv.setTextColor(Ds.muted());
         } else if (overdue) {
-            dueTv.setText(getString(R.string.pending_overdue_by,
+            dueTv.setText(getString(-d.intValue() == 1 ? R.string.pending_overdue_by_day
+                            : R.string.pending_overdue_by,
                     -d.intValue()));
             dueTv.setTextColor(Color.parseColor("#C62828"));
             dueTv.setTypeface(Typeface.DEFAULT_BOLD);
@@ -263,11 +264,13 @@ public class PendingBillsActivity extends BaseActivity {
             dueTv.setTextColor(Color.parseColor("#C62828"));
         } else if (d.intValue() <= TotalPayable.DUE_SOON_DAYS) {
             dueTv.setText(getString(R.string.due_chip, due,
-                    getString(R.string.due_days_left, d.intValue())));
+                    getString(d.intValue() == 1 ? R.string.due_day_left
+                            : R.string.due_days_left, d.intValue())));
             dueTv.setTextColor(Color.parseColor("#C62828"));
         } else {
             dueTv.setText(getString(R.string.due_chip, due,
-                    getString(R.string.due_days_left, d.intValue())));
+                    getString(d.intValue() == 1 ? R.string.due_day_left
+                            : R.string.due_days_left, d.intValue())));
             dueTv.setTextColor(Ds.muted());
         }
         card.addView(dueTv);

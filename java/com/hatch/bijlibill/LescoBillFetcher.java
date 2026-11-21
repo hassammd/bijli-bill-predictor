@@ -198,8 +198,9 @@ public final class LescoBillFetcher {
          *  v3.7.40 set this true after EVERY successful parse, so a
          *  paid box the harvesters never saw still resolved UNPAID
          *  (the live NOV 26 bill bug). Now "not found" means
-         *  PaidStatus falls back to history -> UNKNOWN for the
-         *  current month (no badge, NEVER Unpaid). */
+         *  PaidStatus falls back to history; v3.7.45 (user rule
+         *  2026-11-22): with no history row either, the bill
+         *  resolves UNPAID — no paid box means unpaid. */
         public boolean paidFieldsChecked;
         /** v3.7.41 — the red PAID stamp was found as standalone
          *  text in the fetched HTML. The stamp is printed only on
@@ -2642,8 +2643,9 @@ public final class LescoBillFetcher {
      *   - standalone red "PAID" stamp text -> PAID (corroborates
      *     even when the amount cell could not be read)
      *   - NO paid marker anywhere -> paidFieldsChecked stays
-     *     false -> PaidStatus falls back to history -> UNKNOWN
-     *     for the current month (no badge, NEVER Unpaid).
+     *     false -> PaidStatus falls back to history; with no
+     *     row either the bill resolves UNPAID (v3.7.45 user
+     *     rule: no paid box means unpaid).
      * Sets paidFieldsChecked ONLY when a marker was found, and
      * never overwrites a value an earlier harvester already set.
      * Never throws.

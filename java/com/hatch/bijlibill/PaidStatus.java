@@ -47,11 +47,15 @@ import java.util.List;
  *   paid box located + amountPaid &gt; 0 -&gt; PAID
  *   paid box located + amount blank/0 -&gt; UNPAID
  *   paid box NOT located -&gt; history fallback; no row -&gt;
- *     UNKNOWN (show nothing, NEVER Unpaid)
+ *     UNPAID (v3.7.45 user rule 2026-11-22, overrides v3.7.41:
+ *     no paid box means unpaid — red stamp + status shown).
+ *     Only a null bill yields UNKNOWN.
  *   history: row found AND payment empty/0 -&gt; UNPAID
  *   history: row found AND payment &gt;= bill amount -&gt; PAID
  *   history: row found AND 0 &lt; payment &lt; bill -&gt; UNKNOWN (partial)
- *   no row / no history / unparseable -&gt; UNKNOWN (show nothing)
+ *   history: no row / no history / unparseable -&gt; UNKNOWN
+ *     (resolve() only; resolveBill maps a no-evidence bill to
+ *     UNPAID, v3.7.45)
  *
  * Pure Java, no Android dependencies.
  */
@@ -216,9 +220,12 @@ public final class PaidStatus {
      * amount is UNPAID. Bills whose paid box was never located
      * (paidFieldsChecked == false — old saved bills, or a page
      * shape the scan did not recognise) fall back to the history
-     * table, and a current bill with no history row is UNKNOWN
-     * (no badge, NEVER Unpaid). Never throws; any unexpected
-     * shape yields UNKNOWN.
+     * table. v3.7.45 (user rule 2026-11-22, overrides v3.7.41):
+     * when NEITHER the box NOR the history yields a state, the
+     * bill is UNPAID — a live unpaid bill that renders with no
+     * badge and no stamp at all is worse than a possibly-wrong
+     * "Unpaid", and the user confirmed that no paid box means
+     * unpaid. Only a null bill yields UNKNOWN. Never throws.
      */
     public static Result resolveBill(
             LescoBillFetcher.BillInfo b) {
@@ -241,7 +248,13 @@ public final class PaidStatus {
                 }
                 return new Result(State.UNPAID, null, 0, -1, null);
             }
-            return resolve(b.history, b.billMonth);
+            Result h = resolve(b.history, b.billMonth);
+            if (h.state != State.UNKNOWN) return h;
+            // v3.7.45: no paid evidence anywhere (no box located,
+            // no history row) = UNPAID. User rule 2026-11-22: a
+            // bill with no paid box is unpaid — show the red stamp
+            // + status instead of nothing (overrides v3.7.41).
+            return new Result(State.UNPAID, null, 0, -1, null);
         } catch (Exception e) {
             return UNKNOWN;
         }

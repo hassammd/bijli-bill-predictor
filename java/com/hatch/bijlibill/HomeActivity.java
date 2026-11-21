@@ -908,7 +908,8 @@ public class HomeActivity extends BaseActivity {
             totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
         } else if (d.intValue() < 0) {
             totalPayableDue.setText(getString(
-                    R.string.pending_overdue_by, -d.intValue()));
+                    -d.intValue() == 1 ? R.string.pending_overdue_by_day
+                            : R.string.pending_overdue_by, -d.intValue()));
             totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
         } else if (d.intValue() == 0) {
             totalPayableDue.setText(getString(R.string.due_chip, due,
@@ -916,11 +917,13 @@ public class HomeActivity extends BaseActivity {
             totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
         } else if (d.intValue() <= TotalPayable.DUE_SOON_DAYS) {
             totalPayableDue.setText(getString(R.string.due_chip, due,
-                    getString(R.string.due_days_left, d.intValue())));
+                    getString(d.intValue() == 1 ? R.string.due_day_left
+                            : R.string.due_days_left, d.intValue())));
             totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
         } else {
             totalPayableDue.setText(getString(R.string.due_chip, due,
-                    getString(R.string.due_days_left, d.intValue())));
+                    getString(d.intValue() == 1 ? R.string.due_day_left
+                            : R.string.due_days_left, d.intValue())));
             totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
         }
         totalPayableDue.setVisibility(View.VISIBLE);

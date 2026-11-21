@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bijli Bill v3.7.44 (176) — user orders, voice call 2026-11-22, ONE build:
+# Bijli Bill v3.7.45 (177) — user orders, voice call 2026-11-22, ONE build:
 #   - REAL STAMP IMAGES: user-sent green BILL PAID / red BILL UNPAID
 #     PNGs (res/drawable-nodpi/stamp_paid_img.png /
 #     stamp_unpaid_img.png) replace the v3.7.42 text stamp in
@@ -359,16 +359,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.44.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.44.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.45.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.45.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.44.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.44.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.45.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.45.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.44.apk" "$OUTDIR/bijli-bill-publish-3.7.44.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.45.apk" "$OUTDIR/bijli-bill-publish-3.7.45.aab"
 echo BUILD_OK

@@ -240,6 +240,8 @@
     <string name="hero_units_label">This month\'s units</string>
     <string name="hero_units_value">%1$s units</string>
     <string name="due_days_left">%1$d days left</string>
+    <!-- v3.7.45: singular — "1 day left" (never "1 days left"). -->
+    <string name="due_day_left">%1$d day left</string>
     <string name="due_today">Today is the last day</string>
     <string name="due_chip">Due %1$s \u2022 %2$s</string>
     <string name="late_row_label">If it gets late</string>
@@ -270,6 +272,8 @@
     <!-- v3.7.43: Total Payable improvements (user order 2026-11-21) -->
     <string name="pending_bills_title">Pending Bills</string>
     <string name="pending_overdue_by">Overdue by %1$d days</string>
+    <!-- v3.7.45: singular — "Overdue by 1 day". -->
+    <string name="pending_overdue_by_day">Overdue by %1$d day</string>
     <string name="pending_after_due">After due: Rs %1$s</string>
     <string name="pending_all_paid">All bills paid</string>
     <string name="pending_no_due">Due date not available</string>

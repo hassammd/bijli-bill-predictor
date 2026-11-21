@@ -1728,40 +1728,31 @@ public class BillActivity extends BaseActivity {
     }
 
     /**
-     * v3.7.40: paid/unpaid pill for the pay card (shown right after
-     * the amount). Paid = light-green pill + check + "Paid on
-     * &lt;date&gt;" when a payment date was printed on the bill
-     * ("Paid" alone when not); not paid = light-red pill + the
-     * unpaid label in dark red. The date comes only from the bill's
-     * own PAYMENT DATE field — it is never invented.
+     * v3.7.45: paid status as a SMALL text line under the stamp —
+     * no pill, no background. Paid = small green tick + "Paid on
+     * &lt;date&gt;" when a payment date was printed ("Paid" alone
+     * when not); not paid = the red status text. The date comes
+     * only from the bill's own PAYMENT DATE field — it is never
+     * invented. Kept the paidBadge name: the v3738 wiring test
+     * looks for it. (v3.7.40-44 showed a green/red pill here;
+     * the user wants the status small, under the stamp image.)
      */
     private View paidBadge(boolean paid, String dateDisplay) {
-        LinearLayout pill = new LinearLayout(this);
-        pill.setOrientation(LinearLayout.HORIZONTAL);
-        pill.setGravity(Gravity.CENTER_VERTICAL);
-        pill.setBackgroundResource(paid ? R.drawable.ds_pill_green
-                : R.drawable.ds_pill_red);
-        pill.setPadding(dp(12), dp(7), dp(12), dp(7));
-        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        // Sit at the amount's baseline (the amt row is BOTTOM
-        // gravity) with a gap after the figures.
-        plp.leftMargin = dp(12);
-        plp.bottomMargin = dp(6);
-        pill.setLayoutParams(plp);
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
 
         if (paid) {
             ImageView ic = new ImageView(this);
             ic.setImageResource(R.drawable.ic_check);
             ic.setColorFilter(Color.parseColor("#137333"),
                     PorterDuff.Mode.SRC_IN);
-            int s = dp(13);
+            int s = dp(11);
             LinearLayout.LayoutParams ilp =
                     new LinearLayout.LayoutParams(s, s);
-            ilp.rightMargin = dp(5);
+            ilp.rightMargin = dp(4);
             ic.setLayoutParams(ilp);
-            pill.addView(ic);
+            row.addView(ic);
         }
 
         TextView t = new TextView(this);
@@ -1772,24 +1763,25 @@ public class BillActivity extends BaseActivity {
             t.setText(getString(paid ? R.string.badge_paid
                     : R.string.badge_unpaid));
         }
-        t.setTextSize(13);
+        t.setTextSize(12);
         t.setTextColor(Color.parseColor(
                 paid ? "#137333" : "#D92D20"));
         Ds.heading(this, t);
         t.setSingleLine(true);
-        pill.addView(t);
-        return pill;
+        row.addView(t);
+        return row;
     }
 
     /**
-     * v3.7.44: the user-sent stamp IMAGES — green BILL PAID /
+     * v3.7.45: the user-sent stamp IMAGES — green BILL PAID /
      * red BILL UNPAID (res/drawable-nodpi/stamp_paid_img.png /
-     * stamp_unpaid_img.png, transparent background). Replaces the
-     * v3.7.42 text stamp (TextView + ring drawable + -12 rotation):
-     * the artwork is already tilted, so NO extra rotation is added.
-     * The badge stays; the image stamp is extra, never a
-     * replacement. Height 64dp, width follows the artwork's own
-     * aspect (adjustViewBounds) — never stretched.
+     * stamp_unpaid_img.png, transparent background). The artwork
+     * is already tilted, so NO extra rotation is added. SMALL:
+     * 72dp wide, height follows the artwork's own aspect
+     * (adjustViewBounds) — never stretched. v3.7.44 rendered
+     * 64dp tall = ~100dp wide (measured on the user's
+     * screenshot); the user asked for a smaller stamp, so the
+     * width is now fixed at 72dp (~49dp tall) — visibly smaller.
      */
     private View paidStamp(boolean paid) {
         ImageView st = new ImageView(this);
@@ -1798,9 +1790,7 @@ public class BillActivity extends BaseActivity {
         st.setAdjustViewBounds(true);
         st.setScaleType(ImageView.ScaleType.FIT_CENTER);
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, dp(64));
-        slp.leftMargin = dp(10);
-        slp.bottomMargin = dp(4);
+                dp(72), ViewGroup.LayoutParams.WRAP_CONTENT);
         st.setLayoutParams(slp);
         st.setContentDescription(paid ? "Paid stamp" : "Not paid stamp");
         return st;
@@ -2022,12 +2012,14 @@ public class BillActivity extends BaseActivity {
         eb.setLayoutParams(elp);
         c.addView(eb);
 
-        // Amount: "Rs 18827" HUGE, LEFT-aligned.
-        // v3.7.44: FlowLayout, not a plain horizontal row — with a
-        // big amount (thousands) the badge + stamp flow to a second
-        // line under the amount instead of the badge text being cut
-        // off at the card edge (user report 2026-11-22). With a
-        // small amount everything stays on one line, as before.
+        // Amount + status column (v3.7.45 layout — user order
+        // 2026-11-22, from the 3 screenshots): LEFT the huge
+        // amount ("Rs 2229"); RIGHT a column with the SMALL
+        // stamp image on top and the small status text below it
+        // ("Paid on 17 Nov 26" / red status). The FlowLayout
+        // wraps the WHOLE status column under the amount when a
+        // big amount leaves no room — never clipped. The amount
+        // itself is one group ("Rs" + figure) so it never splits.
         // MATCH_PARENT width so the flow knows the card's width.
         FlowLayout amt = new FlowLayout(this);
         amt.setLayoutParams(new LinearLayout.LayoutParams(
@@ -2036,13 +2028,16 @@ public class BillActivity extends BaseActivity {
         // v3.6.53: 16dp gap between amount and due chip.
         amt.setPadding(0, dp(4), 0, dp(16));
 
+        LinearLayout amtGroup = new LinearLayout(this);
+        amtGroup.setOrientation(LinearLayout.HORIZONTAL);
+
         TextView rs = new TextView(this);
         rs.setText("Rs");
         rs.setTextSize(19);
         rs.setTextColor(Ds.ndSecondary());
         rs.setTypeface(Fonts.archivo(this, 700));
         rs.setSingleLine(true);
-        amt.addView(rs);
+        amtGroup.addView(rs);
 
         TextView am = new TextView(this);
         am.setText("\u00a0" + payable.trim());
@@ -2050,32 +2045,40 @@ public class BillActivity extends BaseActivity {
         am.setTextColor(Ds.ndDarkText());
         am.setTypeface(Fonts.archivo(this, 800));
         am.setSingleLine(true);
-        amt.addView(am);
+        amtGroup.addView(am);
+        amt.addView(amtGroup);
 
-        // v3.7.40: paid/unpaid badge right after the amount (user
-        // order 2026-11-21). Source: the BILL's own paid fields —
-        // "AMOUNT PAID" + "PAYMENT DATE" printed on the bill
-        // document (PaidStatus.resolveBill). Paid shows green
-        // "Paid on <date>" when a payment date was printed, plain
-        // "Paid" when not (the date is never invented); an unpaid
-        // bill shows the red pill. Old saved bills (fetched before
-        // v3.7.40) fall back to the PITC history table; UNKNOWN
-        // (no row anywhere) -> no badge is shown.
+        // v3.7.40: paid status from the BILL's own paid fields
+        // ("AMOUNT PAID" + "PAYMENT DATE" on the bill document,
+        // PaidStatus.resolveBill). v3.7.45: resolveBill never
+        // returns UNKNOWN for a fetched bill any more — no paid
+        // evidence means UNPAID (user rule), so the column is
+        // always shown here; only a null bill hides it.
         PaidStatus.Result ps = PaidStatus.resolveBill(b);
         if (ps.state == PaidStatus.State.PAID
                 || ps.state == PaidStatus.State.UNPAID) {
-            amt.addView(paidBadge(ps.state == PaidStatus.State.PAID,
-                    ps.paymentDateDisplay));
-            // v3.7.44: user-sent stamp IMAGE beside the badge —
-            // green BILL PAID / red BILL UNPAID (paidStamp uses
-            // the PNGs, no rotation). In the FlowLayout row the
-            // badge + stamp wrap under the amount when the amount
-            // is too wide, instead of clipping.
-            if (ps.state == PaidStatus.State.PAID) {
-                amt.addView(paidStamp(true));
-            } else {
-                amt.addView(paidStamp(false));
-            }
+            boolean paid = ps.state == PaidStatus.State.PAID;
+            LinearLayout statusCol = new LinearLayout(this);
+            statusCol.setOrientation(LinearLayout.VERTICAL);
+            statusCol.setGravity(Gravity.CENTER_HORIZONTAL);
+            LinearLayout.LayoutParams scp =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            scp.leftMargin = dp(12);
+            scp.bottomMargin = dp(6);
+            statusCol.setLayoutParams(scp);
+            // Stamp on top, small status text below it.
+            statusCol.addView(paidStamp(paid));
+            View badge = paidBadge(paid, ps.paymentDateDisplay);
+            LinearLayout.LayoutParams blp =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            blp.topMargin = dp(4);
+            badge.setLayoutParams(blp);
+            statusCol.addView(badge);
+            amt.addView(statusCol);
         }
 
         c.addView(amt);
@@ -2116,8 +2119,11 @@ public class BillActivity extends BaseActivity {
             cal.setLayoutParams(clp);
 
             TextView ct = new TextView(this);
+            // v3.7.45: singular — "1 day left", never "1 days left".
             String daysText = days == 0
                     ? getString(R.string.due_today)
+                    : days == 1
+                    ? getString(R.string.due_day_left, days)
                     : getString(R.string.due_days_left, days);
             ct.setText(getString(R.string.due_chip, dueDisplay.trim(),
                     daysText));
