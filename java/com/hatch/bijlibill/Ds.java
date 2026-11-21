@@ -123,7 +123,7 @@ final class Ds {
         // v3.7.7: SLIDING pill toggle (user: toggle jerk karta hai, pill
         // left-right liquid flow ki tarah smooth move kare). Before: two
         // static buttons — bg swap + instant recreate = hard jerk.
-        // Now: one amber pill glides under the labels (320ms overshoot =
+        // Now: one blue pill glides under the labels (320ms overshoot =
         // liquid settle), THEN language switches with a fade transition.
         final android.widget.FrameLayout track =
                 new android.widget.FrameLayout(activity);
@@ -169,8 +169,8 @@ final class Ds {
                 if (targetUrdu == LocaleHelper.isUrdu(activity)) return;
                 busy[0] = true;
                 // Label colors swap at animation start (instant feedback).
-                en.setTextColor(targetUrdu ? muted() : amberDark());
-                ur.setTextColor(targetUrdu ? amberDark() : muted());
+                en.setTextColor(targetUrdu ? muted() : Color.WHITE);
+                ur.setTextColor(targetUrdu ? Color.WHITE : muted());
                 pill.animate()
                         .translationX(targetUrdu ? segW : 0)
                         .setDuration(320)
@@ -210,7 +210,7 @@ final class Ds {
         // this toggle is now an explicit dp; nothing depends on weights.
         b.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
                 widthPx, android.view.ViewGroup.LayoutParams.MATCH_PARENT));
-        b.setTextColor(active ? amberDark() : muted());
+        b.setTextColor(active ? Color.WHITE : muted());
         b.setClickable(true);
         b.setFocusable(true);
         return b;

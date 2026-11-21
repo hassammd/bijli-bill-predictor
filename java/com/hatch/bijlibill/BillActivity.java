@@ -1608,6 +1608,10 @@ public class BillActivity extends BaseActivity {
             // v2.5.0: auto-save this meter (holder name shown in
             // "Mere Meter").
             autoSaveMeter(b);
+            // v3.7.40: record this meter's latest bill (amount +
+            // paid state) for Home's "Total Payable" card. One
+            // record per meter; the next fetch overwrites it.
+            LastBillStore.record(this, disco.code, mode, ref, b);
         }
 
         // Parse failed but the page is still shown: say so honestly.
@@ -1723,12 +1727,14 @@ public class BillActivity extends BaseActivity {
     }
 
     /**
-     * v3.7.38: paid/unpaid pill for the pay card (shown right after
-     * the amount). Paid = light-green pill + check + "Paid" in dark
-     * green; not paid = light-red pill + the unpaid label in dark
-     * red. No date is ever shown: PITC prints no payment date.
+     * v3.7.40: paid/unpaid pill for the pay card (shown right after
+     * the amount). Paid = light-green pill + check + "Paid on
+     * &lt;date&gt;" when a payment date was printed on the bill
+     * ("Paid" alone when not); not paid = light-red pill + the
+     * unpaid label in dark red. The date comes only from the bill's
+     * own PAYMENT DATE field — it is never invented.
      */
-    private View paidBadge(boolean paid) {
+    private View paidBadge(boolean paid, String dateDisplay) {
         LinearLayout pill = new LinearLayout(this);
         pill.setOrientation(LinearLayout.HORIZONTAL);
         pill.setGravity(Gravity.CENTER_VERTICAL);
@@ -1758,8 +1764,13 @@ public class BillActivity extends BaseActivity {
         }
 
         TextView t = new TextView(this);
-        t.setText(getString(paid ? R.string.badge_paid
-                : R.string.badge_unpaid));
+        if (paid && dateDisplay != null && !dateDisplay.trim().isEmpty()) {
+            t.setText(getString(R.string.badge_paid_on,
+                    dateDisplay.trim()));
+        } else {
+            t.setText(getString(paid ? R.string.badge_paid
+                    : R.string.badge_unpaid));
+        }
         t.setTextSize(13);
         t.setTextColor(Color.parseColor(
                 paid ? "#137333" : "#D92D20"));
@@ -2013,21 +2024,20 @@ public class BillActivity extends BaseActivity {
         am.setSingleLine(true);
         amt.addView(am);
 
-        // v3.7.38: paid/unpaid badge right after the amount (user
-        // order 2026-11-21). Source: PaidStatus.resolve on the PITC
-        // history table ONLY — the bill document itself carries no
-        // paid field, and PITC prints NO payment date anywhere, so
-        // the badge shows the paid / unpaid text only (never a "Paid
-        // on <date>" — that date cannot be sourced from PITC and
-        // must not be invented). A current-month bill resolves
-        // UNKNOWN (history holds the 12 months BEFORE the bill
-        // month) -> no badge is shown.
-        PaidStatus.Result ps = PaidStatus.resolve(
-                b == null ? null : b.history,
-                b == null ? null : b.billMonth);
+        // v3.7.40: paid/unpaid badge right after the amount (user
+        // order 2026-11-21). Source: the BILL's own paid fields —
+        // "AMOUNT PAID" + "PAYMENT DATE" printed on the bill
+        // document (PaidStatus.resolveBill). Paid shows green
+        // "Paid on <date>" when a payment date was printed, plain
+        // "Paid" when not (the date is never invented); an unpaid
+        // bill shows the red pill. Old saved bills (fetched before
+        // v3.7.40) fall back to the PITC history table; UNKNOWN
+        // (no row anywhere) -> no badge is shown.
+        PaidStatus.Result ps = PaidStatus.resolveBill(b);
         if (ps.state == PaidStatus.State.PAID
                 || ps.state == PaidStatus.State.UNPAID) {
-            amt.addView(paidBadge(ps.state == PaidStatus.State.PAID));
+            amt.addView(paidBadge(ps.state == PaidStatus.State.PAID,
+                    ps.paymentDateDisplay));
         }
 
         c.addView(amt);

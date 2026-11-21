@@ -184,6 +184,17 @@ public final class LescoBillFetcher {
         public String arrears;
         public String currentBill;
         public String grandTotal;
+        // ---- v3.7.40: the bill document's own paid box (top-right
+        //      on the printed bill): "AMOUNT PAID" + "PAYMENT DATE"
+        //      + red PAID stamp. A PAID bill prints both; an UNPAID
+        //      bill prints the box blank/absent. parsed by
+        //      applyFullLabel / mapRow / LINE_FRAGMENTS below.
+        public String amountPaid;   // as printed, e.g. "2,229"
+        public String paymentDate;  // as printed, e.g. "17-Nov-26"
+        /** True once a v3.7.40+ parse ran over this bill. Old saved
+         *  bills (fetched before these fields existed) have false —
+         *  PaidStatus falls back to the history table for those. */
+        public boolean paidFieldsChecked;
         // ---- v2.0.5: extra fields printed on the full /general bill page ----
         public String billMonth;      // BILL MONTH, e.g. "SEP 26"
         public String feeder;         // FEEDER, e.g. "(036209) Pandoriyan"
@@ -1607,6 +1618,9 @@ public final class LescoBillFetcher {
                     debugMeta + ", div#ua=" + (uaPresent ? "y" : "n")
                             + ", title=\"" + pageTitle(html) + "\"");
         }
+        // v3.7.40: a fresh parse ran — PaidStatus may trust the
+        // bill's own paid fields (blank amountPaid = unpaid).
+        b.paidFieldsChecked = true;
         return b;
     }
 
@@ -1954,6 +1968,8 @@ public final class LescoBillFetcher {
         if (recognizedFieldCount(b) == 0) {
             return parseBillHtml(html, refNo, "direct /general leg");
         }
+        // v3.7.40: fresh parse — bill's own paid fields are trusted.
+        b.paidFieldsChecked = true;
         return b;
     }
 
@@ -2119,6 +2135,8 @@ public final class LescoBillFetcher {
                     "new-design bill page, title=\""
                             + pageTitle(nc) + "\"");
         }
+        // v3.7.40: fresh parse — bill's own paid fields are trusted.
+        b.paidFieldsChecked = true;
         return b;
     }
 
@@ -2427,6 +2445,17 @@ public final class LescoBillFetcher {
             if (b.billMonth == null) b.billMonth = value;
         } else if (label.contains("issue date")) {
             if (b.issueDate == null) b.issueDate = value;
+        } else if (label.contains("amount paid")) {
+            // v3.7.40: the bill's own paid box. BEFORE the "payable"
+            // branch below ("amount paid" holds no "payable", but
+            // keep the paid fields first so no later branch can ever
+            // swallow them).
+            if (b.amountPaid == null) b.amountPaid = value;
+        } else if (label.contains("payment date")) {
+            // v3.7.40: "PAYMENT DATE 17-Nov-26" — the date the bill
+            // was paid, printed on the bill itself. BEFORE "due date"
+            // ("payment date" holds no "due", same safety rule).
+            if (b.paymentDate == null) b.paymentDate = value;
         } else if (label.contains("after due date")) {
             if (b.amountAfterDueDate == null) b.amountAfterDueDate = value;
         } else if (label.contains("payable within due date")
@@ -2516,6 +2545,7 @@ public final class LescoBillFetcher {
         "previous reading", "present reading", "current reading",
         "reading date", "units", "consumption",
         "bill month", "issue date",
+        "amount paid", "payment date",
         "after due date", "payable within due date", "amount payable",
         "total amount", "payable",
         "surcharge", "late payment", "due date",
@@ -2648,6 +2678,12 @@ public final class LescoBillFetcher {
             if (b.tariff == null) b.tariff = value;
         } else if (label.contains("grand total")) {
             if (b.grandTotal == null) b.grandTotal = value;
+        } else if (label.contains("amount paid")) {
+            // v3.7.40: the bill's own paid box (before "payable").
+            if (b.amountPaid == null) b.amountPaid = value;
+        } else if (label.contains("payment date")) {
+            // v3.7.40: "PAYMENT DATE 17-Nov-26" (before "due date").
+            if (b.paymentDate == null) b.paymentDate = value;
         } else if (label.contains("after due date")) {
             // NB: before "due date" and before "payable" — "Amount Payable
             // (After Due Date)" contains all three substrings.

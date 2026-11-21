@@ -3,49 +3,43 @@ package com.hatch.bijlibill;
 import java.util.List;
 
 /**
- * v3.7.38 — Paid/Unpaid status for a bill month, derived ONLY from
- * the PITC bill-page history table that LescoBillFetcher already
- * parses into BillInfo.history. Wired to BillActivity.payCard: the
- * badge shows "Paid" (green) / "Unpaid" (red) right after the
- * amount, and NOTHING when the state is UNKNOWN. There is NO
- * payment date in the PITC data — the badge never shows one.
+ * v3.7.40 — Paid/Unpaid status for a bill, from the BILL's OWN paid
+ * fields first, with the PITC history table kept only as a fallback
+ * for bills saved before these fields existed.
  *
- * GROUND TRUTH — verified 2026-11-21 against REAL PITC /general
- * HTML (debug dump 2026-09-20, LESCO, ref 02118240618604, served
- * from https://bill.pitc.com.pk/lescobill/general?refno=...):
+ * PRIMARY SOURCE (v3.7.40, user-verified 2026-11-21): the bill
+ * document itself prints a paid box at the top-right —
+ * "AMOUNT PAID 2,229" + red PAID stamp + "PAYMENT DATE 17-Nov-26"
+ * (LESCO NOV 26 bill, NAMOOS TAHIRA MINHAS, ref 02118240618604,
+ * screenshot). LescoBillFetcher parses both labels into
+ * BillInfo.amountPaid / BillInfo.paymentDate, and sets
+ * BillInfo.paidFieldsChecked on every fresh parse. So a freshly
+ * fetched bill resolves directly:
+ *   AMOUNT PAID present and &gt; 0 -&gt; PAID (+ "Paid on &lt;date&gt;" when
+ *     a PAYMENT DATE was printed)
+ *   AMOUNT PAID blank / absent / 0 -&gt; UNPAID (current bill)
+ *   PAYMENT DATE absent -&gt; "Paid" with NO date (never invented)
  *
- *  1. History headers are exactly:
- *     MONTH | STATUS | UNITS | BILL (RS.) | PAYMENT (RS.)
- *  2. The STATUS cell is a coloured pill SPAN with NO usable text:
- *     empty for most months, "SS" for two (DEC25/JAN26, 0 units).
- *     The words "Paid"/"Unpaid" appear NOWHERE in the whole page
- *     (zero matches in 49KB). Status text can NEVER be read.
- *  3. The PAYMENT column is an AMOUNT in rupees (e.g. 1066, 712,
- *     1539), NOT a date. NO payment date exists anywhere in the
- *     PITC /general page: the only date-like tokens are the bill
- *     month, reading/issue/due dates, and history month codes.
- *     A "Paid on <date>" display CANNOT be sourced from PITC.
- *  4. History covers the 12 months BEFORE the current bill month
- *     only (e.g. SEP-26 bill -> SEP25..AUG26). The CURRENT bill
- *     month NEVER has a row in its own fetched history, so the
- *     bill on screen always resolves to UNKNOWN. A Paid/Unpaid
- *     badge for the current bill cannot be derived from the
- *     bill's own fetch; it becomes knowable only when a LATER
- *     bill is fetched (its history then contains this month).
- *  5. The unpaid signal is real: a row CAN have an empty payment
- *     cell while the bill column holds an amount (APR26: bill 970,
- *     payment blank). Payment present means recorded; payment
- *     blank means not recorded.
+ * CORRECTION — the v3.7.38 header claimed "NO payment date exists
+ * anywhere in PITC". That was WRONG: it was based on an UNPAID-bill
+ * capture (Sep-20 dump), where the paid box is blank. On a PAID
+ * bill the date IS printed. The history-table facts below are
+ * still true — the history table itself carries no date — but the
+ * bill document does, and that is now the primary source.
+ *
+ * FALLBACK (old saved bills, paidFieldsChecked == false): the PITC
+ * history table (MONTH | STATUS | UNITS | BILL (RS.) | PAYMENT
+ * (RS.)). The STATUS cell is a coloured pill SPAN with NO usable
+ * text; the PAYMENT column is an AMOUNT in rupees, NOT a date.
+ * History covers the 12 months BEFORE the bill month, so a fresh
+ * current bill never has a row in its own history.
  *
  * Derivation rule (conservative — never invent a status):
- *   row for billMonth found AND payment empty/0 -> UNPAID
- *   row found AND payment &gt;= bill amount  -> PAID
- *   row found AND 0 &lt; payment &lt; bill      -> UNKNOWN (partial)
- *   no row / no history / unparseable       -> UNKNOWN (show nothing)
- *
- * The payment DATE is deliberately not exposed: PITC does not
- * print one. Any UI showing "Paid on ..." must come from a
- * different, verified source — never from this class.
+ *   bill fields: amountPaid &gt; 0 -&gt; PAID; else UNPAID
+ *   history: row found AND payment empty/0 -&gt; UNPAID
+ *   history: row found AND payment &gt;= bill amount -&gt; PAID
+ *   history: row found AND 0 &lt; payment &lt; bill -&gt; UNKNOWN (partial)
+ *   no row / no history / unparseable -&gt; UNKNOWN (show nothing)
  *
  * Pure Java, no Android dependencies.
  */
@@ -63,13 +57,22 @@ public final class PaidStatus {
         public final double paymentAmount;
         /** Parsed bill amount for the matched row; -1 when absent. */
         public final double billAmount;
+        /** "17 Nov 2026" when a PAYMENT DATE was printed, else null. */
+        public final String paymentDateDisplay;
 
         Result(State state, String paymentPrinted,
                double paymentAmount, double billAmount) {
+            this(state, paymentPrinted, paymentAmount, billAmount, null);
+        }
+
+        Result(State state, String paymentPrinted,
+               double paymentAmount, double billAmount,
+               String paymentDateDisplay) {
             this.state = state;
             this.paymentPrinted = paymentPrinted;
             this.paymentAmount = paymentAmount;
             this.billAmount = billAmount;
+            this.paymentDateDisplay = paymentDateDisplay;
         }
     }
 
@@ -102,6 +105,114 @@ public final class PaidStatus {
             return Double.parseDouble(s);
         } catch (NumberFormatException e) {
             return null;
+        }
+    }
+
+    /**
+     * First number inside a printed value ("2,229 (via bank)" -&gt; 2229).
+     * The paid-box value cell sometimes carries a note after the
+     * figure; the figure itself is what decides PAID. Null when no
+     * number is present.
+     */
+    public static Double parseFirstAmount(String raw) {
+        if (raw == null) return null;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "[0-9][0-9,]*+(\\.[0-9]+)?").matcher(raw);
+        if (!m.find()) return null;
+        try {
+            return Double.parseDouble(m.group().replace(",", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static final String[] MONTHS = {"JAN", "FEB", "MAR", "APR",
+            "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+
+    /**
+     * "17-Nov-26" -&gt; "17 Nov 2026". Also accepts "17 Nov 26",
+     * "17-Nov-2026", "17 Nov 2026" and "17/11/2026" / "17-11-2026".
+     * Returns null for anything unparseable (never invent a date).
+     * The day prints without a leading zero, the month as a 3-letter
+     * title-case word, the year as 4 digits.
+     */
+    public static String formatPaymentDate(String raw) {
+        if (raw == null) return null;
+        String s = raw.trim();
+        if (s.isEmpty()) return null;
+        // Numeric: dd/MM/yyyy or dd-MM-yyyy.
+        java.util.regex.Matcher num =
+                java.util.regex.Pattern.compile(
+                        "^(\\d{1,2})[/-](\\d{1,2})[/-](\\d{2,4})$")
+                        .matcher(s);
+        if (num.find()) {
+            int day = Integer.parseInt(num.group(1));
+            int mon = Integer.parseInt(num.group(2));
+            int year = Integer.parseInt(num.group(3));
+            if (year < 100) year += 2000;
+            if (day < 1 || day > 31 || mon < 1 || mon > 12) return null;
+            return day + " " + MONTHS[mon - 1].substring(0, 1)
+                    + MONTHS[mon - 1].substring(1).toLowerCase()
+                    + " " + year;
+        }
+        // Named month: dd-Mon-yy(yy) or dd Mon yy(yy).
+        java.util.regex.Matcher named =
+                java.util.regex.Pattern.compile(
+                        "^(\\d{1,2})[\\s-]+([A-Za-z]{3,9})[\\s-]+(\\d{2,4})$")
+                        .matcher(s);
+        if (!named.find()) return null;
+        int day;
+        int year;
+        try {
+            day = Integer.parseInt(named.group(1));
+            year = Integer.parseInt(named.group(3));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        if (year < 100) year += 2000;
+        if (day < 1 || day > 31) return null;
+        String monRaw = named.group(2).toUpperCase();
+        String[] full = {"JANUARY", "FEBRUARY", "MARCH", "APRIL",
+                "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER",
+                "OCTOBER", "NOVEMBER", "DECEMBER"};
+        int mon = -1;
+        for (int i = 0; i < MONTHS.length; i++) {
+            if (MONTHS[i].equals(monRaw)
+                    || ("SEPT".equals(monRaw) && i == 8)
+                    || full[i].equals(monRaw)) {
+                mon = i + 1;
+                break;
+            }
+        }
+        if (mon < 1) return null;
+        return day + " " + MONTHS[mon - 1].substring(0, 1)
+                + MONTHS[mon - 1].substring(1).toLowerCase()
+                + " " + year;
+    }
+
+    /**
+     * Primary resolver: the bill's OWN paid fields. Freshly fetched
+     * bills (paidFieldsChecked) decide from AMOUNT PAID alone — a
+     * paid box with an amount &gt; 0 is PAID, anything else is UNPAID.
+     * Old saved bills (paidFieldsChecked == false) fall back to the
+     * history table. Never throws; any unexpected shape yields
+     * UNKNOWN.
+     */
+    public static Result resolveBill(
+            LescoBillFetcher.BillInfo b) {
+        if (b == null) return UNKNOWN;
+        try {
+            if (b.paidFieldsChecked) {
+                Double paid = parseFirstAmount(b.amountPaid);
+                if (paid != null && paid > 0) {
+                    return new Result(State.PAID, b.amountPaid, paid,
+                            -1, formatPaymentDate(b.paymentDate));
+                }
+                return new Result(State.UNPAID, null, 0, -1, null);
+            }
+            return resolve(b.history, b.billMonth);
+        } catch (Exception e) {
+            return UNKNOWN;
         }
     }
 

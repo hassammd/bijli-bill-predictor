@@ -360,7 +360,9 @@ public final class Ui {
 
     /**
      * v1.3 pill toggle (approved mockup): rounded container with two
-     * segments; the active language sits on an amber pill with dark text.
+     * segments; the active language sits on a blue pill with white
+     * text (v3.7.40: was amber pill with dark text; user: yellow
+     * only for small highlights, never a main colour).
      * Tapping the inactive segment switches language.
      *
      * @param onLight true on light backgrounds (blue container + blue
@@ -401,7 +403,8 @@ public final class Ui {
         t.setMinWidth(dp(ctx, 52));
         if (active) {
             t.setBackgroundResource(R.drawable.toggle_seg_on);
-            t.setTextColor(darkText());
+            // v3.7.40: white text on blue (was dark text on amber).
+            t.setTextColor(Color.WHITE);
             t.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
             t.setBackgroundColor(Color.TRANSPARENT);

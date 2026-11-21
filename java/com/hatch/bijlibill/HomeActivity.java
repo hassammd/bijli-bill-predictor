@@ -16,8 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,7 +68,13 @@ public class HomeActivity extends BaseActivity {
 
     private TextView segRefBtn;
     private TextView segCidBtn;
-    private LinearLayout discoRow;
+    /** v3.7.40: company-cards grid section + per-company form section. */
+    private LinearLayout gridSection;
+    private LinearLayout formSection;
+    private TextView totalPayableAmount;
+    private TextView totalPayablePending;
+    private ImageView formLogo;
+    private TextView formCompanyName;
     private TextView fieldLabel;
     private TextView refField;
     private TextView cidField;
@@ -107,7 +113,8 @@ public class HomeActivity extends BaseActivity {
         WeeklyReportAlarm.schedule(this);
         buildUi();
         refreshTabs();
-        refreshChips();
+        // v3.7.40: the companies carousel is gone (company-cards
+        // grid below); nothing to refresh here anymore.
         // v3.6.9: "outside Pakistan?" popup (like competitor apps) — PITC
         // blocks foreign IPs, so bill fetch fails abroad. Ask once.
         maybeAskOutsidePakistan(sp);
@@ -122,11 +129,15 @@ public class HomeActivity extends BaseActivity {
             clearInputOnResume = false;
             if (refField != null) refField.setText("");
             if (cidField != null) cidField.setText("");
+            // v3.7.40: bill dekh kar wapas aane par Home phir cards
+            // grid dikhaye (form mein wapas nahi).
+            showGrid();
         }
         refreshSavedList();
         refreshMeterCheckButton();
         refreshStreakCard();
         refreshNotifBanner();
+        refreshTotalPayable();
     }
 
     /** One-time migration of the old manual saves into SavedMeters. */
@@ -548,15 +559,31 @@ public class HomeActivity extends BaseActivity {
 
         content.addView(topBar());
         content.addView(greeting());
-        content.addView(secLabel(R.string.disco_label, 10));
-        content.addView(discoChips());
-        content.addView(inputCard());
+
+        // v3.7.40: company-cards grid (user order, competitor
+        // style) — greeting, Total Payable card, "Select Your
+        // Company", 11 DISCO cards. The per-company input form
+        // lives in formSection below, hidden until a card is tapped.
+        gridSection = new LinearLayout(this);
+        gridSection.setOrientation(LinearLayout.VERTICAL);
+        gridSection.addView(totalPayableCard());
+        gridSection.addView(secLabel(R.string.select_company, 10));
+        gridSection.addView(companyGrid());
+        content.addView(gridSection);
+
+        formSection = new LinearLayout(this);
+        formSection.setOrientation(LinearLayout.VERTICAL);
+        formSection.addView(formHeader());
+        formSection.addView(inputCard());
+        formSection.setVisibility(View.GONE);
+        content.addView(formSection);
 
         // v3.6.77: BILL DEKHO button moved INSIDE inputCard (user request).
         int hm = Ui.dp(this, 20);
 
-        // v3.6.71: Quick Tools — Unit Check + Bill History cards.
-        content.addView(quickToolsSection());
+        // v3.7.40: Quick Tools REMOVED from Home (user order) — Unit
+        // Check + Bill History already live in the bottom nav
+        // (Bills / Unit Check tabs), so nothing is lost.
 
 
         // v3.4.0: streak card — flame + consecutive check-in days;
@@ -688,103 +715,6 @@ public class HomeActivity extends BaseActivity {
         return l;
     }
 
-    // ---- disco chips (horizontal scroll) ----
-
-    // v3.6.87: single-row carousel (user: no double row, 3-4 visible + scroll).
-    // v3.6.91: left/right arrows (user request).
-    private HorizontalScrollView discoHsv;
-
-    private View discoChips() {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        int hp = Ui.dp(this, 20);
-        // v3.6.95: bottom padding 12dp→8dp (Home fit-without-scroll trims).
-        row.setPadding(hp, Ui.dp(this, 2), hp, Ui.dp(this, 8));
-
-        // left arrow
-        android.widget.ImageView left = new android.widget.ImageView(this);
-        left.setImageResource(R.drawable.ic_caro_left);
-        left.setBackgroundResource(R.drawable.ds_avatar_light);
-        // v3.7.28: narrow screens get smaller arrows so 3 chips fit fully.
-        int as = Ui.dp(this, Ui.narrow(this, 36, 28));
-        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(as, as);
-        alp.rightMargin = Ui.dp(this, Ui.narrow(this, 8, 6));
-        left.setLayoutParams(alp);
-        left.setClickable(true);
-        left.setFocusable(true);
-        left.setPadding(Ui.dp(this, 6), Ui.dp(this, 6),
-                Ui.dp(this, 6), Ui.dp(this, 6));
-        row.addView(left);
-
-        // scrollable chips (shows ~3)
-        discoHsv = new HorizontalScrollView(this);
-        discoHsv.setHorizontalScrollBarEnabled(false);
-        discoHsv.setClipToPadding(true);
-        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        discoHsv.setLayoutParams(hlp);
-
-        discoRow = new LinearLayout(this);
-        discoRow.setOrientation(LinearLayout.HORIZONTAL);
-        discoHsv.addView(discoRow, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        row.addView(discoHsv);
-
-        // right arrow
-        android.widget.ImageView right = new android.widget.ImageView(this);
-        right.setImageResource(R.drawable.ic_caro_right);
-        right.setBackgroundResource(R.drawable.ds_avatar_light);
-        LinearLayout.LayoutParams arp = new LinearLayout.LayoutParams(as, as);
-        arp.leftMargin = Ui.dp(this, Ui.narrow(this, 8, 6));
-        right.setLayoutParams(arp);
-        right.setClickable(true);
-        right.setFocusable(true);
-        right.setPadding(Ui.dp(this, 6), Ui.dp(this, 6),
-                Ui.dp(this, 6), Ui.dp(this, 6));
-        row.addView(right);
-
-        // arrow click = scroll (v3.6.97: ValueAnimator glide, buttery smooth,
-        // 450ms decelerate; cancels in-flight animation on rapid taps)
-        final int scrollAmt = Ui.dp(this, 120);
-        left.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                glideChipsBy(-scrollAmt);
-            }
-        });
-        right.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                glideChipsBy(scrollAmt);
-            }
-        });
-
-        return row;
-    }
-
-    private android.animation.ValueAnimator discoGlide;
-
-    private void glideChipsBy(int delta) {
-        if (discoHsv == null || discoRow == null) return;
-        if (discoGlide != null && discoGlide.isRunning()) discoGlide.cancel();
-        int from = discoHsv.getScrollX();
-        int max = Math.max(0, discoRow.getWidth() - discoHsv.getWidth());
-        int to = Math.max(0, Math.min(max, from + delta));
-        if (to == from) return;
-        discoGlide = android.animation.ValueAnimator.ofInt(from, to);
-        discoGlide.setDuration(450);
-        discoGlide.setInterpolator(
-                new android.view.animation.DecelerateInterpolator(1.5f));
-        discoGlide.addUpdateListener(
-                new android.animation.ValueAnimator.AnimatorUpdateListener() {
-            @Override public void onAnimationUpdate(
-                    android.animation.ValueAnimator a) {
-                discoHsv.setScrollX((Integer) a.getAnimatedValue());
-            }
-        });
-        discoGlide.start();
-    }
-
     // v3.7.39: official DISCO emblem per company (res/drawable-nodpi).
     // Every fetchable disco maps to its own logo; K-Electric has no
     // chip (comingSoon) so it maps to 0 and is never shown.
@@ -810,71 +740,245 @@ public class HomeActivity extends BaseActivity {
                 && ("iesco".equals(d.code) || "tesco".equals(d.code));
     }
 
-    private void refreshChips() {
-        discoRow.removeAllViews();
-        // v3.6.89: K-Electric removed (user request).
-        java.util.List<Disco> list = new java.util.ArrayList<Disco>();
-        for (Disco d : Disco.values()) {
-            if (!d.comingSoon) list.add(d);
+    // ---- v3.7.40: company-cards grid + Total Payable (user order,
+    //      competitor style). White cards on the light slatey bg
+    //      (#F4F8F7), blue primary; yellow only for small highlights,
+    //      never a main colour. ----
+
+    /** Grid order, exactly as the user listed it (not enum order). */
+    private static final Disco[] GRID_ORDER = {Disco.MEPCO, Disco.LESCO,
+            Disco.FESCO, Disco.GEPCO, Disco.IESCO, Disco.HESCO,
+            Disco.QESCO, Disco.PESCO, Disco.TESCO, Disco.SEPCO,
+            Disco.HAZECO};
+
+    /** Blue gradient "Total Payable" card + "N bills pending" pill. */
+    private View totalPayableCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundResource(R.drawable.nd_btn_gradient);
+        card.setPadding(Ui.dp(this, 20), Ui.dp(this, 18),
+                Ui.dp(this, 20), Ui.dp(this, 18));
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            card.setElevation(Ui.dp(this, 4));
         }
-        for (int i = 0; i < list.size(); i++) {
-            final Disco d = list.get(i);
-            final boolean isSel = d.code.equals(disco.code);
-            LinearLayout chip = new LinearLayout(this);
-            chip.setOrientation(LinearLayout.HORIZONTAL);
-            chip.setGravity(Gravity.CENTER_VERTICAL);
-            chip.setBackgroundResource(
-                    // v3.6.80: selected = yellow (user request, like toggle).
-                    isSel ? R.drawable.ds_chip_yellow : R.drawable.ds_chip);
-            // v3.7.28: narrow screens get tighter chips so 3 fit fully.
-            int v = Ui.dp(this, 9), h = Ui.dp(this, Ui.narrow(this, 16, 12));
-            chip.setPadding(h, v, h, v);
-            if (isSel && android.os.Build.VERSION.SDK_INT >= 21) {
-                chip.setElevation(Ui.dp(this, 3));
-            }
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        clp.setMargins(Ui.dp(this, 20), Ui.dp(this, 8),
+                Ui.dp(this, 20), 0);
+        card.setLayoutParams(clp);
 
-            // v3.7.39: official DISCO logo before the name (emblems in
-            // res/drawable-nodpi/logo_<code>.png, verified per company).
-            ImageView logo = new ImageView(this);
-            logo.setImageResource(discoLogoRes(d));
-            logo.setContentDescription(d.displayName + " logo");
-            logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            logo.setAdjustViewBounds(true);
-            int lw = Ui.dp(this, discoLogoWide(d) ? 34 : 20);
-            LinearLayout.LayoutParams llp =
-                    new LinearLayout.LayoutParams(
-                            lw, Ui.dp(this, 20));
-            llp.rightMargin = Ui.dp(this, 6);
-            logo.setLayoutParams(llp);
-            chip.addView(logo);
+        TextView label = new TextView(this);
+        label.setText(getString(R.string.total_payable_title));
+        label.setTextSize(12);
+        label.setLetterSpacing(0.08f);
+        label.setTextColor(Color.parseColor("#BFD6F2"));
+        Ds.heading(this, label);
+        card.addView(label);
 
-            TextView t = new TextView(this);
-            t.setText(d.displayName);
-            t.setTextSize(Ui.narrow(this, 13, 12));
-            t.setSingleLine(true);
-            // v3.6.80: dark text on yellow when selected (user request).
-            t.setTextColor(isSel ? Ds.amberDark() : Ds.muted());
-            Ds.heading(this, t);
-            chip.addView(t);
+        totalPayableAmount = new TextView(this);
+        totalPayableAmount.setTextSize(30);
+        totalPayableAmount.setTextColor(Color.WHITE);
+        totalPayableAmount.setTypeface(Fonts.archivo(this, 800));
+        totalPayableAmount.setSingleLine(true);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        alp.topMargin = Ui.dp(this, 2);
+        totalPayableAmount.setLayoutParams(alp);
+        card.addView(totalPayableAmount);
 
-            // v3.6.89: more spacing between chips (user request).
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = Ui.dp(this, 12);
-            chip.setLayoutParams(lp);
-            chip.setClickable(true);
-            chip.setFocusable(true);
-            chip.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    disco = d;
-                    persistDisco();
-                    refreshChips();
-                }
-            });
-            discoRow.addView(chip);
-        }
+        LinearLayout pill = new LinearLayout(this);
+        pill.setOrientation(LinearLayout.HORIZONTAL);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setBackgroundResource(R.drawable.ds_total_pill);
+        pill.setPadding(Ui.dp(this, 12), Ui.dp(this, 6),
+                Ui.dp(this, 12), Ui.dp(this, 6));
+        LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        plp.topMargin = Ui.dp(this, 12);
+        pill.setLayoutParams(plp);
+        totalPayablePending = new TextView(this);
+        totalPayablePending.setTextSize(12.5f);
+        totalPayablePending.setTextColor(Color.WHITE);
+        Ds.heading(this, totalPayablePending);
+        pill.addView(totalPayablePending);
+        card.addView(pill);
+        return card;
     }
+
+    /** Recomputes the Total Payable card from last-bill records. */
+    private void refreshTotalPayable() {
+        if (totalPayableAmount == null || totalPayablePending == null) {
+            return;
+        }
+        java.util.List<TotalPayable.Record> recs =
+                new java.util.ArrayList<TotalPayable.Record>();
+        for (LastBillStore.Record r : LastBillStore.loadAll(this)) {
+            recs.add(new TotalPayable.Record(r.amount, r.state));
+        }
+        TotalPayable.Result res = TotalPayable.compute(recs);
+        totalPayableAmount.setText("Rs. "
+                + TotalPayable.formatAmount(res.total));
+        totalPayablePending.setText(
+                getString(R.string.bills_pending, res.pendingCount));
+    }
+
+    /** 11 DISCO cards in a 4-column grid (logo on top, name below). */
+    private View companyGrid() {
+        GridLayout grid = new GridLayout(this);
+        grid.setColumnCount(4);
+        grid.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
+        grid.setUseDefaultMargins(false);
+        LinearLayout.LayoutParams glp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        glp.setMargins(Ui.dp(this, 20), 0, Ui.dp(this, 20), 0);
+        grid.setLayoutParams(glp);
+        for (int i = 0; i < GRID_ORDER.length; i++) {
+            grid.addView(companyCard(GRID_ORDER[i]));
+        }
+        return grid;
+    }
+
+    private View companyCard(final Disco d) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER_HORIZONTAL);
+        card.setBackgroundResource(R.drawable.ds_card_24);
+        int pad = Ui.dp(this, 10);
+        card.setPadding(pad, Ui.dp(this, 14), pad, Ui.dp(this, 12));
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            card.setElevation(Ui.dp(this, 2));
+        }
+        GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
+        lp.width = 0;
+        lp.height = GridLayout.LayoutParams.WRAP_CONTENT;
+        lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        lp.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        int gap = Ui.dp(this, 8);
+        lp.setMargins(gap / 2, gap / 2, gap / 2, gap / 2);
+        card.setLayoutParams(lp);
+
+        // v3.7.39: official DISCO logo (same logo_<code>.png
+        // drawables as the old picker chips).
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(discoLogoRes(d));
+        logo.setContentDescription(d.displayName + " logo");
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        logo.setAdjustViewBounds(true);
+        int lw = Ui.dp(this, discoLogoWide(d) ? 40 : 28);
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
+                lw, Ui.dp(this, 28));
+        logo.setLayoutParams(llp);
+        card.addView(logo);
+
+        TextView t = new TextView(this);
+        t.setText(d.displayName);
+        t.setTextSize(12);
+        t.setSingleLine(true);
+        t.setTextColor(Ds.ink());
+        Ds.heading(this, t);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = Ui.dp(this, 8);
+        t.setLayoutParams(tlp);
+        card.addView(t);
+
+        card.setClickable(true);
+        card.setFocusable(true);
+        card.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                disco = d;
+                persistDisco();
+                showCompanyForm();
+            }
+        });
+        return card;
+    }
+
+    /** Back arrow + company logo + name above the input form. */
+    private View formHeader() {
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPadding(Ui.dp(this, 20), Ui.dp(this, 16),
+                Ui.dp(this, 20), 0);
+
+        ImageView back = new ImageView(this);
+        back.setImageResource(R.drawable.ic_caro_left);
+        back.setBackgroundResource(R.drawable.ds_avatar_light);
+        int s = Ui.dp(this, 36);
+        back.setLayoutParams(new LinearLayout.LayoutParams(s, s));
+        back.setPadding(Ui.dp(this, 6), Ui.dp(this, 6),
+                Ui.dp(this, 6), Ui.dp(this, 6));
+        back.setClickable(true);
+        back.setFocusable(true);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { showGrid(); }
+        });
+        head.addView(back);
+
+        formLogo = new ImageView(this);
+        formLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        formLogo.setAdjustViewBounds(true);
+        LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(
+                Ui.dp(this, 32), Ui.dp(this, 32));
+        flp.leftMargin = Ui.dp(this, 12);
+        formLogo.setLayoutParams(flp);
+        head.addView(formLogo);
+
+        formCompanyName = new TextView(this);
+        formCompanyName.setTextSize(17);
+        formCompanyName.setTextColor(Ds.ink());
+        Ds.heading(this, formCompanyName);
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        nlp.leftMargin = Ui.dp(this, 10);
+        formCompanyName.setLayoutParams(nlp);
+        head.addView(formCompanyName);
+        return head;
+    }
+
+    /** Tap a company card -> its input form (company pre-selected). */
+    private void showCompanyForm() {
+        if (formLogo != null) {
+            formLogo.setImageResource(discoLogoRes(disco));
+            formLogo.setContentDescription(disco.displayName + " logo");
+        }
+        if (formCompanyName != null) {
+            formCompanyName.setText(disco.displayName);
+        }
+        if (gridSection != null) gridSection.setVisibility(View.GONE);
+        if (formSection != null) {
+            formSection.setVisibility(View.VISIBLE);
+        }
+        if (scrollView != null) scrollView.scrollTo(0, 0);
+        refreshTabs();
+    }
+
+    /** Back to the company-cards grid. */
+    private void showGrid() {
+        if (formSection != null) formSection.setVisibility(View.GONE);
+        if (gridSection != null) {
+            gridSection.setVisibility(View.VISIBLE);
+        }
+        if (scrollView != null) scrollView.scrollTo(0, 0);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (formSection != null
+                && formSection.getVisibility() == View.VISIBLE) {
+            showGrid();
+            return;
+        }
+        super.onBackPressed();
+    }
+
 
     // ---- input card: seg + label + field + paste + helper ----
 
@@ -1034,14 +1138,15 @@ public class HomeActivity extends BaseActivity {
 
     private void tintSeg(TextView b, boolean active) {
         b.setBackgroundResource(
-                // v3.6.80: active = yellow (user request, like toggle).
-                active ? R.drawable.ds_seg_yellow : 0);
+                // v3.7.40: active = blue (was yellow; user: yellow
+                // only for small highlights, never a main colour).
+                active ? R.drawable.ds_seg_blue : 0);
         if (!active) b.setBackgroundColor(Color.TRANSPARENT);
         else if (android.os.Build.VERSION.SDK_INT >= 21) {
             b.setElevation(Ui.dp(this, 2));
         }
-        // v3.6.80: dark text on yellow when active (user request).
-        b.setTextColor(active ? Ds.amberDark() : Ds.muted());
+        // v3.7.40: white text on blue when active.
+        b.setTextColor(active ? Color.WHITE : Ds.muted());
         Ds.heading(this, b);
     }
 
@@ -1091,176 +1196,6 @@ public class HomeActivity extends BaseActivity {
             @Override public void onClick(View v) { onFetchClicked(); }
         });
         return b;
-    }
-
-    // ---- QUICK TOOLS (v3.6.71) ----
-
-    private View quickToolsSection() {
-        LinearLayout sec = new LinearLayout(this);
-        sec.setOrientation(LinearLayout.VERTICAL);
-        // v3.6.79: don't clip card shadows.
-        sec.setClipChildren(false);
-        sec.setClipToPadding(false);
-        int hm = Ui.dp(this, 20);
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        // v3.6.78: bottom margin 16dp (user: shadow was cut at bottom).
-        // v3.6.95: margins 20/16 → 12/10 — Home must fit without scrolling
-        // (user: screen bilkul fixed rehni chahiye). Shadows safe: row
-        // keeps its own 6dp padding + clipToPadding=false.
-        // v3.6.96: top margin +6dp (12→18, user QA: Quick Tools ko thodi
-        // si space) — still within the v3.6.95 trim headroom.
-        // v3.6.97: top margin 18→24dp (user QA: thodi si aur).
-        slp.setMargins(hm, Ui.dp(this, 24), hm, Ui.dp(this, 10));
-        sec.setLayoutParams(slp);
-
-        // Heading
-        TextView h = new TextView(this);
-        h.setText(getString(R.string.quick_tools_title));
-        h.setTextSize(19);
-        h.setTextColor(Ds.ink());
-        Ds.heading(this, h);
-        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        hlp.bottomMargin = Ui.dp(this, 12);
-        // RTL: heading aligns right in Urdu
-        if (isUrdu()) h.setGravity(Gravity.END);
-        h.setLayoutParams(hlp);
-        sec.addView(h);
-
-        // Two cards side by side
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        // v3.6.79: don't clip shadows (user: shadow cut at bottom).
-        row.setClipChildren(false);
-        row.setClipToPadding(false);
-        // Padding for shadow room on all sides.
-        int shp = Ui.dp(this, 6);
-        row.setPadding(shp, shp, shp, shp);
-
-        View card1 = quickToolCard(
-                R.drawable.icon_gauge,
-                "#E3EDFB", // mint circle
-                getString(R.string.quick_unit_check),
-                getString(R.string.quick_unit_check_sub),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        startActivity(new Intent(HomeActivity.this,
-                                MeterCheckActivity.class));
-                    }
-                });
-        LinearLayout.LayoutParams c1lp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        c1lp.rightMargin = Ui.dp(this, 4);
-        card1.setLayoutParams(c1lp);
-        row.addView(card1);
-
-        View card2 = quickToolCard(
-                R.drawable.icon_document,
-                "#E8E4F8", // lavender circle
-                getString(R.string.quick_bill_history),
-                getString(R.string.quick_bill_history_sub),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        startActivity(new Intent(HomeActivity.this,
-                                BillsActivity.class));
-                    }
-                });
-        LinearLayout.LayoutParams c2lp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        c2lp.leftMargin = Ui.dp(this, 4);
-        card2.setLayoutParams(c2lp);
-        row.addView(card2);
-
-        sec.addView(row);
-
-        return sec;
-    }
-
-    private View quickToolCard(int iconRes, String circleColor,
-            String title, String sub, View.OnClickListener onClick) {
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.HORIZONTAL);
-        card.setGravity(Gravity.CENTER_VERTICAL);
-        card.setBackgroundResource(R.drawable.ds_card);
-        int p = Ui.dp(this, 12);
-        card.setPadding(p, p, p, p);
-        // v3.6.77: 4dp elevation to match other cards (user: green shadow
-        // on all four sides like other cards).
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            card.setElevation(Ui.dp(this, 4));
-        }
-        Ds.blueShadow(card);
-
-        // Icon circle
-        // v3.6.76: smaller icon (user: make room for full headings).
-        // v3.7.28: even smaller on narrow screens (more room for text).
-        FrameLayout circle = new FrameLayout(this);
-        int cs = Ui.dp(this, Ui.narrow(this, 40, 36));
-        circle.setLayoutParams(new LinearLayout.LayoutParams(cs, cs));
-        android.graphics.drawable.GradientDrawable bg =
-                new android.graphics.drawable.GradientDrawable();
-        bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-        bg.setColor(Color.parseColor(circleColor));
-        circle.setBackground(bg);
-        ImageView ic = new ImageView(this);
-        ic.setImageResource(iconRes);
-        int is = Ui.dp(this, 22);
-        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(
-                is, is, Gravity.CENTER);
-        ic.setLayoutParams(ilp);
-        circle.addView(ic);
-        card.addView(circle);
-
-        // Text (title + subtitle)
-        LinearLayout txt = new LinearLayout(this);
-        txt.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        tlp.leftMargin = Ui.dp(this, 10);
-        tlp.rightMargin = Ui.dp(this, 6);
-        txt.setLayoutParams(tlp);
-
-        TextView t = new TextView(this);
-        t.setText(title);
-        // v3.7.28: 2 lines allowed (was single-line + ellipsis → "Unit C..."
-        // on narrow screens). Title never truncates now.
-        t.setTextSize(Ui.narrow(this, 12, 11));
-        t.setMaxLines(2);
-        t.setTextColor(Ds.ink());
-        Ds.heading(this, t);
-        txt.addView(t);
-
-        TextView s = new TextView(this);
-        s.setText(sub);
-        s.setTextSize(11);
-        // v3.6.76: subtitle allows 2 lines (user request).
-        s.setMaxLines(2);
-        s.setTextColor(Ds.muted());
-        Ds.body(this, s, 400);
-        txt.addView(s);
-        card.addView(txt);
-
-        // Chevron
-        ImageView chev = new ImageView(this);
-        chev.setImageResource(R.drawable.ic_chev_right);
-        chev.setColorFilter(Ds.muted(),
-                android.graphics.PorterDuff.Mode.SRC_IN);
-        int chs = Ui.dp(this, 18);
-        chev.setLayoutParams(new LinearLayout.LayoutParams(chs, chs));
-        // RTL: flip chevron in Urdu
-        if (isUrdu()) chev.setRotation(180);
-        card.addView(chev);
-
-        card.setClickable(true);
-        card.setFocusable(true);
-        card.setOnClickListener(onClick);
-        return card;
     }
 
     private boolean isUrdu() {

@@ -263,6 +263,10 @@
     <!-- v2.6.0 design system: home -->
     <string name="home_greeting">السلام علیکم \uD83D\uDC4B</string>
     <string name="home_greeting_sub">اپنا بجلی بل چیک کریں — صرف ریفرنس نمبر چاہیے۔</string>
+    <!-- v3.7.40: company-cards grid + Total Payable -->
+    <string name="select_company">کمپنی منتخب کریں</string>
+    <string name="total_payable_title">کل واجب الادا</string>
+    <string name="bills_pending">%1$d بل بقایا ہیں</string>
     <string name="helper_ref">بل پر لکھا 14 ہندسوں کا ریفرنس نمبر درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
     <string name="helper_cid">بل پر لکھا 7 ہندسوں کا کسٹمر آئی ڈی درج کریں — یہ صرف اس فون میں محفوظ ہوگا۔</string>
     <string name="paste">پیسٹ کریں</string>
@@ -372,6 +376,7 @@
     <!-- v3.7.38: Paid/Unpaid badge (bill detail, after the amount) -->
     <string name="badge_paid">ادا شدہ</string>
     <string name="badge_unpaid">ادا نہیں ہوا</string>
+    <string name="badge_paid_on">ادا شدہ %1$s</string>
 
     <!-- v3.7.38: Settings rows (AboutActivity) -->
     <string name="settings_section">سیٹنگز</string>

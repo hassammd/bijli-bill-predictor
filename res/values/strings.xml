@@ -263,6 +263,10 @@
     <!-- v2.6.0 design system: home -->
     <string name="home_greeting">Asalamualaikum</string>
     <string name="home_greeting_sub">Check your electricity bill — all you need is the reference number.</string>
+    <!-- v3.7.40: company-cards grid + Total Payable -->
+    <string name="select_company">Select Your Company</string>
+    <string name="total_payable_title">Total Payable</string>
+    <string name="bills_pending">%1$d bills pending</string>
     <string name="helper_ref">Enter the 14-digit reference number printed on your bill — it will only be saved on this phone.</string>
     <string name="helper_cid">Enter the 7-digit customer ID printed on your bill — it will only be saved on this phone.</string>
     <string name="paste">PASTE</string>
@@ -369,9 +373,10 @@
     <string name="quick_rate_us">Rate us</string>
     <string name="quick_rate_us_sub">Give us a star rating</string>
 
-    <!-- v3.7.38: Paid/Unpaid badge (bill detail, after the amount) -->
+    <!-- v3.7.40: Paid/Unpaid badge (bill detail, after the amount) -->
     <string name="badge_paid">Paid</string>
     <string name="badge_unpaid">Unpaid</string>
+    <string name="badge_paid_on">Paid on %1$s</string>
 
     <!-- v3.7.38: Settings rows (AboutActivity) -->
     <string name="settings_section">Settings</string>

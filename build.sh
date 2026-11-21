@@ -1,4 +1,23 @@
 #!/bin/bash
+# Bijli Bill v3.7.40 (172) — Paid badge from the BILL's own fields +
+# company-cards home grid (user orders, 2026-11-21):
+#   - Paid/Unpaid badge now reads the bill's own AMOUNT PAID +
+#     PAYMENT DATE fields (LescoBillFetcher labels). CORRECTS v3.7.38:
+#     the history table was the wrong source — the bill document
+#     itself prints the payment date (user's NOV 26 LESCO bill:
+#     AMOUNT PAID 2,229, PAYMENT DATE 17-Nov-26). History resolve
+#     kept only as fallback for old saved bills; date never invented.
+#   - Home redesign: companies carousel + Quick Tools + home input
+#     card gone. After splash: greeting + blue gradient Total
+#     Payable card (saved bills, PAID excluded) + "Select Your
+#     Company" 11-card grid (v3.7.39 logos, tap -> that company's
+#     input form). Bottom nav unchanged.
+#   - Colour pass (user: white + light slatey, blue primary; yellow
+#     only for small highlights): cards #EFF3F2, ref/cust-id segment
+#     + lang pill blue, due chip light blue; dead yellow chip/segment
+#     drawables deleted.
+#   - Kept: bill fetch, CAPTCHA/session-out fixes, reminders,
+#     tariff code, DISCO logos, Settings. Launcher icon NOT changed.
 # Bijli Bill v3.7.39 (171) — official DISCO logos in picker + TESCO/HAZECO
 # + Rate Us moved to Settings (user order, 2026-11-21):
 #   - Blue theme: the old green palette is gone everywhere (Ds/Ui
@@ -170,6 +189,8 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/SavedMeters.java \
   java/com/hatch/bijlibill/LangPolicy.java \
   java/com/hatch/bijlibill/PaidStatus.java \
+  java/com/hatch/bijlibill/TotalPayable.java \
+  java/com/hatch/bijlibill/LastBillStore.java \
   java/com/hatch/bijlibill/StreakCalc.java \
   java/com/hatch/bijlibill/BillDayNudge.java \
   java/com/hatch/bijlibill/WeeklyReport.java \
@@ -285,16 +306,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.39.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.39.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.40.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.40.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.39.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.39.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.40.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.40.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.39.apk" "$OUTDIR/bijli-bill-publish-3.7.39.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.40.apk" "$OUTDIR/bijli-bill-publish-3.7.40.aab"
 echo BUILD_OK
