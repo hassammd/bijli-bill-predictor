@@ -2172,9 +2172,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"165\""), true);
+                man.contains("android:versionCode=\"166\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.33\""), true);
+                man.contains("android:versionName=\"3.7.34\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3877,9 +3877,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"165\""), true);
+                man.contains("android:versionCode=\"166\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.33\""), true);
+                man.contains("android:versionName=\"3.7.34\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4250,10 +4250,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"165\""),
+                manifest.contains("android:versionCode=\"166\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.33\""),
+                manifest.contains("android:versionName=\"3.7.34\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4412,10 +4412,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"165\""),
+                manifest.contains("android:versionCode=\"166\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.33\""),
+                manifest.contains("android:versionName=\"3.7.34\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4907,8 +4907,8 @@ public class TestBillFetch {
                 man.contains(".AssistantActivity"), true);
         check("v3731 manifest mic permission",
                 man.contains("android.permission.RECORD_AUDIO"), true);
-        check("v3733 manifest version 165",
-                man.contains("android:versionCode=\"165\""), true);
+        check("v3734 manifest version 166",
+                man.contains("android:versionCode=\"166\""), true);
 
         // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -4963,15 +4963,13 @@ public class TestBillFetch {
                 !asst.contains("assistant_input_hint"), true);
         check("v3733 no old listening hint",
                 !asst.contains("assistant_listening"), true);
-        // 17b. Voice-call UI: big mic + status line.
-        check("v3733 big mic", asst.contains("bigMic"), true);
-        check("v3733 status text", asst.contains("statusText"), true);
-        check("v3733 status listening",
-                asst.contains("assistant_status_listening"), true);
-        check("v3733 status speaking",
-                asst.contains("assistant_status_speaking"), true);
-        check("v3733 status tap",
-                asst.contains("assistant_status_tap"), true);
+        // 17b. Voice-call UI: big mic; its colour is the only status
+        // (v3.7.34 removed the status text and bubbles entirely).
+        check("v3734 big mic", asst.contains("bigMic"), true);
+        check("v3734 mic state", asst.contains("setMicState"), true);
+        check("v3734 no status text", !asst.contains("statusText"), true);
+        check("v3734 no addBubble", !asst.contains("addBubble"), true);
+        check("v3734 no setStatus", !asst.contains("setStatus("), true);
         // 17c. pa-PK fallback: device support checked before retry.
         check("v3733 pa fallback lang",
                 asst.contains("\"pa-PK\""), true);
@@ -5048,6 +5046,64 @@ public class TestBillFetch {
                 "mera bill kyun zyada aaya?", two, "Test User");
         check("v3733 urdu why still",
                 whyUr.contains("70 unit zyada"), true);
+
+        // ---- 18. v3.7.34: live-call Assistant (no text, fast reply,
+        //      smooth voice) + Rate Us card ----
+        // 18a. No text anywhere on the Assistant screen.
+        check("v3734 no chips", !asst.contains("assistant_chip"), true);
+        // 18b. Fast end-of-speech: partial results + short silence
+        // timeouts, so the reply starts the moment speech ends.
+        check("v3734 partial results",
+                asst.contains("EXTRA_PARTIAL_RESULTS"), true);
+        check("v3734 partial handler",
+                asst.contains("onPartialResults"), true);
+        check("v3734 quiet check",
+                asst.contains("partialQuietCheck"), true);
+        check("v3734 complete silence",
+                asst.contains(
+                        "EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS"),
+                true);
+        check("v3734 possibly complete silence",
+                asst.contains(
+                        "EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS"),
+                true);
+        // 18c. Smooth voice: best Urdu voice + chunked speech.
+        check("v3734 urdu voice pick",
+                asst.contains("selectBestUrduVoice"), true);
+        check("v3734 chunked speech",
+                asst.contains("splitForSpeech"), true);
+        check("v3734 speech rate",
+                asst.contains("setSpeechRate(0.95f)"), true);
+        check("v3734 spoken errors",
+                asst.contains("speakError"), true);
+        check("v3734 error restarts listen",
+                asst.contains("listenAfterErrorSpoken"), true);
+        // 18d. Rate Us card on Home + strings in both locales.
+        check("v3734 rate us card",
+                home.contains("quick_rate_us"), true);
+        check("v3734 rate us market",
+                home.contains("market://details?id="), true);
+        check("v3734 rate us web fallback",
+                home.contains(
+                        "play.google.com/store/apps/details?id="), true);
+        check("v3734 rate us star icon",
+                home.contains("ic_star"), true);
+        String[] rateKeys = {"quick_rate_us", "quick_rate_us_sub"};
+        for (String k : rateKeys) {
+            check("v3734 key en " + k, en.containsKey(k), true);
+            check("v3734 key ur " + k, ur.containsKey(k), true);
+            check("v3734 fmt " + k, fmtArgs(en.get(k)),
+                    fmtArgs(ur.get(k)));
+        }
+        String star = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get("res/drawable/ic_star.xml")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3734 star drawable", star.contains("M12 17.27"), true);
+        // 18e. Version 166 / 3.7.34 in the manifest.
+        check("v3734 manifest version 166b",
+                man.contains("android:versionCode=\"166\""), true);
+        check("v3734 manifest name 3.7.34",
+                man.contains("android:versionName=\"3.7.34\""), true);
     }
 
     static void addPoint(

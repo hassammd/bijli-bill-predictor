@@ -8,37 +8,47 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
+ * v3.7.34 — AI Assistant (v2, VOICE-ONLY, no text at all). The whole
+ * conversation is voice: NO transcript bubbles, NO suggestion chips,
+ * NO status text, NO voice toggle — the user opens the screen, the
+ * Assistant greets by voice and listens at once. Replies are spoken
+ * in short sentence chunks (fast start, no stutter) with the best
+ * available ur-PK voice at 0.95x rate, and the recognizer uses short
+ * silence timeouts so answers start promptly. Errors (mic denied /
+ * not understood) are SPOKEN, never shown as text. The mic itself
+ * shows the state by colour: teal idle, amber listening, green
+ * speaking — and it pulses while hearing.
+ *
  * v3.7.33 — AI Assistant (v2, VOICE-ONLY). A voice-call-style screen
  * that answers the user's questions using ONLY the locally saved bill
  * snapshots — no internet, no API key, no server, no cost.
  *
  * There is NO text input any more: the user taps the big mic (or the
  * floating bubble on Home) and talks, the Assistant answers by voice
- * — a direct voice conversation, like a phone call. Suggestion chips
- * still exist, but tapping one gives a SPOKEN answer, never a typed
- * one. Roman Urdu AND Roman Punjabi are both understood; the answer
- * comes back in the user's own language.
+ * — a direct voice conversation, like a phone call. v3.7.34 removed
+ * the last visible text too (transcript bubbles, suggestion chips,
+ * status line, voice toggle) — the screen is voice-only.
  *
  * Voice in via Android SpeechRecognizer (ur-PK first; if it hears
  * nothing and the device reports pa-PK support, it retries in
@@ -66,13 +76,15 @@ public class AssistantActivity extends BaseActivity {
     /** One free retry after a missed hearing; then ask to tap mic. */
     private static final int MAX_LISTEN_RETRIES = 1;
 
-    private LinearLayout messages;
-    private ScrollView scrollView;
-    /** Big round mic (voice-call style) + status line below it. */
+    /** Big round mic (voice-call style). Its colour is the only
+     *  status indicator — v3.7.34 has NO text anywhere: teal idle,
+     *  amber listening, green speaking; it pulses while hearing. */
     private ImageButton bigMic;
-    private TextView statusText;
-    private Button voiceToggle;
-    private boolean voiceOn = true;
+    private GradientDrawable micBg;
+    private static final int MIC_IDLE = 0;
+    private static final int MIC_LISTENING = 1;
+    private static final int MIC_SPEAKING = 2;
+    private int micState = MIC_IDLE;
     private boolean listening = false;
     /** True after the user deliberately stops listening — the
      *  auto-listen-after-reply loop must not restart it then. */
@@ -82,10 +94,29 @@ public class AssistantActivity extends BaseActivity {
     private boolean ttsReady = false;
     private SpeechRecognizer recognizer;
 
-    // v3.7.32: bubble entry — auto greeting + auto listen.
-    private boolean autoStart = false;
-    private boolean pendingAutoListen = false;
+    // v3.7.34: every open greets by voice and listens at once
+    // (bubble or Quick Tools — same voice-call flow).
+    private boolean pendingGreeting = false;
+    private boolean listenAfterError = false;
     private int listenFailures = 0;
+
+    // v3.7.34: live-call feel — watch the partial transcript; when
+    // it stops changing for ~700ms the user has finished speaking
+    // and listening ends at once, instead of waiting for the
+    // recognizer's own slow silence timeout or any text step.
+    private String lastPartial = "";
+    private long lastPartialAt = 0;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Runnable partialQuietCheck = new Runnable() {
+        @Override public void run() {
+            if (!listening) return;
+            if (System.currentTimeMillis() - lastPartialAt < 700) return;
+            try {
+                if (recognizer != null) recognizer.stopListening();
+            } catch (Exception ignored) {
+            }
+        }
+    };
 
     // v3.7.33: recognizer language. ur-PK first; pa-PK retry only
     // when the device says it supports it (not every phone does).
@@ -125,53 +156,23 @@ public class AssistantActivity extends BaseActivity {
         }, getString(R.string.assistant_title),
                 getString(R.string.assistant_sub), false));
 
-        scrollView = new ScrollView(this);
-        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        messages = new LinearLayout(this);
-        messages.setOrientation(LinearLayout.VERTICAL);
-        int mp = Ui.dp(this, 16);
-        messages.setPadding(mp, Ui.dp(this, 12), mp, Ui.dp(this, 8));
-        scrollView.addView(messages, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        root.addView(scrollView);
-
-        // Suggestion chips (horizontal scroll, never clipped).
-        HorizontalScrollView chipScroll = new HorizontalScrollView(this);
-        chipScroll.setHorizontalScrollBarEnabled(false);
-        LinearLayout chips = new LinearLayout(this);
-        chips.setOrientation(LinearLayout.HORIZONTAL);
-        chips.setPadding(mp, Ui.dp(this, 4), mp, Ui.dp(this, 4));
-        for (final String s : AssistantBrain.suggestions(!snaps.isEmpty())) {
-            TextView chip = Ui.chip(this, s, false, true);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.rightMargin = Ui.dp(this, 8);
-            chip.setLayoutParams(lp);
-            chip.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) { sendQuestion(s); }
-            });
-            chips.addView(chip);
-        }
-        chipScroll.addView(chips);
-        root.addView(chipScroll);
-
-        // v3.7.33: voice-call panel — NO text input anywhere.
-        // Big round mic + status line; tapping the mic starts or
-        // stops listening. The Assistant answers by voice only.
+        // v3.7.34: voice-call screen — NO text anywhere. One big mic,
+        // centred, is the whole screen; its colour is the status
+        // (teal idle, amber listening, green speaking). Tapping the
+        // mic starts or stops listening. The Assistant greets by
+        // voice and listens at once on every open.
         LinearLayout voicePanel = new LinearLayout(this);
         voicePanel.setOrientation(LinearLayout.VERTICAL);
-        voicePanel.setGravity(Gravity.CENTER_HORIZONTAL);
-        voicePanel.setPadding(mp, Ui.dp(this, 6), mp, Ui.dp(this, 4));
+        voicePanel.setGravity(Gravity.CENTER);
+        voicePanel.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         bigMic = new ImageButton(this);
         bigMic.setImageResource(R.drawable.ic_mic);
         bigMic.setColorFilter(Color.WHITE);
         bigMic.setContentDescription(
                 getString(R.string.assistant_bubble_desc));
-        GradientDrawable micBg = new GradientDrawable();
+        micBg = new GradientDrawable();
         micBg.setShape(GradientDrawable.OVAL);
         micBg.setColor(Ui.teal());
         bigMic.setBackground(micBg);
@@ -182,63 +183,19 @@ public class AssistantActivity extends BaseActivity {
         int micSize = Ui.dp(this, 88);
         LinearLayout.LayoutParams micLp = new LinearLayout.LayoutParams(
                 micSize, micSize);
-        micLp.gravity = Gravity.CENTER_HORIZONTAL;
+        micLp.gravity = Gravity.CENTER;
         bigMic.setLayoutParams(micLp);
         bigMic.setElevation(Ui.dp(this, 4));
         bigMic.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { onBigMicClicked(); }
         });
         voicePanel.addView(bigMic);
-
-        statusText = new TextView(this);
-        statusText.setText(getString(R.string.assistant_status_tap));
-        statusText.setTextSize(14);
-        statusText.setTextColor(Ds.muted());
-        Ds.body(this, statusText, 400);
-        statusText.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams stLp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        stLp.topMargin = Ui.dp(this, 8);
-        statusText.setLayoutParams(stLp);
-        voicePanel.addView(statusText);
-
-        // Voice on/off row (spoken replies on or off).
-        LinearLayout hintRow = new LinearLayout(this);
-        hintRow.setOrientation(LinearLayout.HORIZONTAL);
-        hintRow.setGravity(Gravity.CENTER_VERTICAL);
-        hintRow.setPadding(mp, Ui.dp(this, 2), mp, Ui.dp(this, 2));
-        TextView hint = new TextView(this);
-        hint.setText(getString(R.string.assistant_hint));
-        hint.setTextSize(12);
-        hint.setTextColor(Ds.muted());
-        Ds.body(this, hint, 400);
-        hint.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        hintRow.addView(hint);
-        voiceToggle = new Button(this);
-        voiceToggle.setText(getString(R.string.assistant_voice_on));
-        voiceToggle.setTextSize(12);
-        voiceToggle.setAllCaps(false);
-        voiceToggle.setBackgroundColor(Color.TRANSPARENT);
-        voiceToggle.setTextColor(Ui.teal());
-        voiceToggle.setMinHeight(Ui.dp(this, 40));
-        voiceToggle.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                voiceOn = !voiceOn;
-                voiceToggle.setText(getString(voiceOn
-                        ? R.string.assistant_voice_on
-                        : R.string.assistant_voice_off));
-                if (!voiceOn && tts != null) tts.stop();
-            }
-        });
-        hintRow.addView(voiceToggle);
-        voicePanel.addView(hintRow);
         root.addView(voicePanel);
 
         // Banner (same as other pages).
         LinearLayout bannerBox = new LinearLayout(this);
         bannerBox.setOrientation(LinearLayout.VERTICAL);
+        int mp = Ui.dp(this, 16);
         bannerBox.setPadding(mp, Ui.dp(this, 8), mp, Ui.dp(this, 8));
         root.addView(bannerBox);
         AdsManager.loadBannerInto(this, bannerBox);
@@ -247,14 +204,9 @@ public class AssistantActivity extends BaseActivity {
 
         queryPaSupport();
         initTts();
-        addBubble(AssistantBrain.greeting(snaps, meterLabel), false);
-
-        // v3.7.32: bubble entry — greet by voice, then listen at once.
-        autoStart = getIntent().getBooleanExtra(EXTRA_AUTO_LISTEN, false);
-        if (autoStart) {
-            pendingAutoListen = true;
-            tryAutoStart();
-        }
+        // Greet by voice, then listen — on every open.
+        pendingGreeting = true;
+        tryStartConversation();
     }
 
     // ------------------------------------------------------------------
@@ -264,47 +216,10 @@ public class AssistantActivity extends BaseActivity {
     private void sendQuestion(String raw) {
         String q = raw == null ? "" : raw.trim();
         if (q.isEmpty()) return;
-        // The user bubble is the transcript of what was asked (by
-        // voice, or a tapped chip) — the answer is always SPOKEN.
-        addBubble(q, true);
+        // v3.7.34: voice-only — the answer goes straight to speech,
+        // no transcript bubble is ever shown.
         String ans = AssistantBrain.answer(q, snaps, meterLabel);
-        addBubble(ans, false);
         speak(ans);
-    }
-
-    private void addBubble(String text, boolean user) {
-        TextView b = new TextView(this);
-        b.setText(text);
-        b.setTextSize(15);
-        b.setLineSpacing(Ui.dp(this, 2), 1.35f);
-        int p = Ui.dp(this, 12);
-        b.setPadding(p, Ui.dp(this, 10), p, Ui.dp(this, 10));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = Ui.dp(this, 6);
-        if (user) {
-            GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Ui.teal());
-            bg.setCornerRadius(Ui.dp(this, 14));
-            b.setBackground(bg);
-            b.setTextColor(Color.WHITE);
-            lp.gravity = Gravity.END;
-            lp.leftMargin = Ui.dp(this, 48);
-        } else {
-            b.setBackgroundResource(R.drawable.card_bg);
-            b.setTextColor(Ui.dark());
-            Ds.body(this, b, 400);
-            lp.gravity = Gravity.START;
-            lp.rightMargin = Ui.dp(this, 48);
-        }
-        b.setLayoutParams(lp);
-        messages.addView(b);
-        scrollView.post(new Runnable() {
-            @Override public void run() {
-                scrollView.fullScroll(View.FOCUS_DOWN);
-            }
-        });
     }
 
     private String labelFor(BillSnapshots.Snapshot s) {
@@ -314,8 +229,20 @@ public class AssistantActivity extends BaseActivity {
                 + SavedMeters.maskId(s.ref) + ")";
     }
 
-    private void setStatus(int resId) {
-        if (statusText != null) statusText.setText(getString(resId));
+    /** v3.7.34: the mic colour is the only status indicator —
+     *  teal = idle, amber = listening, green = speaking. */
+    private void setMicState(int state) {
+        micState = state;
+        if (bigMic == null || micBg == null) return;
+        int color;
+        if (state == MIC_LISTENING) {
+            color = Color.parseColor("#E8A33D"); // amber
+        } else if (state == MIC_SPEAKING) {
+            color = Color.parseColor("#2E9E6B"); // green
+        } else {
+            color = Ui.teal();
+        }
+        micBg.setColor(color);
     }
 
     // ------------------------------------------------------------------
@@ -329,10 +256,11 @@ public class AssistantActivity extends BaseActivity {
                         @Override public void onInit(int status) {
                             if (status != TextToSpeech.SUCCESS
                                     || tts == null) {
-                                // No voice out — still listen if the
-                                // bubble asked for it.
-                                if (pendingAutoListen) {
-                                    pendingAutoListen = false;
+                                // No voice out — still listen so the
+                                // user can talk; answers just can't
+                                // be spoken on this phone.
+                                if (pendingGreeting) {
+                                    pendingGreeting = false;
                                     startListening();
                                 }
                                 return;
@@ -345,14 +273,27 @@ public class AssistantActivity extends BaseActivity {
                                 // device default voice instead.
                                 tts.setLanguage(Locale.getDefault());
                             }
+                            // v3.7.34: pick the best Urdu voice on
+                            // this phone (a default English voice
+                            // reading Roman Urdu sounds robotic) and
+                            // set a calm, near-natural rate.
+                            selectBestUrduVoice();
+                            try {
+                                tts.setSpeechRate(0.95f);
+                                tts.setPitch(1.0f);
+                            } catch (Exception ignored) {
+                            }
                             ttsReady = true;
-                            tryAutoStart();
+                            tryStartConversation();
                         }
                     });
             // v3.7.32: when the spoken greeting ends (or fails), start
             // listening — the user never taps the mic after the bubble.
             // v3.7.33: when a spoken REPLY ends, listen again at once —
             // a direct voice conversation, like a phone call.
+            // v3.7.34: replies are spoken in sentence chunks; only the
+            // LAST chunk carries "assistant_reply", so listening
+            // restarts after the whole reply, not mid-sentence.
             tts.setOnUtteranceProgressListener(
                     new UtteranceProgressListener() {
                         @Override public void onStart(String id) {}
@@ -361,6 +302,8 @@ public class AssistantActivity extends BaseActivity {
                                 listenAfterGreeting();
                             } else if ("assistant_reply".equals(id)) {
                                 listenAfterReply();
+                            } else if ("assistant_error".equals(id)) {
+                                listenAfterErrorSpoken();
                             }
                         }
                         @Override public void onError(String id) {
@@ -368,15 +311,51 @@ public class AssistantActivity extends BaseActivity {
                                 listenAfterGreeting();
                             } else if ("assistant_reply".equals(id)) {
                                 listenAfterReply();
+                            } else if ("assistant_error".equals(id)) {
+                                listenAfterErrorSpoken();
                             }
                         }
                     });
         } catch (Exception ignored) {
             tts = null;
-            if (pendingAutoListen) {
-                pendingAutoListen = false;
+            if (pendingGreeting) {
+                pendingGreeting = false;
                 startListening();
             }
+        }
+    }
+
+    /**
+     * v3.7.34: prefer a real Urdu voice — ur-PK first, then any
+     * Urdu voice, then a voice whose name mentions Urdu. Without
+     * this, phones with no Urdu TTS data fall back to an English
+     * voice reading Roman Urdu, which sounds robotic.
+     */
+    private void selectBestUrduVoice() {
+        try {
+            if (tts == null) return;
+            Set<Voice> voices = tts.getVoices();
+            if (voices == null || voices.isEmpty()) return;
+            Voice best = null;
+            Voice anyUrdu = null;
+            for (Voice v : voices) {
+                if (v == null || v.getLocale() == null) continue;
+                Locale l = v.getLocale();
+                if ("ur".equals(l.getLanguage())) {
+                    if (anyUrdu == null) anyUrdu = v;
+                    if ("PK".equals(l.getCountry())) {
+                        best = v;
+                        break;
+                    }
+                } else if (best == null && v.getName() != null
+                        && v.getName().toLowerCase(Locale.US)
+                                .contains("urdu")) {
+                    best = v;
+                }
+            }
+            if (best == null) best = anyUrdu;
+            if (best != null) tts.setVoice(best);
+        } catch (Exception ignored) {
         }
     }
 
@@ -393,7 +372,7 @@ public class AssistantActivity extends BaseActivity {
     private void listenAfterReply() {
         runOnUiThread(new Runnable() {
             @Override public void run() {
-                setStatus(R.string.assistant_status_tap);
+                setMicState(MIC_IDLE);
                 if (!isFinishing() && !listening && !userStopped) {
                     startListening();
                 }
@@ -401,37 +380,60 @@ public class AssistantActivity extends BaseActivity {
         });
     }
 
-    /** v3.7.32: bubble entry — speak the short greeting, then listen. */
-    private void tryAutoStart() {
-        if (!pendingAutoListen || isFinishing()) return;
-        if (!voiceOn) {
-            // Voice replies off: skip the greeting, just listen.
-            pendingAutoListen = false;
-            startListening();
-            return;
-        }
+    /** v3.7.34: a spoken retry prompt finished — listen again. */
+    private void listenAfterErrorSpoken() {
+        runOnUiThread(new Runnable() {
+            @Override public void run() {
+                if (!listenAfterError) {
+                    setMicState(MIC_IDLE);
+                    return;
+                }
+                listenAfterError = false;
+                if (!isFinishing() && !listening && !userStopped) {
+                    startListening();
+                }
+            }
+        });
+    }
+
+    /** v3.7.34: greet by voice, then listen — on every open. */
+    private void tryStartConversation() {
+        if (!pendingGreeting || isFinishing()) return;
         if (ttsReady && tts != null) {
-            pendingAutoListen = false;
+            pendingGreeting = false;
             speakGreeting();
         }
-        // Else TTS is still initialising — onInit calls tryAutoStart().
+        // Else TTS is still initialising — onInit calls
+        // tryStartConversation().
     }
 
     private void speakGreeting() {
-        if (!voiceOn || !ttsReady || tts == null) {
+        if (!ttsReady || tts == null) {
             startListening();
             return;
         }
         try {
-            tts.speak(getString(R.string.assistant_voice_greeting),
-                    TextToSpeech.QUEUE_FLUSH, null, "assistant_greeting");
+            speak(getString(R.string.assistant_voice_greeting),
+                    "assistant_greeting");
         } catch (Exception ignored) {
             startListening();
         }
     }
 
+    /** Spoken reply, chunked into short sentences (v3.7.34). */
     private void speak(String text) {
-        if (!voiceOn) return;
+        speak(text, "assistant_reply");
+    }
+
+    /**
+     * v3.7.34: speak in sentence chunks — first chunk QUEUE_FLUSH,
+     * the rest QUEUE_ADD, only the last chunk carrying the given
+     * utterance id. A long answer as one speak() call stutters on
+     * many TTS engines; short chunks start fast and sound smooth.
+     * Speech is sanitised for the ear: newlines and bullet dashes
+     * become sentence breaks, em-dashes become commas.
+     */
+    private void speak(String text, String finalUtteranceId) {
         if (!ttsReady || tts == null) {
             // No voice out right now — keep the conversation going
             // by listening again instead of stalling.
@@ -440,14 +442,65 @@ public class AssistantActivity extends BaseActivity {
             }
             return;
         }
-        setStatus(R.string.assistant_status_speaking);
+        setMicState(MIC_SPEAKING);
         try {
-            String spoken = text.replace("\n", ". ");
-            tts.speak(spoken, TextToSpeech.QUEUE_FLUSH, null,
-                    "assistant_reply");
+            java.util.List<String> parts = splitForSpeech(text);
+            if (parts.isEmpty()) {
+                setMicState(MIC_IDLE);
+                if (!isFinishing() && !listening && !userStopped) {
+                    startListening();
+                }
+                return;
+            }
+            for (int i = 0; i < parts.size(); i++) {
+                boolean last = (i == parts.size() - 1);
+                int mode = (i == 0) ? TextToSpeech.QUEUE_FLUSH
+                        : TextToSpeech.QUEUE_ADD;
+                String id = last ? finalUtteranceId
+                        : finalUtteranceId + "_part_" + i;
+                tts.speak(parts.get(i), mode, null, id);
+            }
         } catch (Exception ignored) {
-            setStatus(R.string.assistant_status_tap);
+            setMicState(MIC_IDLE);
         }
+    }
+
+    /** v3.7.34: speak an error out loud (never as text), without
+     *  restarting listening — the caller decides what happens next. */
+    private void speakError(String text) {
+        if (!ttsReady || tts == null) return;
+        try {
+            setMicState(MIC_SPEAKING);
+            java.util.List<String> parts = splitForSpeech(text);
+            for (int i = 0; i < parts.size(); i++) {
+                boolean last = (i == parts.size() - 1);
+                int mode = (i == 0) ? TextToSpeech.QUEUE_FLUSH
+                        : TextToSpeech.QUEUE_ADD;
+                tts.speak(parts.get(i), mode, null,
+                        last ? "assistant_error"
+                                : "assistant_error_" + i);
+            }
+        } catch (Exception ignored) {
+            setMicState(MIC_IDLE);
+        }
+    }
+
+    /** Split an answer into short spoken sentences. */
+    private java.util.List<String> splitForSpeech(String text) {
+        java.util.List<String> out = new java.util.ArrayList<String>();
+        if (text == null) return out;
+        String s = text.replace("\n", ". ")
+                .replace("—", ", ")
+                .replace("–", ", ")
+                .replaceAll("\\s+-\\s+", ". ")
+                .replaceAll("\\s+", " ").trim();
+        if (s.isEmpty()) return out;
+        String[] bits = s.split("(?<=[.!?])\\s+");
+        for (String b : bits) {
+            String t = b.trim();
+            if (!t.isEmpty()) out.add(t);
+        }
+        return out;
     }
 
     // ------------------------------------------------------------------
@@ -496,8 +549,8 @@ public class AssistantActivity extends BaseActivity {
         }
         userStopped = false;
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
-            // v3.7.32: in-chat, never a Toast / notification.
-            addBubble(getString(R.string.assistant_mic_unavailable), false);
+            // v3.7.34: voice-only — errors are SPOKEN, never shown.
+            speakError(getString(R.string.assistant_mic_unavailable));
             return;
         }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
@@ -522,8 +575,8 @@ public class AssistantActivity extends BaseActivity {
                 userStopped = false;
                 startListening();
             } else {
-                // v3.7.32: in-chat, never a Toast / notification.
-                addBubble(getString(R.string.assistant_mic_denied), false);
+                // v3.7.34: voice-only — errors are SPOKEN, never shown.
+                speakError(getString(R.string.assistant_mic_denied));
             }
         }
     }
@@ -541,21 +594,38 @@ public class AssistantActivity extends BaseActivity {
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, listenLang);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+            // v3.7.34: live-call feel — short silence timeouts so the
+            // answer starts the moment speech ends, and partial
+            // results on so the quiet-detection in onPartialResults
+            // can end listening early instead of waiting for the
+            // recognizer's own slow silence timeout.
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+            intent.putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    700);
+            intent.putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    500);
+            lastPartial = "";
+            lastPartialAt = 0;
+            mainHandler.removeCallbacks(partialQuietCheck);
             listening = true;
-            setStatus(R.string.assistant_status_listening);
+            setMicState(MIC_LISTENING);
             recognizer.startListening(intent);
         } catch (Exception e) {
             listening = false;
-            setStatus(R.string.assistant_status_tap);
-            // v3.7.32: in-chat, never a Toast / notification.
-            addBubble(getString(R.string.assistant_mic_failed), false);
+            setMicState(MIC_IDLE);
+            // v3.7.34: voice-only — errors are SPOKEN, never shown.
+            speakError(getString(R.string.assistant_mic_failed));
         }
     }
 
     private void stopListening() {
         listening = false;
-        setStatus(R.string.assistant_status_tap);
+        setMicState(MIC_IDLE);
         resetMicScale();
+        lastPartial = "";
+        mainHandler.removeCallbacks(partialQuietCheck);
         try {
             if (recognizer != null) recognizer.stopListening();
         } catch (Exception ignored) {
@@ -591,14 +661,39 @@ public class AssistantActivity extends BaseActivity {
         }
         @Override public void onBufferReceived(byte[] buffer) {}
         @Override public void onEndOfSpeech() {}
-        @Override public void onPartialResults(Bundle partialResults) {}
+        /**
+         * v3.7.34: live-call feel — watch the partial transcript.
+         * When it stops changing for ~700ms the user has finished
+         * speaking, so end listening at once and let onResults fire
+         * immediately instead of waiting for the recognizer's own
+         * slow silence timeout. No text is ever shown.
+         */
+        @Override public void onPartialResults(Bundle partialResults) {
+            try {
+                ArrayList<String> partial =
+                        partialResults.getStringArrayList(
+                                SpeechRecognizer.RESULTS_RECOGNITION);
+                if (partial != null && !partial.isEmpty()
+                        && partial.get(0) != null) {
+                    String p = partial.get(0).trim();
+                    if (!p.isEmpty()) {
+                        lastPartial = p;
+                        lastPartialAt = System.currentTimeMillis();
+                        mainHandler.removeCallbacks(partialQuietCheck);
+                        mainHandler.postDelayed(partialQuietCheck, 700);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
 
         @Override public void onEvent(int eventType, Bundle params) {}
 
         @Override public void onError(int error) {
             listening = false;
             resetMicScale();
-            setStatus(R.string.assistant_status_tap);
+            setMicState(MIC_IDLE);
+            mainHandler.removeCallbacks(partialQuietCheck);
             if (error == SpeechRecognizer.ERROR_NO_MATCH
                     || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
                 // v3.7.33: nothing heard in ur-PK — try Punjabi
@@ -610,21 +705,24 @@ public class AssistantActivity extends BaseActivity {
                     startListening();
                     return;
                 }
-                // v3.7.32: not understood — say so in-chat and listen
-                // again once; never a Toast / notification.
+                // v3.7.34: not understood — say so by VOICE and
+                // listen again once; never a Toast / notification.
                 onNotUnderstood();
             } else if (error
                     == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
-                addBubble(getString(R.string.assistant_mic_denied), false);
+                // v3.7.34: voice-only — errors are SPOKEN, never shown.
+                speakError(getString(R.string.assistant_mic_denied));
             } else {
-                addBubble(getString(R.string.assistant_mic_failed), false);
+                // v3.7.34: voice-only — errors are SPOKEN, never shown.
+                speakError(getString(R.string.assistant_mic_failed));
             }
         }
 
         @Override public void onResults(Bundle results) {
             listening = false;
             resetMicScale();
-            setStatus(R.string.assistant_status_tap);
+            setMicState(MIC_IDLE);
+            mainHandler.removeCallbacks(partialQuietCheck);
             ArrayList<String> heard = results.getStringArrayList(
                     SpeechRecognizer.RESULTS_RECOGNITION);
             if (heard != null && !heard.isEmpty()
@@ -641,21 +739,28 @@ public class AssistantActivity extends BaseActivity {
             }
         }
 
-        /** v3.7.33: missed hearing — retry once, then ask the user
-         *  to tap the mic and speak again. There is no typing
-         *  fallback any more (voice-only Assistant). */
+        /** v3.7.34: missed hearing — say so by VOICE and retry
+         *  once, then ask the user to tap the mic and speak again.
+         *  There is no typing fallback any more (voice-only
+         *  Assistant). The retry prompt is spoken first and
+         *  listening restarts only after it finishes, so the
+         *  recognizer never hears the phone's own voice. */
         private void onNotUnderstood() {
             listenFailures++;
             if (listenFailures <= MAX_LISTEN_RETRIES) {
-                addBubble(getString(R.string.assistant_hear_retry), false);
                 listenLang = "ur-PK";
                 triedPa = false;
-                startListening();
+                if (ttsReady && tts != null) {
+                    listenAfterError = true;
+                    speakError(getString(R.string.assistant_hear_retry));
+                } else {
+                    startListening();
+                }
             } else {
                 listenFailures = 0;
                 listenLang = "ur-PK";
                 triedPa = false;
-                addBubble(getString(R.string.assistant_hear_type), false);
+                speakError(getString(R.string.assistant_hear_type));
             }
         }
     }

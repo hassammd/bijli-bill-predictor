@@ -2,6 +2,7 @@ package com.hatch.bijlibill;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.app.NotificationManager;
 import android.content.SharedPreferences;
 import android.provider.Settings;
@@ -1206,8 +1207,43 @@ public class HomeActivity extends BaseActivity {
                 });
         LinearLayout.LayoutParams c3lp = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        c3lp.rightMargin = Ui.dp(this, 4);
         card3.setLayoutParams(c3lp);
         row2.addView(card3);
+
+        // v3.7.34: Rate Us card — second card in row 2, next to the
+        // Assistant card. Opens the Play Store listing (market://
+        // first, web listing as fallback — same pattern as
+        // AboutActivity) so users can give a star rating. Plain
+        // link only: no in-app review prompt, no reward or nudge
+        // for rating — policy-safe.
+        View card4 = quickToolCard(
+                R.drawable.ic_star,
+                "#FDF3D8", // amber circle
+                getString(R.string.quick_rate_us),
+                getString(R.string.quick_rate_us_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        String pkg = getPackageName();
+                        try {
+                            Intent i = new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(
+                                            "market://details?id=" + pkg));
+                            i.setPackage("com.android.vending");
+                            startActivity(i);
+                        } catch (Exception e) {
+                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(
+                                            "https://play.google.com/store/apps/details?id="
+                                                    + pkg)));
+                        }
+                    }
+                });
+        LinearLayout.LayoutParams c4lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        c4lp.leftMargin = Ui.dp(this, 4);
+        card4.setLayoutParams(c4lp);
+        row2.addView(card4);
         sec.addView(row2);
 
         return sec;

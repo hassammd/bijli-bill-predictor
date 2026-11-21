@@ -367,6 +367,8 @@
     <!-- v3.7.33: voice-only — text input + send removed entirely -->
     <string name="quick_assistant">AI Assistant</string>
     <string name="quick_assistant_sub">Ask about your bill</string>
+    <string name="quick_rate_us">Rate us</string>
+    <string name="quick_rate_us_sub">Give us a star rating</string>
     <string name="assistant_title">AI Assistant</string>
     <string name="assistant_sub">Answers from your saved bills only</string>
     <string name="assistant_hint">Bol kar poochein — main awaz mein jawab dunga</string>

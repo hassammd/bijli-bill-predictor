@@ -366,6 +366,8 @@
     <!-- v3.7.31: AI Assistant (v1, SIMPLE) -->
     <string name="quick_assistant">AI اسسٹنٹ</string>
     <string name="quick_assistant_sub">اپنے بل کے بارے میں پوچھیں</string>
+    <string name="quick_rate_us">ہمیں ریٹ کریں</string>
+    <string name="quick_rate_us_sub">اسٹار ریٹنگ دیں</string>
     <string name="assistant_title">AI اسسٹنٹ</string>
     <string name="assistant_sub">صرف آپ کے محفوظ بلوں سے جواب</string>
     <string name="assistant_hint">بول کر پوچھیں — میں آواز میں جواب دوں گا</string>

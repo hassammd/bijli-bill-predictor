@@ -1,4 +1,26 @@
 #!/bin/bash
+# Bijli Bill v3.7.34 (166) — live-call Assistant + Rate Us
+# (user instruction, voice call 2026-11-21):
+#   - Assistant is now fully voice-only: transcript bubbles,
+#     suggestion chips, status line and voice toggle are GONE —
+#     the mic colour is the only status (teal idle, amber
+#     listening, green speaking). Errors are SPOKEN, never shown.
+#   - Live-call speed: partial results on + short silence timeouts
+#     (700ms complete / 500ms possibly-complete) + quiet detection
+#     (partial transcript unchanged 700ms -> stopListening at
+#     once). No waiting for the recognizer's slow silence timeout
+#     or any text step — bolte hi foran jawab.
+#   - Smooth voice: best Urdu voice picked (ur-PK -> any ur ->
+#     name contains "urdu"), rate 0.95, replies chunked into short
+#     sentences (first QUEUE_FLUSH, rest QUEUE_ADD).
+#   - Rate Us card on Home (Quick Tools, row 2 next to Assistant):
+#     opens the Play Store listing (market:// first, web fallback).
+#     Plain link only — no in-app review prompt, no reward, no
+#     nudge for rating (policy-safe). No real AdMob IDs in this
+#     build — TEST IDs stay; test devices come later, separately.
+#   - AAB copy guard: after copying APK + AAB out, the build FAILS
+#     loudly if either output is missing (v3.7.33's AAB copy was
+#     reported missing; the tail had no existence check).
 # Bijli Bill v3.7.33 (165) — Assistant v2: voice-only + Punjabi
 # (user instruction, voice call 2026-11-21):
 #   - Text input field + send button REMOVED entirely from the
@@ -307,5 +329,14 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 mkdir -p "$OUTDIR"
 cp build/final.apk "$OUTDIR/bijli-bill-calculator-v3.6.0.apk"
 cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.6.0.aab"
+# v3.7.34: fail loudly if either output is missing — a silent
+# missing AAB must never reach delivery again.
+for f in "$OUTDIR/bijli-bill-calculator-v3.6.0.apk" \
+        "$OUTDIR/bijli-bill-publish-3.6.0.aab"; do
+    if [ ! -s "$f" ]; then
+        echo "BUILD FAILED: missing output $f" >&2
+        exit 1
+    fi
+done
 ls -la "$OUTDIR/bijli-bill-calculator-v3.6.0.apk" "$OUTDIR/bijli-bill-publish-3.6.0.aab"
 echo BUILD_OK
