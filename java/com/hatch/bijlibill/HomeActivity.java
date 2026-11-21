@@ -598,8 +598,8 @@ public class HomeActivity extends BaseActivity {
 
         // v3.7.32: floating Assistant bubble (bottom-right, above the
         // banner + bottom nav) — tap opens the Assistant and it starts
-        // listening right away. The Quick Tools card stays as the
-        // other way in; the bubble is only an extra shortcut.
+        // listening right away. v3.7.35: the Quick Tools Assistant
+        // card is gone (user), so the bubble is now the only way in.
         FrameLayout frame = new FrameLayout(this);
         frame.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1184,67 +1184,11 @@ public class HomeActivity extends BaseActivity {
 
         sec.addView(row);
 
-        // v3.7.31: AI Assistant card (full-width second row) — the
-        // free on-device assistant answers from the saved bills.
-        LinearLayout row2 = new LinearLayout(this);
-        row2.setOrientation(LinearLayout.HORIZONTAL);
-        row2.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        row2.setClipChildren(false);
-        row2.setClipToPadding(false);
-        row2.setPadding(shp, shp, shp, shp);
-        View card3 = quickToolCard(
-                R.drawable.ic_assistant,
-                "#FDF3D8", // amber circle
-                getString(R.string.quick_assistant),
-                getString(R.string.quick_assistant_sub),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        startActivity(new Intent(HomeActivity.this,
-                                AssistantActivity.class));
-                    }
-                });
-        LinearLayout.LayoutParams c3lp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        c3lp.rightMargin = Ui.dp(this, 4);
-        card3.setLayoutParams(c3lp);
-        row2.addView(card3);
-
-        // v3.7.34: Rate Us card — second card in row 2, next to the
-        // Assistant card. Opens the Play Store listing (market://
-        // first, web listing as fallback — same pattern as
-        // AboutActivity) so users can give a star rating. Plain
-        // link only: no in-app review prompt, no reward or nudge
-        // for rating — policy-safe.
-        View card4 = quickToolCard(
-                R.drawable.ic_star,
-                "#FDF3D8", // amber circle
-                getString(R.string.quick_rate_us),
-                getString(R.string.quick_rate_us_sub),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        String pkg = getPackageName();
-                        try {
-                            Intent i = new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(
-                                            "market://details?id=" + pkg));
-                            i.setPackage("com.android.vending");
-                            startActivity(i);
-                        } catch (Exception e) {
-                            startActivity(new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(
-                                            "https://play.google.com/store/apps/details?id="
-                                                    + pkg)));
-                        }
-                    }
-                });
-        LinearLayout.LayoutParams c4lp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        c4lp.leftMargin = Ui.dp(this, 4);
-        card4.setLayoutParams(c4lp);
-        row2.addView(card4);
-        sec.addView(row2);
+        // v3.7.35: second Quick Tools row removed (user:
+        // keep only the task cards - Unit Check + Bill
+        // History). The AI Assistant card is gone; the
+        // floating bubble is now the only way into the
+        // Assistant. The Rate Us card is gone too.
 
         return sec;
     }

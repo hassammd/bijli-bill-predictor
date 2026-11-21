@@ -379,6 +379,7 @@
     <string name="assistant_hear_retry">سن نہیں پایا، ایک بار پھر بولیں…</string>
     <string name="assistant_hear_type">پھر بھی سن نہیں پایا — مائیک دبا کر دوبارہ بولیں، میں سن رہا ہوں۔</string>
     <string name="assistant_voice_greeting">السلام علیکم! میں آپ کا بجلی بل اسسٹنٹ ہوں۔ اپنا سوال بولیں۔</string>
+    <string name="assistant_gemini_error">انٹرنیٹ نہیں چل رہا، دوبارہ کوشش کریں</string>
     <string name="assistant_bubble_desc">AI اسسٹنٹ — بول کر پوچھیں</string>
     <string name="assistant_status_listening">سن رہا ہوں…</string>
     <string name="assistant_status_speaking">جواب دے رہا ہوں…</string>

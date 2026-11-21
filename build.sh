@@ -1,5 +1,21 @@
 #!/bin/bash
-# Bijli Bill v3.7.34 (166) — live-call Assistant + Rate Us
+# Bijli Bill v3.7.35 (167) — Gemini Live voice assistant (TEST build)
+# + Quick Tools: only task cards left
+# v3.7.35 (user, voice call 2026-11-21): the on-device Assistant
+# brain is replaced by Google's Gemini Live API (voice-to-voice)
+# when a real API key is configured in ApiKeys.java (gitignored
+# file — the real key NEVER reaches the public repo). Free tier:
+# audio in/out "Free of charge" (official pricing page); paid
+# ~$0.023/min combined. Model gemini-3.8-live, voice Aoede,
+# hand-rolled WebSocket (no new libraries), 16kHz mic in /
+# 24kHz audio out, system instruction built from the saved bill
+# snapshots. No key -> free on-device brain, nothing regresses.
+# Network failure speaks "internet nahi chal raha, dobara try
+# karein" and reconnects twice, then falls back to on-device.
+# v3.7.35 (user, voice call 2026-11-21): Quick Tools second row
+# removed — AI Assistant card + Rate Us card gone; only Unit
+# Check + Bill History remain. The floating bubble is now the
+# only way into the Assistant.
 # (user instruction, voice call 2026-11-21):
 #   - Assistant is now fully voice-only: transcript bubbles,
 #     suggestion chips, status line and voice toggle are GONE —
@@ -155,6 +171,23 @@ BUNDLETOOL="$HOME/workspace/bundletool.jar"
 PROJ="$HOME/workspace/apk-build/lesco-bill"
 OUTDIR="$HOME/workspace/your_files/bijli-bill-app"
 cd "$PROJ"
+# v3.7.35: the Gemini API key lives in ApiKeys.java (gitignored —
+# never committed). A clean checkout has no such file: create the
+# REPLACE_ME placeholder so the build works and the Assistant
+# falls back to the free on-device brain.
+if [ ! -f java/com/hatch/bijlibill/ApiKeys.java ]; then
+  cat > java/com/hatch/bijlibill/ApiKeys.java <<'EOF'
+package com.hatch.bijlibill;
+
+// Auto-created by build.sh (gitignored). Put the real Google AI
+// Studio key here; NEVER commit this file.
+public final class ApiKeys {
+    private ApiKeys() {}
+    public static final String GEMINI_API_KEY = "REPLACE_ME";
+}
+EOF
+  echo "  (created ApiKeys.java placeholder — Gemini falls back to on-device)"
+fi
 # NOTE: build/mlkit/aar-{repo,libs,res,manifests} are intentionally kept.
 rm -rf build/classes build/dex build/gen build/gen-lib build/R.txt \
        build/aar-res-zip build/mod build/app.aab build/signed.aab \
@@ -211,6 +244,8 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/SavedMeters.java \
   java/com/hatch/bijlibill/BillSnapshots.java \
   java/com/hatch/bijlibill/AssistantBrain.java \
+  java/com/hatch/bijlibill/ApiKeys.java \
+  java/com/hatch/bijlibill/GeminiLiveClient.java \
   java/com/hatch/bijlibill/LangPolicy.java \
   java/com/hatch/bijlibill/StreakCalc.java \
   java/com/hatch/bijlibill/BillDayNudge.java \

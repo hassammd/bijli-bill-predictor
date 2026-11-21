@@ -40,6 +40,18 @@ import java.util.Set;
  * shows the state by colour: teal idle, amber listening, green
  * speaking — and it pulses while hearing.
  *
+ * v3.7.35 — Gemini Live brain (TEST build). When a real Gemini API
+ * key is configured (ApiKeys.GEMINI_API_KEY, gitignored file — the
+ * key never reaches the repo), the Assistant talks to Google's
+ * Gemini Live API instead of the on-device recognizer: real
+ * voice-to-voice conversation, Roman Urdu + Punjabi, answers from
+ * the same saved bill snapshots (sent as the session's system
+ * instruction). Screen, mic colours and bubble entry are unchanged.
+ * With no key, or when Gemini is unreachable, the free on-device
+ * brain takes over, so nothing regresses. A network failure speaks
+ * "internet nahi chal raha, dobara try karein" and reconnects
+ * (twice), then falls back to on-device.
+ *
  * v3.7.33 — AI Assistant (v2, VOICE-ONLY). A voice-call-style screen
  * that answers the user's questions using ONLY the locally saved bill
  * snapshots — no internet, no API key, no server, no cost.
@@ -124,6 +136,15 @@ public class AssistantActivity extends BaseActivity {
     private boolean paSupported = false;
     private boolean triedPa = false;
 
+    // v3.7.35: Gemini Live session (null when the on-device brain
+    // is in use). geminiMode is set once in onCreate from whether
+    // a real API key is configured; it flips off for the rest of
+    // this screen when Gemini keeps failing (on-device fallback).
+    private GeminiLiveClient gemini;
+    private boolean geminiMode = false;
+    private int geminiRetries = 0;
+    private boolean geminiRetryPending = false;
+
     private List<BillSnapshots.Snapshot> snaps =
             new ArrayList<BillSnapshots.Snapshot>();
     private String meterLabel = "";
@@ -204,9 +225,19 @@ public class AssistantActivity extends BaseActivity {
 
         queryPaSupport();
         initTts();
-        // Greet by voice, then listen — on every open.
-        pendingGreeting = true;
-        tryStartConversation();
+        // v3.7.35: with a real Gemini key the model itself greets
+        // (voice-to-voice); without one the on-device brain greets
+        // by TTS as before. TTS still initialises in Gemini mode —
+        // it speaks the network-error message.
+        geminiMode = GeminiLiveClient.isConfigured();
+        if (geminiMode) {
+            pendingGreeting = false;
+            startGeminiSession();
+        } else {
+            // Greet by voice, then listen — on every open.
+            pendingGreeting = true;
+            tryStartConversation();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -389,6 +420,16 @@ public class AssistantActivity extends BaseActivity {
                     return;
                 }
                 listenAfterError = false;
+                // v3.7.35: the spoken error was Gemini's network
+                // error — reconnect Gemini instead of starting the
+                // on-device recognizer.
+                if (geminiMode && geminiRetryPending) {
+                    geminiRetryPending = false;
+                    if (!isFinishing() && !userStopped) {
+                        startGeminiSession();
+                    }
+                    return;
+                }
                 if (!isFinishing() && !listening && !userStopped) {
                     startListening();
                 }
@@ -405,6 +446,102 @@ public class AssistantActivity extends BaseActivity {
         }
         // Else TTS is still initialising — onInit calls
         // tryStartConversation().
+    }
+
+    // ------------------------------------------------------------------
+    // v3.7.35: Gemini Live session
+    // ------------------------------------------------------------------
+
+    /** Opens a Gemini Live session (voice-to-voice). The model
+     *  greets on connect; the mic streams continuously after that. */
+    private void startGeminiSession() {
+        if (isFinishing() || userStopped) return;
+        setMicState(MIC_LISTENING);
+        listening = true;
+        try {
+            if (gemini != null) gemini.close();
+        } catch (Exception ignored) {
+        }
+        gemini = new GeminiLiveClient();
+        gemini.setListener(new GeminiLiveClient.Listener() {
+            @Override public void onConnected() {
+                if (isFinishing()) return;
+                listening = true;
+                setMicState(MIC_LISTENING);
+                try {
+                    gemini.sendGreeting(
+                            getString(R.string.assistant_voice_greeting));
+                } catch (Exception ignored) {
+                }
+            }
+            @Override public void onSpeaking(boolean speaking) {
+                if (isFinishing()) return;
+                setMicState(speaking ? MIC_SPEAKING : MIC_LISTENING);
+            }
+            @Override public void onError(String kind) {
+                onGeminiError(kind);
+            }
+        });
+        gemini.connect(GeminiLiveClient.buildSystemInstruction(
+                snaps, meterLabel));
+    }
+
+    /** Stops the Gemini session (user tapped the mic, or the
+     *  screen is going away). */
+    private void stopGeminiSession() {
+        listening = false;
+        setMicState(MIC_IDLE);
+        try {
+            if (gemini != null) gemini.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Gemini failed. Network: speak the Roman Urdu error and
+     *  reconnect (twice), then fall back to the on-device brain.
+     *  Auth (bad key): fall back at once — retrying cannot help. */
+    private void onGeminiError(String kind) {
+        if (isFinishing() || userStopped) return;
+        listening = false;
+        setMicState(MIC_IDLE);
+        if (GeminiLiveClient.ERR_AUTH.equals(kind)) {
+            fallBackToOnDevice();
+            return;
+        }
+        if (geminiRetries < 2) {
+            geminiRetries++;
+            if (ttsReady && tts != null) {
+                geminiRetryPending = true;
+                listenAfterError = true;
+                speakError(getString(R.string.assistant_gemini_error));
+            } else {
+                // No voice out yet — retry quietly after a delay.
+                mainHandler.postDelayed(new Runnable() {
+                    @Override public void run() {
+                        if (!isFinishing() && !userStopped
+                                && geminiMode) {
+                            startGeminiSession();
+                        }
+                    }
+                }, 3000);
+            }
+        } else {
+            fallBackToOnDevice();
+        }
+    }
+
+    /** Gemini is out for this screen — the free on-device brain
+     *  greets by TTS and listens, exactly as before v3.7.35. */
+    private void fallBackToOnDevice() {
+        geminiMode = false;
+        geminiRetryPending = false;
+        geminiRetries = 0;
+        stopGeminiSession();
+        listenFailures = 0;
+        listenLang = "ur-PK";
+        triedPa = false;
+        pendingGreeting = true;
+        tryStartConversation();
     }
 
     private void speakGreeting() {
@@ -540,6 +677,28 @@ public class AssistantActivity extends BaseActivity {
     }
 
     private void onBigMicClicked() {
+        // v3.7.35: in Gemini mode the mic toggles the Live session
+        // (no SpeechRecognizer involved).
+        if (geminiMode) {
+            if (listening) {
+                // User deliberately stopped — do not reconnect
+                // until they tap the mic again.
+                userStopped = true;
+                stopGeminiSession();
+                return;
+            }
+            userStopped = false;
+            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        REQ_MIC);
+                return;
+            }
+            geminiRetries = 0;
+            startGeminiSession();
+            return;
+        }
         if (listening) {
             // User deliberately stopped — do not auto-listen again
             // until they tap the mic.
@@ -571,9 +730,16 @@ public class AssistantActivity extends BaseActivity {
         if (requestCode == REQ_MIC) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                listenFailures = 0;
                 userStopped = false;
-                startListening();
+                // v3.7.35: Gemini mode reconnects the Live session;
+                // on-device mode restarts the recognizer.
+                if (geminiMode) {
+                    geminiRetries = 0;
+                    startGeminiSession();
+                } else {
+                    listenFailures = 0;
+                    startListening();
+                }
             } else {
                 // v3.7.34: voice-only — errors are SPOKEN, never shown.
                 speakError(getString(R.string.assistant_mic_denied));
@@ -767,6 +933,10 @@ public class AssistantActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        try {
+            if (gemini != null) gemini.close();
+        } catch (Exception ignored) {
+        }
         try {
             if (tts != null) {
                 tts.stop();

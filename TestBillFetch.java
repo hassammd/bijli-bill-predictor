@@ -18,6 +18,7 @@ import com.hatch.bijlibill.DailyReminder;
 import com.hatch.bijlibill.AccuracyTracker;
 import com.hatch.bijlibill.AssistantBrain;
 import com.hatch.bijlibill.BillSnapshots;
+import com.hatch.bijlibill.GeminiLiveClient;
 import com.hatch.bijlibill.GuardCalc;
 import com.hatch.bijlibill.GuardReminder;
 
@@ -2172,9 +2173,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"166\""), true);
+                man.contains("android:versionCode=\"167\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.34\""), true);
+                man.contains("android:versionName=\"3.7.35\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3877,9 +3878,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"166\""), true);
+                man.contains("android:versionCode=\"167\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.34\""), true);
+                man.contains("android:versionName=\"3.7.35\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4250,10 +4251,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"166\""),
+                manifest.contains("android:versionCode=\"167\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.34\""),
+                manifest.contains("android:versionName=\"3.7.35\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4412,10 +4413,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"166\""),
+                manifest.contains("android:versionCode=\"167\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.34\""),
+                manifest.contains("android:versionName=\"3.7.35\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4907,8 +4908,8 @@ public class TestBillFetch {
                 man.contains(".AssistantActivity"), true);
         check("v3731 manifest mic permission",
                 man.contains("android.permission.RECORD_AUDIO"), true);
-        check("v3734 manifest version 166",
-                man.contains("android:versionCode=\"166\""), true);
+        check("v3735 manifest version 167",
+                man.contains("android:versionCode=\"167\""), true);
 
         // ---- 15. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5078,32 +5079,263 @@ public class TestBillFetch {
                 asst.contains("speakError"), true);
         check("v3734 error restarts listen",
                 asst.contains("listenAfterErrorSpoken"), true);
-        // 18d. Rate Us card on Home + strings in both locales.
-        check("v3734 rate us card",
-                home.contains("quick_rate_us"), true);
-        check("v3734 rate us market",
-                home.contains("market://details?id="), true);
-        check("v3734 rate us web fallback",
-                home.contains(
-                        "play.google.com/store/apps/details?id="), true);
-        check("v3734 rate us star icon",
-                home.contains("ic_star"), true);
+        // ---- 19. v3.7.35: Quick Tools second row removed (user:
+        //      keep only the task cards). No Assistant card and no
+        //      Rate Us card on Home; the floating bubble is now the
+        //      only way into the Assistant. The strings and the star
+        //      drawable stay (unused, harmless). ----
+        check("v3735 no quick assistant card",
+                !home.contains("quick_assistant"), true);
+        check("v3735 no quick rate us card",
+                !home.contains("quick_rate_us"), true);
+        check("v3735 no second row",
+                !home.contains("row2"), true);
+        check("v3735 task cards kept",
+                home.contains("quick_unit_check")
+                        && home.contains("quick_bill_history"), true);
+        check("v3735 bubble still opens assistant",
+                home.contains("assistantBubble"), true);
+        check("v3735 bubble opens assistant activity",
+                home.contains("AssistantActivity.class"), true);
+        // Strings + star drawable remain (unused for now).
         String[] rateKeys = {"quick_rate_us", "quick_rate_us_sub"};
         for (String k : rateKeys) {
-            check("v3734 key en " + k, en.containsKey(k), true);
-            check("v3734 key ur " + k, ur.containsKey(k), true);
-            check("v3734 fmt " + k, fmtArgs(en.get(k)),
+            check("v3735 key en " + k, en.containsKey(k), true);
+            check("v3735 key ur " + k, ur.containsKey(k), true);
+            check("v3735 fmt " + k, fmtArgs(en.get(k)),
                     fmtArgs(ur.get(k)));
         }
         String star = new String(java.nio.file.Files.readAllBytes(
                 java.nio.file.Paths.get("res/drawable/ic_star.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
-        check("v3734 star drawable", star.contains("M12 17.27"), true);
-        // 18e. Version 166 / 3.7.34 in the manifest.
-        check("v3734 manifest version 166b",
-                man.contains("android:versionCode=\"166\""), true);
-        check("v3734 manifest name 3.7.34",
-                man.contains("android:versionName=\"3.7.34\""), true);
+        check("v3735 star drawable", star.contains("M12 17.27"), true);
+        // 18e. Version 167 / 3.7.35 in the manifest.
+        check("v3735 manifest version 167",
+                man.contains("android:versionCode=\"167\""), true);
+        check("v3735 manifest name 3.7.35",
+                man.contains("android:versionName=\"3.7.35\""), true);
+
+        // ---- 20. v3.7.35: Gemini Live voice assistant (TEST build) ----
+        // 20a. Key config: only a real, non-placeholder key counts.
+        // The key itself lives in the gitignored ApiKeys.java — the
+        // test never reads its value, only the shape of the rule.
+        check("v3735 key stub not configured",
+                GeminiLiveClient.isConfiguredKey("REPLACE_ME"), false);
+        check("v3735 key empty not configured",
+                GeminiLiveClient.isConfiguredKey(""), false);
+        check("v3735 key null not configured",
+                GeminiLiveClient.isConfiguredKey(null), false);
+        check("v3735 key real configured",
+                GeminiLiveClient.isConfiguredKey("AIzaSyFakeTestKey123"),
+                true);
+        String apiKeys = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(
+                        "java/com/hatch/bijlibill/ApiKeys.java")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3735 apikeys file declares key",
+                apiKeys.contains("GEMINI_API_KEY"), true);
+        String gitignore = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(".gitignore")),
+                java.nio.charset.StandardCharsets.UTF_8);
+        check("v3735 apikeys gitignored",
+                gitignore.contains(
+                        "java/com/hatch/bijlibill/ApiKeys.java"), true);
+        check("v3735 build recreates placeholder",
+                new String(java.nio.file.Files.readAllBytes(
+                        java.nio.file.Paths.get("build.sh")),
+                        java.nio.charset.StandardCharsets.UTF_8)
+                        .contains("ApiKeys.java"), true);
+        // 20b. Setup JSON: free-tier Live model + AUDIO + voice +
+        // system instruction, with JSON escaping.
+        String setup = GeminiLiveClient.buildSetupJson(
+                GeminiLiveClient.MODEL, GeminiLiveClient.VOICE,
+                "say \"hi\"\nnext line");
+        check("v3735 setup model",
+                setup.contains("\"model\":\"models/gemini-3.8-live\""),
+                true);
+        check("v3735 setup audio modality",
+                setup.contains("\"responseModalities\":[\"AUDIO\"]"), true);
+        check("v3735 setup voice",
+                setup.contains("\"voiceName\":\"Aoede\""), true);
+        check("v3735 setup escapes quote",
+                setup.contains("say \\\"hi\\\""), true);
+        check("v3735 setup escapes newline",
+                setup.contains("\\nnext line"), true);
+        check("v3735 setup transcriptions",
+                setup.contains("\"inputAudioTranscription\":{}"), true);
+        // 20c. Mic audio JSON: base64 PCM, 16kHz mime type.
+        String audioJson = GeminiLiveClient.buildAudioJson(
+                new byte[]{0x4d, 0x61, 0x6e});
+        check("v3735 audio json base64",
+                audioJson.contains("\"data\":\"TWFu\""), true);
+        check("v3735 audio json mime",
+                audioJson.contains("audio/pcm;rate=16000"), true);
+        // 20d. Greeting turn: clientContent, turn complete.
+        String greet = GeminiLiveClient.buildGreetingJson("hello");
+        check("v3735 greeting turn",
+                greet.contains("\"clientContent\""), true);
+        check("v3735 greeting complete",
+                greet.contains("\"turnComplete\":true"), true);
+        // 20e. System instruction: real snapshot data only.
+        String instr = GeminiLiveClient.buildSystemInstruction(
+                two, "Test User (LESCO, 02118240618604U)");
+        check("v3735 instr units", instr.contains("250 units"), true);
+        check("v3735 instr amount", instr.contains("Rs 12,800"), true);
+        check("v3735 instr due", instr.contains("15-OCT-26"), true);
+        check("v3735 instr prev month",
+                instr.contains("180 units"), true);
+        check("v3735 instr guard above",
+                instr.contains("ABOVE 200"), true);
+        check("v3735 instr roman urdu",
+                instr.contains("Roman Urdu"), true);
+        check("v3735 instr no invent",
+                instr.contains("Never invent"), true);
+        String instrEmpty = GeminiLiveClient.buildSystemInstruction(
+                empty, "");
+        check("v3735 instr no-bill honest",
+                instrEmpty.contains("No bill has been fetched yet"),
+                true);
+        // 20f. Base64 (pure Java): known vectors + round-trip.
+        check("v3735 b64 Man",
+                GeminiLiveClient.base64Encode(
+                        new byte[]{0x4d, 0x61, 0x6e}), "TWFu");
+        check("v3735 b64 M pad",
+                GeminiLiveClient.base64Encode(new byte[]{0x4d}), "TQ==");
+        check("v3735 b64 Ma pad",
+                GeminiLiveClient.base64Encode(
+                        new byte[]{0x4d, 0x61}), "TWE=");
+        byte[] pcm640 = new byte[640];
+        for (int i = 0; i < pcm640.length; i++) {
+            pcm640[i] = (byte) (i * 7);
+        }
+        check("v3735 b64 roundtrip",
+                java.util.Arrays.equals(pcm640,
+                        GeminiLiveClient.base64Decode(
+                                GeminiLiveClient.base64Encode(pcm640))),
+                true);
+        check("v3735 b64 decode",
+                new String(GeminiLiveClient.base64Decode("TWFu"),
+                        java.nio.charset.StandardCharsets.UTF_8),
+                "Man");
+        // 20g. JSON escaping.
+        check("v3735 escape quote",
+                GeminiLiveClient.escapeJson("a\"b"), "a\\\"b");
+        check("v3735 escape backslash",
+                GeminiLiveClient.escapeJson("a\\b"), "a\\\\b");
+        check("v3735 escape newline",
+                GeminiLiveClient.escapeJson("a\nb"), "a\\nb");
+        // 20h. Sec-WebSocket-Accept (RFC 6455 example vector).
+        check("v3735 ws accept",
+                GeminiLiveClient.computeAccept(
+                        "dGhlIHNhbXBsZSBub25jZQ=="),
+                "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
+        // 20i. HTTP status + header parsing.
+        check("v3735 http 101",
+                GeminiLiveClient.parseHttpStatus(
+                        "HTTP/1.1 101 Switching Protocols\r\n\r\n"),
+                101);
+        check("v3735 http 400",
+                GeminiLiveClient.parseHttpStatus(
+                        "HTTP/1.1 400 Bad Request\r\n\r\n"), 400);
+        check("v3735 header accept",
+                GeminiLiveClient.headerValue(
+                        "HTTP/1.1 101 Switching Protocols\r\n"
+                        + "Sec-WebSocket-Accept: abc123\r\n\r\n",
+                        "sec-websocket-accept"), "abc123");
+        // 20j. Server-message extractors (audio / turn / interrupt).
+        String srvAudio = "{\"serverContent\":{\"modelTurn\":{\"parts\":"
+                + "[{\"inlineData\":{\"mimeType\":\"audio/pcm;rate=24000\","
+                + "\"data\":\"TWFu\"}}]}}}";
+        check("v3735 srv audio one",
+                GeminiLiveClient.extractServerAudioParts(srvAudio).size(),
+                1);
+        check("v3735 srv audio data",
+                GeminiLiveClient.extractServerAudioParts(srvAudio).get(0),
+                "TWFu");
+        check("v3735 srv audio not turn",
+                GeminiLiveClient.serverTurnComplete(srvAudio), false);
+        check("v3735 srv turn complete",
+                GeminiLiveClient.serverTurnComplete(
+                        "{\"serverContent\":{\"turnComplete\":true}}"),
+                true);
+        check("v3735 srv interrupted",
+                GeminiLiveClient.serverInterrupted(
+                        "{\"serverContent\":{\"interrupted\":true}}"),
+                true);
+        check("v3735 srv setup complete",
+                GeminiLiveClient.serverSetupComplete(
+                        "{\"setupComplete\":{}}"), true);
+        check("v3735 srv bad json safe",
+                GeminiLiveClient.extractServerAudioParts("not json")
+                        .isEmpty(), true);
+        // 20k. WebSocket reader: whole frame, fragmented frames,
+        // ping -> pong. (Server frames are unmasked.)
+        byte[] hello = "Hello".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8);
+        java.io.ByteArrayOutputStream frames =
+                new java.io.ByteArrayOutputStream();
+        frames.write(0x81);
+        frames.write(hello.length);
+        frames.write(hello);
+        java.io.ByteArrayOutputStream pongOut =
+                new java.io.ByteArrayOutputStream();
+        GeminiLiveClient.WsReader reader =
+                new GeminiLiveClient.WsReader(
+                        new java.io.ByteArrayInputStream(
+                                frames.toByteArray()), pongOut);
+        check("v3735 ws read text", reader.readMessage(), "Hello");
+        java.io.ByteArrayOutputStream frag =
+                new java.io.ByteArrayOutputStream();
+        frag.write(0x01); // FIN=0, text
+        frag.write(3);
+        frag.write("Hel".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8));
+        frag.write(0x80); // FIN=1, continuation
+        frag.write(2);
+        frag.write("lo".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8));
+        GeminiLiveClient.WsReader fragReader =
+                new GeminiLiveClient.WsReader(
+                        new java.io.ByteArrayInputStream(
+                                frag.toByteArray()),
+                        new java.io.ByteArrayOutputStream());
+        check("v3735 ws fragmented", fragReader.readMessage(), "Hello");
+        java.io.ByteArrayOutputStream pingOut =
+                new java.io.ByteArrayOutputStream();
+        java.io.ByteArrayOutputStream pingIn =
+                new java.io.ByteArrayOutputStream();
+        pingIn.write(0x89); // ping, empty
+        pingIn.write(0);
+        pingIn.write(0x81); // then a text frame
+        pingIn.write(2);
+        pingIn.write("hi".getBytes(
+                java.nio.charset.StandardCharsets.UTF_8));
+        GeminiLiveClient.WsReader pingReader =
+                new GeminiLiveClient.WsReader(
+                        new java.io.ByteArrayInputStream(
+                                pingIn.toByteArray()), pingOut);
+        check("v3735 ws ping then text",
+                pingReader.readMessage(), "hi");
+        byte[] pong = pingOut.toByteArray();
+        check("v3735 ws pong opcode",
+                pong.length >= 2 && (pong[0] & 0xFF) == 0x8A, true);
+        // 20l. Wiring: Assistant uses Gemini when a key is set,
+        // network error string exists in both locales, no text UI.
+        check("v3735 asst gemini client",
+                asst.contains("GeminiLiveClient"), true);
+        check("v3735 asst gemini session",
+                asst.contains("startGeminiSession"), true);
+        check("v3735 asst gemini fallback",
+                asst.contains("fallBackToOnDevice"), true);
+        check("v3735 asst gemini error string",
+                asst.contains("assistant_gemini_error"), true);
+        check("v3735 key en gemini error",
+                en.containsKey("assistant_gemini_error"), true);
+        check("v3735 key ur gemini error",
+                ur.containsKey("assistant_gemini_error"), true);
+        check("v3735 fmt gemini error",
+                fmtArgs(en.get("assistant_gemini_error")),
+                fmtArgs(ur.get("assistant_gemini_error")));
     }
 
     static void addPoint(

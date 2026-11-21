@@ -380,6 +380,7 @@
     <string name="assistant_hear_retry">Sun nahi paya, ek baar phir boliye…</string>
     <string name="assistant_hear_type">Phir bhi sun nahi paya — mic dabaa kar dobara boliye, main sun raha hun.</string>
     <string name="assistant_voice_greeting">Assalamualaikum! Main aapka Bijli Bill Assistant hun. Apna sawal boliye.</string>
+    <string name="assistant_gemini_error">internet nahi chal raha, dobara try karein</string>
     <string name="assistant_bubble_desc">AI Assistant — bol kar poochein</string>
     <string name="assistant_status_listening">Sun raha hoon…</string>
     <string name="assistant_status_speaking">Jawab de raha hoon…</string>
