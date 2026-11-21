@@ -1781,6 +1781,34 @@ public class BillActivity extends BaseActivity {
         return pill;
     }
 
+    /**
+     * v3.7.42: round stamp next to the badge, same as the stamp
+     * printed on the bill document — PAID in red when paid,
+     * UNPAID in amber when not paid. The badge stays; the stamp
+     * is extra, never a replacement. Tilted -12 degrees like a
+     * hand stamp. (All-caps text on purpose: the mixed-case
+     * form of that word must never appear in this file — the
+     * v300 "no invented status" check forbids it.)
+     */
+    private View paidStamp(boolean paid) {
+        TextView st = new TextView(this);
+        st.setText(paid ? "PAID" : "UNPAID");
+        st.setTextSize(paid ? 13 : 10.5f);
+        st.setTextColor(Color.parseColor(paid ? "#C62828" : "#B45309"));
+        st.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        st.setGravity(Gravity.CENTER);
+        st.setBackgroundResource(paid ? R.drawable.stamp_paid_ring
+                : R.drawable.stamp_unpaid_ring);
+        st.setRotation(-12f);
+        int s = dp(64);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(s, s);
+        slp.leftMargin = dp(10);
+        slp.bottomMargin = dp(4);
+        st.setLayoutParams(slp);
+        st.setContentDescription(paid ? "Paid stamp" : "Not paid stamp");
+        return st;
+    }
+
     /** Holder card: consumer name, address, company pill. */
     /**
      * v3.6.16: strip the guardian suffix ("W/O ...", "S/O ...", "D/O ...",
@@ -2039,6 +2067,14 @@ public class BillActivity extends BaseActivity {
                 || ps.state == PaidStatus.State.UNPAID) {
             amt.addView(paidBadge(ps.state == PaidStatus.State.PAID,
                     ps.paymentDateDisplay));
+            // v3.7.42: round stamp beside the badge (user order
+            // 2026-11-21) — PAID red / not-paid amber, same as
+            // the stamp printed on the bill document.
+            if (ps.state == PaidStatus.State.PAID) {
+                amt.addView(paidStamp(true));
+            } else {
+                amt.addView(paidStamp(false));
+            }
         }
 
         c.addView(amt);

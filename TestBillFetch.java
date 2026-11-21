@@ -1060,6 +1060,10 @@ public class TestBillFetch {
         // ---- v3.7.40: bill-fields badge + company-cards grid ----
         runV3740Tests();
 
+        // ---- v3.7.42: Quick Tools on form page + PAID/UNPAID
+        //      stamps + blue splash + Settings top links ----
+        runV3742Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2225,9 +2229,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"173\""), true);
+                man.contains("android:versionCode=\"174\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.41\""), true);
+                man.contains("android:versionName=\"3.7.42\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3940,9 +3944,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"173\""), true);
+                man.contains("android:versionCode=\"174\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.41\""), true);
+                man.contains("android:versionName=\"3.7.42\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4313,10 +4317,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"173\""),
+                manifest.contains("android:versionCode=\"174\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.41\""),
+                manifest.contains("android:versionName=\"3.7.42\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4475,10 +4479,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"173\""),
+                manifest.contains("android:versionCode=\"174\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.41\""),
+                manifest.contains("android:versionName=\"3.7.42\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4841,11 +4845,12 @@ public class TestBillFetch {
                 home.contains(
                         "https://play.google.com/store/apps/details?id="),
                 false);
-        // v3.7.41: Quick Tools BACK on Home (user order 2026-11-21)
-        // — Unit Check + Bill History below the company grid.
-        // v3.7.40 had removed them; Rate Us still stays out of
-        // Home (Settings only).
-        check("v3741 task cards back on home",
+        // v3.7.42 FINAL: Quick Tools live on the company form
+        // page (user order 2026-11-21) — Unit Check + Bill
+        // History below VIEW BILL. The strings stay in
+        // HomeActivity (the method moved, it was not deleted);
+        // Rate Us still stays out of Home (Settings only).
+        check("v3742 task cards still present",
                 home.contains("quick_unit_check")
                         && home.contains("quick_bill_history"), true);
         // Rate Us strings stay in both locales (Settings uses them).
@@ -4864,11 +4869,11 @@ public class TestBillFetch {
         //      removed voice feature ----
         check("v3737 bill no snapshot call",
                 bill.contains("BillSnapshots"), false);
-        // ---- 7. Version 173 / 3.7.41 in the manifest ----
-        check("v3737 manifest version 173",
-                man.contains("android:versionCode=\"173\""), true);
-        check("v3737 manifest name 3.7.41",
-                man.contains("android:versionName=\"3.7.41\""), true);
+        // ---- 7. Version 174 / 3.7.42 in the manifest ----
+        check("v3737 manifest version 174",
+                man.contains("android:versionCode=\"174\""), true);
+        check("v3737 manifest name 3.7.42",
+                man.contains("android:versionName=\"3.7.42\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5061,11 +5066,11 @@ public class TestBillFetch {
                 java.nio.file.Files.exists(java.nio.file.Paths.get(
                         "res/drawable/ic_privacy.xml")), true);
 
-        // ---- 4. Version 173 / 3.7.41 in the manifest ----
-        check("v3738 manifest version 173",
-                man.contains("android:versionCode=\"173\""), true);
-        check("v3738 manifest name 3.7.41",
-                man.contains("android:versionName=\"3.7.41\""), true);
+        // ---- 4. Version 174 / 3.7.42 in the manifest ----
+        check("v3738 manifest version 174",
+                man.contains("android:versionCode=\"174\""), true);
+        check("v3738 manifest name 3.7.42",
+                man.contains("android:versionName=\"3.7.42\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5129,11 +5134,11 @@ public class TestBillFetch {
         check("v3739 ke still comingSoon",
                 Disco.KELECTRIC.comingSoon, true);
 
-        // ---- 4. Version 173 / 3.7.41 in the manifest ----
-        check("v3739 manifest version 173",
-                man.contains("android:versionCode=\"173\""), true);
-        check("v3739 manifest name 3.7.41",
-                man.contains("android:versionName=\"3.7.41\""), true);
+        // ---- 4. Version 174 / 3.7.42 in the manifest ----
+        check("v3739 manifest version 174",
+                man.contains("android:versionCode=\"174\""), true);
+        check("v3739 manifest name 3.7.42",
+                man.contains("android:versionName=\"3.7.42\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5411,13 +5416,17 @@ public class TestBillFetch {
                 home.contains("discoChips") == false
                         && home.contains("refreshChips") == false
                         && home.contains("discoRow") == false, true);
-        // v3.7.41: Quick Tools restored below the company grid
-        // (Unit Check + Bill History; Rate Us stays in Settings).
+        // v3.7.42 FINAL: Quick Tools live on the company form
+        // page below VIEW BILL (Unit Check + Bill History; Rate
+        // Us stays in Settings) — NOT in the home grid.
         check("v3741 quicktools back",
                 home.contains("quickToolsSection"), true);
-        check("v3741 quicktools in grid",
-                home.contains("gridSection.addView(quickToolsSection())"),
+        check("v3742 quicktools on form",
+                home.contains("formSection.addView(quickToolsSection())"),
                 true);
+        check("v3742 quicktools not in grid",
+                home.contains("gridSection.addView(quickToolsSection())"),
+                false);
         check("v3741 quicktools unit card",
                 home.contains("R.string.quick_unit_check"), true);
         check("v3741 quicktools history card",
@@ -5539,11 +5548,11 @@ public class TestBillFetch {
                     fmtArgs(ur.get(k)));
         }
 
-        // ---- 12. Version 173 / 3.7.41 in the manifest ----
-        check("v3740 manifest version 173",
-                man.contains("android:versionCode=\"173\""), true);
-        check("v3740 manifest name 3.7.41",
-                man.contains("android:versionName=\"3.7.41\""), true);
+        // ---- 12. Version 174 / 3.7.42 in the manifest ----
+        check("v3740 manifest version 174",
+                man.contains("android:versionCode=\"174\""), true);
+        check("v3740 manifest name 3.7.42",
+                man.contains("android:versionName=\"3.7.42\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5587,6 +5596,110 @@ public class TestBillFetch {
                         && countOcc(bill, "blueShadow") == 0, true);
         check("v3741 grid gap 12",
                 home.contains("int gap = Ui.dp(this, 12)"), true);
+    }
+
+    static void runV3742Tests() throws Exception {
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String about = readFile(
+                "java/com/hatch/bijlibill/AboutActivity.java");
+        String splash = readFile(
+                "java/com/hatch/bijlibill/SplashActivity.java");
+        String man = readFile("AndroidManifest.xml");
+
+        // ---- 1. Version 174 / 3.7.42 in the manifest ----
+        check("v3742 manifest version 174",
+                man.contains("android:versionCode=\"174\""), true);
+        check("v3742 manifest name 3.7.42",
+                man.contains("android:versionName=\"3.7.42\""), true);
+
+        // ---- 2. Quick Tools on the company form page (user
+        //      order 2026-11-21, FINAL): below VIEW BILL
+        //      (inside inputCard), above the ad banner; never
+        //      on Home.
+        check("v3742 quick on form",
+                home.contains(
+                        "formSection.addView(quickToolsSection())"),
+                true);
+        check("v3742 quick not on home",
+                home.contains(
+                        "gridSection.addView(quickToolsSection())"),
+                false);
+        int qIdx = home.indexOf(
+                "formSection.addView(quickToolsSection())");
+        int inIdx = home.indexOf("formSection.addView(inputCard())");
+        check("v3742 quick below input card", qIdx > inIdx, true);
+
+        // ---- 3. Stamps on the bill detail screen (user order
+        //      2026-11-21, FINAL): PAID red ring + UNPAID amber
+        //      ring, round, tilted, next to the badge.
+        String paidRing = readFile("res/drawable/stamp_paid_ring.xml");
+        String unpaidRing = readFile(
+                "res/drawable/stamp_unpaid_ring.xml");
+        check("v3742 paid ring oval", paidRing.contains("oval"), true);
+        check("v3742 paid ring red", paidRing.contains("C62828"), true);
+        check("v3742 unpaid ring oval", unpaidRing.contains("oval"),
+                true);
+        check("v3742 unpaid ring amber", unpaidRing.contains("B45309"),
+                true);
+        check("v3742 stamp paid ring ref",
+                bill.contains("stamp_paid_ring"), true);
+        check("v3742 stamp unpaid ring ref",
+                bill.contains("stamp_unpaid_ring"), true);
+        check("v3742 stamp paid text", bill.contains("\"PAID\""), true);
+        check("v3742 stamp unpaid text", bill.contains("\"UNPAID\""),
+                true);
+        check("v3742 stamp paid branch",
+                bill.contains("amt.addView(paidStamp(true))"), true);
+        check("v3742 stamp unpaid branch",
+                bill.contains("amt.addView(paidStamp(false))"), true);
+        check("v3742 stamp tilt", bill.contains("setRotation(-12"),
+                true);
+        check("v3742 stamp method", bill.contains("paidStamp(boolean"),
+                true);
+
+        // ---- 4. Splash blue (user order 2026-11-21): the
+        //      illustration is recolored teal -> blue; the
+        //      launcher icon is NOT touched (separate pick).
+        check("v3742 splash illus exists",
+                java.nio.file.Files.exists(java.nio.file.Paths.get(
+                        "res/drawable-nodpi/splash_illus.webp")), true);
+        check("v3742 splash bg light",
+                splash.contains("Ds.bg()"), true);
+        String splashBg = readFile("res/drawable/splash_bg.xml");
+        check("v3742 splash no teal hex",
+                !splashBg.contains("11998E")
+                        && !splashBg.contains("0D766E")
+                        && !splashBg.contains("064E50"), true);
+        check("v3742 splash recolor note",
+                splash.contains("v3.7.42"), true);
+        check("v3742 launcher icon untouched",
+                readFile("res/values/colors.xml").contains(
+                        "ic_launcher_background\">#00695C"), true);
+
+        // ---- 5. Settings order (user order 2026-11-21, FINAL):
+        //      Share App + Privacy Policy at the very top, before
+        //      "How it works"; Rate Us stays below. Same links,
+        //      only the position changed.
+        int shareIdx = about.indexOf("R.drawable.ic_share");
+        int privIdx = about.indexOf("R.drawable.ic_privacy");
+        int howIdx = about.indexOf("R.string.about_how");
+        int starIdx = about.indexOf("R.drawable.ic_star");
+        check("v3742 settings share first", shareIdx > 0, true);
+        check("v3742 settings privacy after share",
+                privIdx > shareIdx, true);
+        check("v3742 settings share before how",
+                shareIdx < howIdx, true);
+        check("v3742 settings privacy before how",
+                privIdx < howIdx, true);
+        check("v3742 settings rate us below how",
+                starIdx > howIdx, true);
+        check("v3742 settings privacy url",
+                about.contains(
+                        "https://bijli-bill-privacy.netlify.app/privacy-policy"),
+                true);
     }
 
     static void addPoint(

@@ -22,6 +22,9 @@ import android.widget.TextView;
  *  - Custom flat illustration (transmission towers + poles + houses,
  *    app palette) as a top band for a professional look.
  *  - App icon (Play Store icon, transparent) stays, 96dp.
+ *  - v3.7.42: splash illustration (splash_illus.webp) recolored
+ *    teal -> blue (#1B62B0 family) — the old teal towers are
+ *    gone; launcher icon NOT changed (separate pick pending).
  */
 public class SplashActivity extends BaseActivity {
 

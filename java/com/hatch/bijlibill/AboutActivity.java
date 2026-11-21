@@ -150,6 +150,37 @@ public class AboutActivity extends BaseActivity {
                 getString(R.string.about_version) + " · v" + versionName()));
         root.addView(verWrap);
 
+        // v3.7.42 FINAL: Share App + Privacy Policy at the very
+        // top of Settings, before "How it works" (user order
+        // 2026-11-21, voice call). Same links and actions as
+        // before, only the position changed; Rate Us stays in
+        // the Settings card below.
+        LinearLayout top = compactCard();
+        top.addView(settingRow(R.drawable.ic_share,
+                R.string.settings_share, R.string.settings_share_sub,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        Intent s = new Intent(Intent.ACTION_SEND);
+                        s.setType("text/plain");
+                        s.putExtra(Intent.EXTRA_TEXT,
+                                getString(R.string.settings_share_text)
+                                        + " https://play.google.com/store/apps/details?id="
+                                        + getPackageName());
+                        startActivity(Intent.createChooser(s,
+                                getString(R.string.settings_share)));
+                    }
+                }));
+        top.addView(settingDivider());
+        top.addView(settingRow(R.drawable.ic_privacy,
+                R.string.settings_privacy, R.string.settings_privacy_sub,
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                android.net.Uri.parse(PRIVACY_URL)));
+                    }
+                }));
+        root.addView(compactWrap(top));
+
         // How it works — short bullet points (v3.7.24).
         LinearLayout how = compactCard();
         how.addView(Ui.cardTitle(this, R.string.about_how));
@@ -187,8 +218,9 @@ public class AboutActivity extends BaseActivity {
         root.addView(compactWrap(disc));
 
         // v3.7.38: Settings rows (user order 2026-11-21 — Rate Us
-        // moves here from Home Quick Tools, plus Share App and
-        // Privacy Policy). One compact card, three tappable rows.
+        // moved here from Home Quick Tools). v3.7.42 FINAL: Share
+        // App + Privacy Policy now live in the top card above
+        // "How it works"; only Rate Us stays in this card.
         LinearLayout set = compactCard();
         set.addView(Ui.cardTitle(this, R.string.settings_section));
         set.addView(Ui.spacer(this, 2));
@@ -197,30 +229,6 @@ public class AboutActivity extends BaseActivity {
                 new View.OnClickListener() {
                     @Override public void onClick(View v) {
                         openPlayStore();
-                    }
-                }));
-        set.addView(settingDivider());
-        set.addView(settingRow(R.drawable.ic_share,
-                R.string.settings_share, R.string.settings_share_sub,
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        Intent s = new Intent(Intent.ACTION_SEND);
-                        s.setType("text/plain");
-                        s.putExtra(Intent.EXTRA_TEXT,
-                                getString(R.string.settings_share_text)
-                                        + " https://play.google.com/store/apps/details?id="
-                                        + getPackageName());
-                        startActivity(Intent.createChooser(s,
-                                getString(R.string.settings_share)));
-                    }
-                }));
-        set.addView(settingDivider());
-        set.addView(settingRow(R.drawable.ic_privacy,
-                R.string.settings_privacy, R.string.settings_privacy_sub,
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        startActivity(new Intent(Intent.ACTION_VIEW,
-                                android.net.Uri.parse(PRIVACY_URL)));
                     }
                 }));
         root.addView(compactWrap(set));

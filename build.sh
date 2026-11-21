@@ -1,4 +1,20 @@
 #!/bin/bash
+# Bijli Bill v3.7.42 (174) — Quick Tools on form page + PAID/UNPAID
+# stamps + blue splash + Settings top links (user order, voice call
+# 2026-11-21, FINAL scope — earlier placements cancelled):
+#   - QUICK TOOLS on the company form page: Unit Check + Bill
+#     History below VIEW BILL (reference input ke neeche), above
+#     the ad banner. Home keeps only greeting + Total Payable +
+#     company grid. (v3.7.41 had them on Home; the up-front
+#     variant was ordered then cancelled the same call.)
+#   - STAMPS on bill detail: round tilted stamp next to the badge
+#     — red PAID when paid, amber UNPAID when not paid (same as
+#     the stamp printed on the bill document). Badge stays.
+#   - SPLASH BLUE: splash illustration recolored teal -> blue
+#     (#1B62B0 family); launcher icon NOT changed (separate pick).
+#   - SETTINGS: Share App + Privacy Policy moved to the very top
+#     of the Settings page, before "How it works"; Rate Us stays
+#     in the Settings card below.
 # Bijli Bill v3.7.41 (173) — live-bug fixes (user order, voice call
 # 2026-11-21, screenshots):
 #   - PAID STATUS BUG (critical): v3.7.40's badge read the bill's
@@ -329,16 +345,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.41.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.41.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.42.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.42.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.41.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.41.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.42.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.42.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.41.apk" "$OUTDIR/bijli-bill-publish-3.7.41.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.42.apk" "$OUTDIR/bijli-bill-publish-3.7.42.aab"
 echo BUILD_OK

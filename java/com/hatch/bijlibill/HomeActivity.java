@@ -569,24 +569,27 @@ public class HomeActivity extends BaseActivity {
         gridSection.addView(totalPayableCard());
         gridSection.addView(secLabel(R.string.select_company, 10));
         gridSection.addView(companyGrid());
-        // v3.7.41: Quick Tools BACK on Home (user order 2026-11-21)
-        // — Unit Check + Bill History below the company grid.
-        // v3.7.40 had removed them; Rate Us stays in Settings.
-        gridSection.addView(quickToolsSection());
         content.addView(gridSection);
 
         formSection = new LinearLayout(this);
         formSection.setOrientation(LinearLayout.VERTICAL);
         formSection.addView(formHeader());
         formSection.addView(inputCard());
+        // v3.7.42 FINAL: Quick Tools live on the company form
+        // page (user order 2026-11-21, voice call) — Unit Check
+        // + Bill History below VIEW BILL (inside inputCard above),
+        // above the ad banner. Home keeps only greeting + Total
+        // Payable + company grid. Rate Us stays in Settings.
+        formSection.addView(quickToolsSection());
         formSection.setVisibility(View.GONE);
         content.addView(formSection);
 
         // v3.6.77: BILL DEKHO button moved INSIDE inputCard (user request).
         int hm = Ui.dp(this, 20);
 
-        // v3.7.41: Quick Tools live in gridSection now (below the
-        // company grid) — see quickToolsSection() below.
+        // v3.7.42 FINAL: Quick Tools live in formSection on the
+        // company form page (below the input card) — see
+        // quickToolsSection() below.
 
 
         // v3.4.0: streak card — flame + consecutive check-in days;
@@ -983,11 +986,14 @@ public class HomeActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    // ---- QUICK TOOLS (v3.6.71; restored v3.7.41) ----
-    // v3.7.41: back on Home below the company grid (user order
-    // 2026-11-21 — v3.7.40 had removed them). Only Unit Check +
-    // Bill History; Rate Us stays in Settings (v3.7.38). Flat
-    // cards — no elevation, no shadow (v3.7.41).
+    // ---- QUICK TOOLS (v3.6.71; form page v3.7.42 FINAL) ----
+    // v3.7.42 FINAL: on the company form page below VIEW BILL
+    // (user order 2026-11-21, voice call — Home placement and
+    // the up-front variant were both cancelled; the form page
+    // under the reference-number input is the right spot).
+    // Only Unit Check + Bill History; Rate Us stays in
+    // Settings (v3.7.38). Flat cards — no elevation, no
+    // shadow (v3.7.41).
 
     private View quickToolsSection() {
         LinearLayout sec = new LinearLayout(this);
