@@ -6,18 +6,22 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -27,6 +31,9 @@ import android.widget.Toast;
 import com.hatch.bijlibill.LescoBillFetcher.BillErrorException;
 import com.hatch.bijlibill.LescoBillFetcher.BillInfo;
 import com.hatch.bijlibill.LescoBillFetcher.BillPage;
+import com.hatch.bijlibill.LescoBillFetcher.CaptchaRejectedException;
+import com.hatch.bijlibill.LescoBillFetcher.CaptchaRequiredException;
+import com.hatch.bijlibill.LescoBillFetcher.CaptchaSession;
 import com.hatch.bijlibill.LescoBillFetcher.FetchException;
 import com.hatch.bijlibill.LescoBillFetcher.FetchKind;
 
@@ -70,6 +77,8 @@ public class BillActivity extends BaseActivity {
     private ScrollView content;
     private LinearLayout bannerBox;
     private boolean fromCache;
+    /** v3.7.30: wrong-code message carried to the next CAPTCHA screen. */
+    private String pendingCaptchaError;
     /** v2.1.0: last shown bill page — feeds Meter Check (needs prevReading). */
     private BillPage lastPage;
 
@@ -524,6 +533,25 @@ public class BillActivity extends BaseActivity {
                             showError(getString(msgRes), realDetail);
                         }
                     });
+                } catch (final CaptchaRequiredException e) {
+                    // v3.7.30: the portal wants a CAPTCHA code — show
+                    // the picture in-app instead of an error screen.
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            showCaptchaScreen(e.session);
+                        }
+                    });
+                } catch (final CaptchaRejectedException e) {
+                    // v3.7.30: the code was wrong — fresh picture, and
+                    // the honest message on top of it (never the
+                    // "reference number looks wrong" headline).
+                    pendingCaptchaError = getString(
+                            R.string.fetch_captcha_wrong);
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            loadBill(true);
+                        }
+                    });
                 } catch (final IOException e) {
                     // Real exception text: class + message, never a
                     // generic "failed".
@@ -695,6 +723,256 @@ public class BillActivity extends BaseActivity {
                     @Override public void onClick(View v) { finish(); }
                 }));
         content.addView(card);
+    }
+
+    // ------------------------------------------------------------------
+    // v3.7.30 CAPTCHA — picture shown in-app, code typed in-app
+    // ------------------------------------------------------------------
+
+    /**
+     * CAPTCHA screen: the portal's picture + a code box + submit /
+     * new-picture / back. The session (cookie jar + tokens) is the
+     * one the picture was downloaded with — the code is bound to it,
+     * so the submit path reuses it instead of fetching a new one.
+     */
+    private void showCaptchaScreen(final CaptchaSession session) {
+        content.removeAllViews();
+        LinearLayout card = card();
+        card.setPadding(dp(20), dp(24), dp(20), dp(20));
+
+        TextView title = new TextView(this);
+        title.setText(getString(R.string.captcha_title));
+        title.setTextSize(16);
+        title.setTextColor(Ds.ink());
+        Ds.heading(this, title);
+        title.setGravity(Gravity.CENTER);
+        card.addView(title);
+
+        // Wrong-code message from the previous attempt (if any).
+        if (pendingCaptchaError != null && !pendingCaptchaError.isEmpty()) {
+            TextView err = new TextView(this);
+            err.setText(pendingCaptchaError);
+            err.setTextSize(14);
+            err.setTextColor(Ds.red());
+            Ds.body(this, err, 600);
+            err.setGravity(Gravity.CENTER);
+            err.setPadding(0, dp(10), 0, 0);
+            card.addView(err);
+            pendingCaptchaError = null;
+        }
+
+        // The picture itself (downloaded with the session jar).
+        boolean picShown = false;
+        if (session != null && session.challenge != null
+                && session.challenge.imageBytes != null
+                && session.challenge.imageBytes.length > 0) {
+            Bitmap bmp = BitmapFactory.decodeByteArray(
+                    session.challenge.imageBytes, 0,
+                    session.challenge.imageBytes.length);
+            if (bmp != null) {
+                ImageView pic = new ImageView(this);
+                pic.setImageBitmap(bmp);
+                pic.setScaleType(
+                        android.widget.ImageView.ScaleType.FIT_CENTER);
+                pic.setBackgroundColor(Color.WHITE);
+                pic.setPadding(dp(8), dp(8), dp(8), dp(8));
+                LinearLayout.LayoutParams plp =
+                        new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                dp(120));
+                plp.topMargin = dp(16);
+                card.addView(pic, plp);
+                picShown = true;
+            }
+        }
+        if (!picShown) {
+            TextView noPic = new TextView(this);
+            noPic.setText(getString(R.string.captcha_no_image));
+            noPic.setTextSize(13);
+            noPic.setTextColor(Ds.muted());
+            Ds.body(this, noPic, 400);
+            noPic.setGravity(Gravity.CENTER);
+            noPic.setPadding(0, dp(16), 0, 0);
+            card.addView(noPic);
+        }
+
+        // Code box (same input style as Home).
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.HORIZONTAL);
+        wrap.setGravity(Gravity.CENTER_VERTICAL);
+        wrap.setBackgroundResource(R.drawable.ds_input_bg);
+        wrap.setPadding(dp(14), dp(6), dp(14), dp(6));
+        final EditText codeField = new EditText(this);
+        codeField.setHint(getString(R.string.captcha_hint));
+        codeField.setHintTextColor(Color.parseColor("#9DB3A8"));
+        codeField.setTextSize(17);
+        codeField.setTypeface(Fonts.jakarta(this, 600));
+        codeField.setTextColor(Ds.ink());
+        codeField.setBackgroundColor(Color.TRANSPARENT);
+        codeField.setPadding(0, dp(14), 0, dp(14));
+        codeField.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+        codeField.setSingleLine(true);
+        codeField.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        wrap.addView(codeField);
+        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        wlp.topMargin = dp(16);
+        card.addView(wrap, wlp);
+
+        TextView tip = new TextView(this);
+        tip.setText(getString(R.string.captcha_tip));
+        tip.setTextSize(12);
+        tip.setTextColor(Ds.muted());
+        Ds.body(this, tip, 400);
+        tip.setGravity(Gravity.CENTER);
+        tip.setPadding(0, dp(8), 0, 0);
+        card.addView(tip);
+
+        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(16));
+        card.addView(new View(this), sp);
+        card.addView(amberButton(getString(R.string.fetch_btn),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        String code = codeField.getText() == null ? ""
+                                : codeField.getText().toString().trim();
+                        if (code.isEmpty()) {
+                            Toast.makeText(BillActivity.this,
+                                    R.string.captcha_empty,
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        submitCaptcha(session, code);
+                    }
+                }));
+        LinearLayout.LayoutParams sp2 = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(10));
+        card.addView(new View(this), sp2);
+        card.addView(outlineButton(getString(R.string.captcha_refresh),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        // Fresh picture = fresh challenge (new session).
+                        loadBill(true);
+                    }
+                }));
+        card.addView(ghostButton(getString(R.string.back),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) { finish(); }
+                }));
+        content.addView(card);
+    }
+
+    /**
+     * Posts the form with the user's CAPTCHA code. No ad-gate here —
+     * the interstitial already ran for this fetch attempt. Error
+     * mapping mirrors doLoadBill so the same honest messages show.
+     */
+    private void submitCaptcha(final CaptchaSession session,
+            final String code) {
+        showLoading();
+        new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    final BillPage p = LescoBillFetcher.FetchOrchestrator
+                            .fetchWithCaptcha(
+                                    LescoBillFetcher.newTransport(),
+                                    new LescoBillFetcher.FetchOrchestrator
+                                            .OnlineChecker() {
+                                        @Override public boolean isOnline() {
+                                            return isOnlineNow();
+                                        }
+                                    },
+                                    session, code);
+                    BillCache.putHtml(BillActivity.this, cacheKey(),
+                            p.html, p.fetchPath);
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            showBillPage(p);
+                        }
+                    });
+                } catch (final CaptchaRequiredException e) {
+                    // Server re-challenged (fresh picture) — show it.
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            showCaptchaScreen(e.session);
+                        }
+                    });
+                } catch (final CaptchaRejectedException e) {
+                    // Wrong code — fresh picture + honest message.
+                    pendingCaptchaError = getString(
+                            R.string.fetch_captcha_wrong);
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            loadBill(true);
+                        }
+                    });
+                } catch (final BillErrorException e) {
+                    final int msgRes = e.kind == FetchKind.NOT_FOUND
+                            ? R.string.fetch_not_found
+                            : R.string.fetch_invalid_ref;
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            showError(getString(msgRes), e.getMessage());
+                        }
+                    });
+                } catch (final FetchException e) {
+                    if (e.kind == FetchKind.OFFLINE) {
+                        runOnUiThread(new Runnable() {
+                            @Override public void run() {
+                                showOfflineError();
+                            }
+                        });
+                        return;
+                    }
+                    final int msgRes;
+                    switch (e.kind) {
+                        case TOKEN_ERROR:
+                            msgRes = R.string.fetch_token_error;
+                            break;
+                        case ANTIFORGERY_ERROR:
+                            msgRes = R.string.fetch_antiforgery_error;
+                            break;
+                        case HTTP_ERROR:
+                            msgRes = R.string.fetch_http_error;
+                            break;
+                        case PARSE_EMPTY:
+                            msgRes = R.string.fetch_parse_empty;
+                            break;
+                        default:
+                            msgRes = LescoBillFetcher.isNetworkDown(e)
+                                    ? R.string.fetch_network_down
+                                    : R.string.fetch_failed;
+                            break;
+                    }
+                    final String realDetail = e.getMessage()
+                            + (e.debug.isEmpty() ? ""
+                                    : " | " + e.debug);
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            showError(getString(msgRes), realDetail);
+                        }
+                    });
+                } catch (final IOException e) {
+                    final int msgRes = LescoBillFetcher.isNetworkDown(e)
+                            ? R.string.fetch_network_down
+                            : R.string.fetch_failed;
+                    final String realDetail =
+                            e.getClass().getSimpleName()
+                                    + (e.getMessage() == null
+                                            ? "" : ": " + e.getMessage());
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            showError(getString(msgRes), realDetail);
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     /** v2.0.5: open the bill page in the user's own browser. */

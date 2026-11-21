@@ -33,6 +33,14 @@
     <string name="fetch_token_error">ویب سائٹ سے رابطہ تو ہو گیا لیکن فارم سمجھ نہیں آیا — تھوڑی دیر بعد دوبارہ کوشش کریں</string>
     <string name="fetch_parse_empty">ویب سائٹ سے جواب تو ملا لیکن بل پڑھا نہیں جا سکا — اگلی اپڈیٹ میں ٹھیک ہو جائے گا</string>
     <string name="fetch_antiforgery_error">ویب سائٹ نے سیکیورٹی کوکی مانگی جو بھیجی نہ جا سکی — دوبارہ کوشش کریں</string>
+    <!-- v3.7.30 CAPTCHA (Nov 2026): ویب سائٹ اب تصویر والا کوڈ دکھاتی ہے -->
+    <string name="captcha_title">تصویر میں لکھا کوڈ ٹائپ کریں</string>
+    <string name="captcha_hint">کیپچا کوڈ</string>
+    <string name="captcha_empty">پہلے تصویر والا کوڈ لکھیں</string>
+    <string name="fetch_captcha_wrong">کیپچا کوڈ غلط ہے — دوبارہ کوشش کریں</string>
+    <string name="captcha_refresh">نئی تصویر</string>
+    <string name="captcha_tip">کوڈ سمجھ نہیں آیا؟ نئی تصویر لیں۔</string>
+    <string name="captcha_no_image">تصویر نہیں کھلی — نئی تصویر کے لیے "نئی تصویر" دبائیں</string>
     <string name="report_btn">📤 رپورٹ بھیجیں</string>
     <string name="report_saved">رپورٹ بن گئی ہے — اب اسے چیٹ میں بھیج دیں</string>
     <string name="report_failed">رپورٹ نہیں بن سکی — دوبارہ کوشش کریں</string>

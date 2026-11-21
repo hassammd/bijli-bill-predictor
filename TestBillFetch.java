@@ -1044,6 +1044,9 @@ public class TestBillFetch {
         //      weekly streak ----
         runV360Tests();
 
+        // ---- v3.7.30: in-app PITC image CAPTCHA ----
+        runV3730CaptchaTests();
+
         System.out.println();
         if (failures == 0) {
             System.out.println("ALL TESTS PASSED");
@@ -2161,9 +2164,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"161\""), true);
+                man.contains("android:versionCode=\"162\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.29\""), true);
+                man.contains("android:versionName=\"3.7.30\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3866,9 +3869,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"161\""), true);
+                man.contains("android:versionCode=\"162\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.29\""), true);
+                man.contains("android:versionName=\"3.7.30\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4239,10 +4242,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"161\""),
+                manifest.contains("android:versionCode=\"162\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.29\""),
+                manifest.contains("android:versionName=\"3.7.30\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4401,10 +4404,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"161\""),
+                manifest.contains("android:versionCode=\"162\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.29\""),
+                manifest.contains("android:versionName=\"3.7.30\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4449,6 +4452,179 @@ public class TestBillFetch {
                 !hsrc.contains("android.widget.Switch")
                         && !gsrc.contains("android.widget.Switch"),
                 true);
+    }
+
+    // ---- v3.7.30 tests: in-app PITC image CAPTCHA ----
+
+    /** Synthetic form page WITH a CAPTCHA (mirrors the user's
+     *  2026-11-21 screenshot of bill.pitc.com.pk/lescobill: image +
+     *  refresh button + "Enter CAPTCHA code" input + red
+     *  "CAPTCHA is required" text). */
+    static String fakeCaptchaFormHtml() {
+        return "<html><head><title>LESCO Web Bill</title></head><body>"
+                + "<form>"
+                + "<input type=\"hidden\" name=\"__VIEWSTATE\" value=\"vs123\" />"
+                + "<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" value=\"vsg\" />"
+                + "<input type=\"hidden\" name=\"__EVENTVALIDATION\" value=\"ev\" />"
+                + "<input type=\"hidden\" name=\"__RequestVerificationToken\" value=\"T\" />"
+                + "<img id=\"captchaImg\" src=\"/lescobill/CaptchaImage?x=1\" alt=\"CAPTCHA\" />"
+                + "<input type=\"text\" name=\"CaptchaCode\" id=\"CaptchaCode\" />"
+                + "<span>Enter CAPTCHA code</span>"
+                + "<span style=\"color:red\">CAPTCHA is required</span>"
+                + "</form></body></html>";
+    }
+
+    static void runV3730CaptchaTests() throws Exception {
+        String digits = "06113530462901";
+        String base = "https://bill.pitc.com.pk/lescobill";
+        String billHtml = read("lesco-bill-full-SYNTHETIC.html");
+
+        // ---- 1. looksLikeCaptchaError ----
+        check("captcha invalid", LescoBillFetcher.looksLikeCaptchaError(
+                "Invalid CAPTCHA code. Please try again."), true);
+        check("captcha required", LescoBillFetcher.looksLikeCaptchaError(
+                "CAPTCHA is required"), true);
+        check("captcha incorrect", LescoBillFetcher.looksLikeCaptchaError(
+                "The CAPTCHA code you entered is incorrect"), true);
+        check("captcha label is not an error",
+                LescoBillFetcher.looksLikeCaptchaError(
+                        "Enter CAPTCHA code"), false);
+        check("captcha plain ref msg",
+                LescoBillFetcher.looksLikeCaptchaError(
+                        "The reference number looks wrong"), false);
+        check("captcha null",
+                LescoBillFetcher.looksLikeCaptchaError(null), false);
+
+        // ---- 2. challenge parsed from the form HTML ----
+        LescoBillFetcher.CaptchaChallenge ch =
+                LescoBillFetcher.parseCaptchaChallenge(
+                        fakeCaptchaFormHtml(), base);
+        check("captcha challenge found", ch != null, true);
+        check("captcha field from html", ch.fieldName, "CaptchaCode");
+        check("captcha field not guessed", ch.fieldNameGuessed, false);
+        check("captcha image url resolved", ch.imageUrl,
+                "https://bill.pitc.com.pk/lescobill/CaptchaImage?x=1");
+
+        // ---- 3. image but no code input -> guessed field name ----
+        String imgOnly = "<html><body><form>"
+                + "<img src=\"/CaptchaImage.axd\" alt=\"captcha\" />"
+                + "</form></body></html>";
+        LescoBillFetcher.CaptchaChallenge ch2 =
+                LescoBillFetcher.parseCaptchaChallenge(imgOnly, base);
+        check("captcha img-only found", ch2 != null, true);
+        check("captcha img-only field guessed", ch2.fieldNameGuessed, true);
+        check("captcha img-only field name", ch2.fieldName, "CaptchaCode");
+
+        // ---- 4. no CAPTCHA on the page -> null ----
+        check("captcha none on plain form",
+                LescoBillFetcher.parseCaptchaChallenge(
+                        fakeFormHtml("T"), base), null);
+        check("captcha none on null",
+                LescoBillFetcher.parseCaptchaChallenge(null, base), null);
+
+        // ---- 5. data: URI image decodes without network ----
+        byte[] dataBytes = LescoBillFetcher.downloadCaptchaImage(
+                new FakeTransport(),
+                "data:image/png;base64,QUI=",
+                new LescoBillFetcher.CookieJar());
+        check("captcha data uri bytes",
+                dataBytes == null ? null
+                        : new String(dataBytes, StandardCharsets.UTF_8),
+                "AB");
+
+        // ---- 6. "Invalid CAPTCHA code" NEVER becomes INVALID_REF ----
+        String wrongHtml = "<html><head><title>LESCO Web Bill</title></head>"
+                + "<body><div id=\"ua\">Invalid CAPTCHA code. "
+                + "Please try again.</div></body></html>";
+        boolean rejected = false;
+        String rejMsg = null;
+        try {
+            LescoBillFetcher.parseBillHtml(wrongHtml, digits);
+        } catch (LescoBillFetcher.CaptchaRejectedException e) {
+            rejected = true;
+            rejMsg = e.getMessage();
+        }
+        check("captcha wrong throws CaptchaRejected", rejected, true);
+        check("captcha wrong message is the server text",
+                rejMsg, "Invalid CAPTCHA code. Please try again.");
+
+        // ---- 7. POST body carries the code field ----
+        String[] tokens = {"vs123", "vsg", "ev", "T"};
+        String postBody = LescoBillFetcher.buildPostBodyWithCaptcha(
+                tokens, "refno", digits, "U", "CaptchaCode", "W86E5T");
+        check("captcha post has code field",
+                postBody.contains("CaptchaCode=W86E5T"), true);
+        check("captcha post keeps viewstate",
+                postBody.contains("__VIEWSTATE=vs123"), true);
+        check("captcha post keeps search",
+                postBody.contains("searchTextBox=" + digits), true);
+
+        // ---- 8. full scripted flow: challenge -> resume -> bill ----
+        FakeTransport t = new FakeTransport();
+        t.add(200, fakeFormHtml("T"), base, "Set-Cookie", FAKE_COOKIE);
+        t.add(200, "<html><body>no bill here</body></html>",
+                base + "/general?refno=" + digits);
+        t.add(200, "<html><body>no bill here</body></html>",
+                base + "/general?refno=" + digits + "U");
+        t.add(200, fakeCaptchaFormHtml(), base, "Set-Cookie", FAKE_COOKIE);
+        t.add(200, "FAKEPNG", base + "/CaptchaImage?x=1");
+        LescoBillFetcher.CaptchaSession session = null;
+        boolean requiredThrown = false;
+        try {
+            LescoBillFetcher.fetchBillPageWith(t, digits + "U");
+        } catch (LescoBillFetcher.CaptchaRequiredException e) {
+            requiredThrown = true;
+            session = e.session;
+        }
+        check("captcha flow throws CaptchaRequired", requiredThrown, true);
+        check("captcha flow session kept", session != null, true);
+        check("captcha flow field", session.challenge.fieldName,
+                "CaptchaCode");
+        check("captcha flow field not guessed",
+                session.challenge.fieldNameGuessed, false);
+        check("captcha flow image bytes",
+                new String(session.challenge.imageBytes,
+                        StandardCharsets.UTF_8),
+                "FAKEPNG");
+        check("captcha flow search mode", session.searchMode, "refno");
+        check("captcha flow search text", session.searchText, digits);
+        check("captcha flow no POST before code",
+                !t.seenMethods.contains("POST"), true);
+        check("captcha flow exchanges", t.exchanges, 5);
+
+        // Resume with the typed code: POST goes out with the session
+        // cookie + the code field, and the bill parses.
+        t.add(200, billHtml, base);
+        LescoBillFetcher.BillPage page =
+                LescoBillFetcher.FetchOrchestrator.fetchWithCaptcha(t,
+                    new LescoBillFetcher.FetchOrchestrator.OnlineChecker() {
+                        @Override public boolean isOnline() { return true; }
+                    }, session, "W86E5T");
+        check("captcha resume parseOk", page.parseOk, true);
+        check("captcha resume amount", page.info.amount, "9109.20");
+        String sentBody = t.seenBodies.get(t.seenBodies.size() - 1);
+        check("captcha resume post has code",
+                sentBody != null
+                        && sentBody.contains("CaptchaCode=W86E5T"), true);
+        String sentCookie =
+                t.seenCookies.get(t.seenCookies.size() - 1);
+        check("captcha resume post sent session cookie",
+                sentCookie != null
+                        && sentCookie.contains("__RequestVerificationToken"),
+                true);
+
+        // ---- 9. wrong code on resume -> CaptchaRejected ----
+        t.add(200, wrongHtml, base);
+        boolean rejected2 = false;
+        try {
+            LescoBillFetcher.FetchOrchestrator.fetchWithCaptcha(t,
+                new LescoBillFetcher.FetchOrchestrator.OnlineChecker() {
+                    @Override public boolean isOnline() { return true; }
+                }, session, "XXXXXX");
+        } catch (LescoBillFetcher.CaptchaRejectedException e) {
+            rejected2 = true;
+        }
+        check("captcha resume wrong code rejected", rejected2, true);
     }
 
     static void addPoint(

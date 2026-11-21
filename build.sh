@@ -1,4 +1,17 @@
 #!/bin/bash
+# Bijli Bill v3.7.30 (162) — in-app PITC image CAPTCHA (Tareeqa 1):
+#   - LescoBillFetcher stops at the form GET when the page carries a
+#     CAPTCHA, throws CaptchaRequiredException with the live session
+#     (same cookie jar + tokens + downloaded picture); BillActivity
+#     shows the picture + code box in-app; fetchWithCaptcha() POSTs
+#     the same form PLUS the code field (field name + image URL
+#     parsed from the form HTML, never hardcoded).
+#   - A server "Invalid CAPTCHA code" rejection now throws
+#     CaptchaRejectedException and shows "CAPTCHA ghalat hai" — it
+#     NEVER becomes the misleading "reference number looks wrong".
+#   - PITC is geo-blocked from this VM: the live fetch is NOT tested
+#     here; headless tests (TestBillFetch) cover the whole flow with
+#     a scripted transport. User tests on their own phone.
 # Bijli Bill v3.6.0 — ZERO-INPUT GUARD + SUNDAY REMINDER build (manual APK + AAB, no Gradle).
 # v3.6.0 changes:
 #   - Guard works with ZERO input: auto-projection from the last

@@ -53,7 +53,8 @@ import java.util.regex.Pattern;
  * field, the letter (or default 'U') decides the U/R dropdown form field.
  * No separate visible U/R selector is needed.
  *
- * How the fetch works (ASP.NET WebForms, no CAPTCHA observed as of Sep 2026):
+ * How the fetch works (ASP.NET WebForms; PITC added an image CAPTCHA
+ * in Nov 2026 — see the v3.7.30 note below):
  *   1. GET the bill page with a browser User-Agent; capture the hidden form
  *      tokens: __VIEWSTATE, __VIEWSTATEGENERATOR, __EVENTVALIDATION
  *      (and __RequestVerificationToken when present). If any REQUIRED
@@ -94,6 +95,22 @@ import java.util.regex.Pattern;
  * in searchTextBox. The exact radio value "custid" is best-effort and NOT
  * live-verified because bill.pitc.com.pk is unreachable from outside
  * Pakistan (Sep 2026).
+ *
+ * v3.7.30 CAPTCHA (Nov 2026): PITC put a 6-character distorted-image
+ * CAPTCHA on the search form (user screenshot of bill.pitc.com.pk/
+ * lescobill: image + refresh button + "Enter CAPTCHA code" input).
+ * The form-POST flow now stops at the GET when the page carries a
+ * CAPTCHA and throws CaptchaRequiredException with a CaptchaSession
+ * (same cookie jar + tokens + downloaded image). The UI shows the
+ * picture in-app, the user types the code, and fetchWithCaptcha()
+ * POSTs the same form PLUS the code field (field name + image URL
+ * parsed from the form HTML, never hardcoded; a fallback field name
+ * is flagged on the session). A server "Invalid CAPTCHA code"
+ * rejection throws CaptchaRejectedException — it NEVER becomes
+ * INVALID_REF ("reference number looks wrong" was misleading: the
+ * reference was fine, the CAPTCHA was the problem).
+ * The direct /general legs run BEFORE the form-POST leg, so a bill
+ * reachable without the form still fetches with no CAPTCHA shown.
  *
  * Plain Java only (no Android APIs) so it is unit-testable on the JVM.
  */
@@ -276,6 +293,74 @@ public final class LescoBillFetcher {
         public BillErrorException(FetchKind kind, String message) {
             super(message);
             this.kind = kind;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // v3.7.30 CAPTCHA (Nov 2026): PITC put a 6-character distorted
+    // image CAPTCHA on the search form (user screenshot of
+    // bill.pitc.com.pk/lescobill: image + refresh button + "Enter
+    // CAPTCHA code" input). The form-POST flow stops at the GET when
+    // the page carries one and throws CaptchaRequiredException with
+    // the live session; the UI shows the picture in-app, the user
+    // types the code, and fetchWithCaptcha() POSTs the same form
+    // PLUS the code field. A server "Invalid CAPTCHA code" rejection
+    // throws CaptchaRejectedException — it NEVER becomes INVALID_REF
+    // (the old "reference number looks wrong" headline was
+    // misleading: the reference was fine, the CAPTCHA was the
+    // problem).
+    // ------------------------------------------------------------------
+
+    /** One CAPTCHA challenge, parsed from the form page (never
+     *  hardcoded: field name + image URL come from the HTML). */
+    public static final class CaptchaChallenge {
+        /** Form field name for the typed code. */
+        public String fieldName;
+        /** True when fieldName came from the fallback list below, not
+         *  from the form HTML — the phone test must confirm it. */
+        public boolean fieldNameGuessed;
+        /** Absolute image URL, or a data: URI. Null when the page had
+         *  a code input but no image tag. */
+        public String imageUrl;
+        /** Downloaded image bytes (PNG/JPEG), or null when the image
+         *  could not be fetched. */
+        public byte[] imageBytes;
+        /** MIME type from the image response, may be null. */
+        public String imageContentType;
+    }
+
+    /** Live session for one CAPTCHA round-trip: the cookie jar +
+     *  tokens the picture was downloaded with. The code is bound to
+     *  this session — the resume POST must reuse it, never re-GET. */
+    public static final class CaptchaSession {
+        public CookieJar jar;
+        public String[] tokens;
+        public String pageUrl;
+        public CaptchaChallenge challenge;
+        public String searchMode;
+        public String searchText;
+        public String urbanRural;
+        public String refForInfo;
+    }
+
+    /** Thrown when the form page carries a CAPTCHA and no code was
+     *  supplied yet. Carries the session the UI needs to show the
+     *  picture and resume the fetch. */
+    public static final class CaptchaRequiredException extends IOException {
+        public final CaptchaSession session;
+        public CaptchaRequiredException(CaptchaSession session) {
+            super("captcha required");
+            this.session = session;
+        }
+    }
+
+    /** Thrown when the portal rejects the supplied CAPTCHA code.
+     *  The message is the server's own text. The UI shows the honest
+     *  "CAPTCHA ghalat hai" message and re-shows the CAPTCHA screen
+     *  with a fresh picture — never the reference-number headline. */
+    public static final class CaptchaRejectedException extends IOException {
+        public CaptchaRejectedException(String serverMessage) {
+            super(serverMessage);
         }
     }
 
@@ -783,7 +868,8 @@ public final class LescoBillFetcher {
      * the caller can treat the cache as stale and refetch.
      */
     public static BillPage pageFromHtml(String html, String refForInfo,
-            String fetchPath) throws BillErrorException, FetchException {
+            String fetchPath) throws BillErrorException, FetchException,
+            CaptchaRejectedException {
         BillPage p = new BillPage();
         p.html = html == null ? "" : html;
         p.fetchPath = fetchPath == null ? "" : fetchPath;
@@ -941,6 +1027,52 @@ public final class LescoBillFetcher {
                 return p;
             }
             return fetchBillPageWith(t, typedRef, disco);
+        }
+
+        /**
+         * v3.7.30: resumes a CAPTCHA-challenged fetch with the code
+         * the user typed. Posts straight to the form with the
+         * challenge session's cookie jar + tokens (a fresh GET would
+         * invalidate the code). The session already knows the page
+         * URL, search mode and reference, so no ref/mode/disco is
+         * needed here. A wrong code throws CaptchaRejectedException;
+         * a re-challenge throws CaptchaRequiredException with a fresh
+         * session. Zero bill fields becomes parseOk=false, like the
+         * normal chain — never a throw.
+         */
+        public static BillPage fetchWithCaptcha(HttpTransport t,
+                OnlineChecker online, CaptchaSession session,
+                String captchaCode) throws IOException {
+            if (online != null && !online.isOnline()) {
+                throw new FetchException(FetchKind.OFFLINE, "offline",
+                        "connectivity pre-check: no internet, "
+                                + "no request sent");
+            }
+            if (session == null || session.challenge == null) {
+                throw new IllegalArgumentException(
+                        "captcha session required");
+            }
+            FetchDebug dbg = newFetchDebug(session.refForInfo,
+                    "refno".equals(session.searchMode) ? "ref" : "cid");
+            dbg.httpUsed = session.pageUrl != null
+                    && session.pageUrl.startsWith("http://")
+                            ? "http" : "https";
+            try {
+                BillInfo info =
+                        doFetchWithCaptcha(t, session, captchaCode, dbg);
+                dbg.fetchPath = "form-post";
+                lastDebug = dbg;
+                return fillPage(info, true, "form-post", dbg);
+            } catch (FetchException e) {
+                if (e.kind == FetchKind.PARSE_EMPTY) {
+                    dbg.fetchPath = "form-post";
+                    lastDebug = dbg;
+                    BillInfo sparse = new BillInfo();
+                    sparse.referenceNumber = session.refForInfo;
+                    return fillPage(sparse, false, "form-post", dbg);
+                }
+                throw e;
+            }
         }
     }
 
@@ -1169,6 +1301,29 @@ public final class LescoBillFetcher {
         checkHttpOk(get, "form GET");
         String[] tokens = requireTokens(get.body);
 
+        // v3.7.30 (Nov 2026): PITC added an image CAPTCHA to the
+        // search form. When the form page carries one, STOP here —
+        // the user must see the picture and type the code. The
+        // session (cookie jar + tokens) travels with the exception:
+        // the code is bound to this session, so the resume POST must
+        // reuse it — a fresh GET would invalidate the code.
+        CaptchaChallenge challenge =
+                parseCaptchaChallenge(get.body, pageUrl);
+        if (challenge != null) {
+            challenge.imageBytes =
+                    downloadCaptchaImage(t, challenge.imageUrl, jar);
+            CaptchaSession session = new CaptchaSession();
+            session.jar = jar;
+            session.tokens = tokens;
+            session.pageUrl = pageUrl;
+            session.challenge = challenge;
+            session.searchMode = searchMode;
+            session.searchText = searchText;
+            session.urbanRural = urbanRural;
+            session.refForInfo = refForInfo;
+            throw new CaptchaRequiredException(session);
+        }
+
         // Step 2: POST the search form back. searchTextBox carries digits
         // only; the U/R choice is its own dropdown field sent as "" (U)
         // or "R" — never an explicit "U" (mirrors the working reference
@@ -1206,6 +1361,79 @@ public final class LescoBillFetcher {
     }
 
     /**
+     * v3.7.30: the search-form POST body WITH the CAPTCHA code
+     * appended (same fields as {@link #buildPostBody} plus the code
+     * field). The field name comes from the challenge (parsed from
+     * the form HTML, or the flagged fallback).
+     */
+    public static String buildPostBodyWithCaptcha(String[] tokens,
+            String searchMode, String searchText, String urbanRural,
+            String captchaField, String captchaCode) {
+        StringBuilder body = new StringBuilder(
+                buildPostBody(tokens, searchMode, searchText, urbanRural));
+        addParam(body,
+                captchaField == null || captchaField.isEmpty()
+                        ? CAPTCHA_FIELD_FALLBACKS[0] : captchaField,
+                captchaCode == null ? "" : captchaCode);
+        return body.toString();
+    }
+
+    /**
+     * v3.7.30: resumes a CAPTCHA-challenged form POST with the code
+     * the user typed. Reuses the session's cookie jar + tokens from
+     * the challenge GET — the code is bound to that session, so this
+     * does NOT re-GET the form. A server "Invalid CAPTCHA code"
+     * rejection surfaces as CaptchaRejectedException (via the
+     * parsers); a transport failure surfaces honestly (the user
+     * retries for a fresh picture — no silent HTTP fallback here,
+     * the original attempt already did its fallback dance).
+     */
+    public static BillInfo doFetchWithCaptcha(HttpTransport t,
+            CaptchaSession session, String captchaCode, FetchDebug dbg)
+            throws IOException {
+        if (session == null || session.challenge == null) {
+            throw new IllegalArgumentException("captcha session required");
+        }
+        String code = captchaCode == null ? "" : captchaCode.trim();
+        String bodyStr = buildPostBodyWithCaptcha(session.tokens,
+                session.searchMode, session.searchText,
+                session.urbanRural, session.challenge.fieldName, code);
+        HttpResult post = requestWith(t, session.pageUrl, "POST", bodyStr,
+                session.jar);
+        checkHttpOk(post, "search POST (captcha)");
+
+        String resultHtml = post.body;
+        int byteLen = resultHtml.getBytes(StandardCharsets.UTF_8).length;
+        String debugMeta = "HTTP " + post.status + ", " + byteLen + " bytes";
+
+        dbg.fetchPath = "form-post";
+        dbg.httpUsed = session.pageUrl != null
+                && session.pageUrl.startsWith("http://")
+                        ? "http" : "https";
+        dbg.httpStatus = post.status;
+        dbg.finalUrl = post.finalUrl;
+        dbg.responseBytes = byteLen;
+        dbg.title = pageTitle(resultHtml);
+        dbg.divUaPresent = errorDivText(resultHtml) != null;
+        // NB the debug summary records the CAPTCHA field NAME and the
+        // code LENGTH only — never the typed code itself.
+        dbg.postSummary = postFieldSummary(session.tokens,
+                session.searchMode, session.searchText,
+                session.urbanRural)
+                + "; " + session.challenge.fieldName
+                + "[len=" + code.length()
+                + (session.challenge.fieldNameGuessed
+                        ? ", field-name-guessed" : "")
+                + "]";
+        dbg.cookiesSent = session.jar.names().toString();
+        dbg.redirectHops = post.hops;
+        dbg.rawHtml = resultHtml;
+        lastDebug = dbg;
+
+        return parseBillHtml(resultHtml, session.refForInfo, debugMeta);
+    }
+
+    /**
      * Parses a PITC bill-result page (pure function, no network).
      * Throws BillErrorException when the page carries an error
      * (div#ua, or an error phrase found anywhere in the response).
@@ -1213,7 +1441,8 @@ public final class LescoBillFetcher {
      * bill fields were recognized — the UI must never show a blank bill.
      */
     public static BillInfo parseBillHtml(String html, String refNo)
-            throws BillErrorException, FetchException {
+            throws BillErrorException, FetchException,
+            CaptchaRejectedException {
         return parseBillHtml(html, refNo, "no-meta");
     }
 
@@ -1222,7 +1451,8 @@ public final class LescoBillFetcher {
      * (HTTP status, byte length) included in the PARSE_EMPTY debug line.
      */
     public static BillInfo parseBillHtml(String html, String refNo, String debugMeta)
-            throws BillErrorException, FetchException {
+            throws BillErrorException, FetchException,
+            CaptchaRejectedException {
         boolean uaPresent = errorDivText(html) != null;
 
         // 0. Anti-forgery rejection FIRST: the portal prints this as
@@ -1232,6 +1462,14 @@ public final class LescoBillFetcher {
             throw new FetchException(FetchKind.ANTIFORGERY_ERROR,
                     "anti-forgery cookie rejected by portal",
                     debugMeta + ", anti-forgery cookie missing");
+        }
+
+        // v3.7.30: CAPTCHA rejection — must NEVER become INVALID_REF
+        // (the "reference number looks wrong" headline was wrong: the
+        // reference was fine, the CAPTCHA code was the problem).
+        String captchaErr = captchaErrorText(html);
+        if (captchaErr != null) {
+            throw new CaptchaRejectedException(captchaErr);
         }
 
         // v2.0.6: NEW LESCO bill design — checked BEFORE the old
@@ -1308,6 +1546,254 @@ public final class LescoBillFetcher {
     }
 
     // ------------------------------------------------------------------
+    // v3.7.30 CAPTCHA helpers (pure functions, no network except the
+    // image download, which reuses the session cookie jar)
+    // ------------------------------------------------------------------
+
+    /** Common CAPTCHA code field names — FALLBACK ONLY, used when the
+     *  form HTML has a CAPTCHA image but no code input to read the
+     *  name from. parseCaptchaChallenge() flags the guess on the
+     *  challenge (fieldNameGuessed) so the phone test can confirm it.
+     *  The HTML is ALWAYS parsed first; this list is never the
+     *  primary source. */
+    private static final String[] CAPTCHA_FIELD_FALLBACKS = {
+            "CaptchaCode", "captcha", "Captcha", "captchaCode",
+            "CaptchaInput", "CaptchaText"
+    };
+
+    /**
+     * True when a portal message says the CAPTCHA code was wrong or
+     * missing (case-insensitive). The "captcha" word alone is NOT
+     * enough — the form page itself says "Enter CAPTCHA code" and
+     * "CAPTCHA is required" as a label, so an error word must ride
+     * along. Used to keep CAPTCHA failures out of the INVALID_REF
+     * bucket.
+     */
+    public static boolean looksLikeCaptchaError(String text) {
+        if (text == null) return false;
+        String t = text.toLowerCase();
+        if (!t.contains("captcha")) return false;
+        return t.contains("invalid") || t.contains("incorrect")
+                || t.contains("wrong") || t.contains("required")
+                || t.contains("mismatch") || t.contains("expired")
+                || t.contains("does not match") || t.contains("not match")
+                || t.contains("try again");
+    }
+
+    /**
+     * The portal's CAPTCHA rejection text on a result page, or null.
+     * Checks the div#ua error box first, then the broad error-phrase
+     * scan. Callers run this BEFORE any other error classification so
+     * a CAPTCHA failure never becomes "reference number looks wrong".
+     */
+    public static String captchaErrorText(String html) {
+        String err = errorDivText(html);
+        if (err != null && looksLikeCaptchaError(err)) return err;
+        String snippet = scanForErrorText(html);
+        if (snippet != null && looksLikeCaptchaError(snippet)) {
+            return snippet;
+        }
+        return null;
+    }
+
+    /**
+     * Parses the CAPTCHA challenge from a form page, or null when the
+     * page has no CAPTCHA. The image URL and the code field name come
+     * from the HTML (image src / input name containing "captcha",
+     * case-insensitive); the field name falls back to
+     * {@link #CAPTCHA_FIELD_FALLBACKS} only when the page shows an
+     * image but no code input (flagged: fieldNameGuessed).
+     *
+     * @param html    form page HTML
+     * @param pageUrl page URL (relative image URLs resolve against it)
+     */
+    public static CaptchaChallenge parseCaptchaChallenge(String html,
+            String pageUrl) {
+        if (html == null) return null;
+        String imgSrc = findCaptchaImageSrc(html);
+        String field = findCaptchaFieldName(html);
+        if (imgSrc == null && field == null) return null;
+        CaptchaChallenge c = new CaptchaChallenge();
+        c.fieldName = field;
+        c.fieldNameGuessed = false;
+        if (c.fieldName == null || c.fieldName.isEmpty()) {
+            c.fieldName = CAPTCHA_FIELD_FALLBACKS[0];
+            c.fieldNameGuessed = true;
+        }
+        c.imageUrl = imgSrc == null ? null
+                : resolveCaptchaImageUrl(pageUrl, imgSrc);
+        return c;
+    }
+
+    /** src of the first &lt;img&gt; whose src/id/class/alt mentions
+     *  "captcha" (case-insensitive), preferring one whose src itself
+     *  contains it; null when the page has no CAPTCHA image. */
+    public static String findCaptchaImageSrc(String html) {
+        if (html == null) return null;
+        Matcher tag = Pattern.compile("(?i)<img\\b[^>]*>").matcher(html);
+        String fallback = null;
+        while (tag.find()) {
+            String t = tag.group();
+            String src = attrValue(t, "src");
+            if (src == null || src.isEmpty()) continue;
+            String id = attrValue(t, "id");
+            String cls = attrValue(t, "class");
+            String alt = attrValue(t, "alt");
+            String hay = (src + " " + (id == null ? "" : id) + " "
+                    + (cls == null ? "" : cls) + " "
+                    + (alt == null ? "" : alt)).toLowerCase();
+            if (!hay.contains("captcha")) continue;
+            if (src.toLowerCase().contains("captcha")
+                    || src.startsWith("data:")) {
+                return src;
+            }
+            if (fallback == null) fallback = src;
+        }
+        return fallback;
+    }
+
+    /** name (else id) of the first &lt;input&gt; whose name/id mentions
+     *  "captcha" (case-insensitive); null when the form has no code
+     *  input. */
+    public static String findCaptchaFieldName(String html) {
+        if (html == null) return null;
+        Matcher tag = Pattern.compile("(?i)<input\\b[^>]*>").matcher(html);
+        while (tag.find()) {
+            String t = tag.group();
+            String name = attrValue(t, "name");
+            String id = attrValue(t, "id");
+            String hay = ((name == null ? "" : name) + " "
+                    + (id == null ? "" : id)).toLowerCase();
+            if (!hay.contains("captcha")) continue;
+            if (name != null && !name.isEmpty()) return name;
+            if (id != null && !id.isEmpty()) return id;
+        }
+        return null;
+    }
+
+    /** Value of an attribute on a single tag (double or single
+     *  quotes), or null. */
+    private static String attrValue(String tag, String attr) {
+        Matcher m = Pattern.compile("(?i)\\b" + attr
+                + "\\s*=\\s*\"([^\"]*)\"").matcher(tag);
+        if (m.find()) return m.group(1);
+        Matcher m2 = Pattern.compile("(?i)\\b" + attr
+                + "\\s*=\\s*'([^']*)'").matcher(tag);
+        if (m2.find()) return m2.group(1);
+        return null;
+    }
+
+    /** Absolute URL for a CAPTCHA image src: data: URIs and absolute
+     *  URLs pass through; relative paths resolve against the page. */
+    public static String resolveCaptchaImageUrl(String pageUrl,
+            String src) {
+        if (src == null) return null;
+        if (src.startsWith("data:") || src.startsWith("http://")
+                || src.startsWith("https://")) {
+            return src;
+        }
+        try {
+            return new URL(new URL(pageUrl), src).toString();
+        } catch (Exception e) {
+            return src;
+        }
+    }
+
+    /**
+     * Downloads the CAPTCHA image with the session cookie jar (the
+     * picture is bound to the session — a bare GET without the jar
+     * would fetch a different code). Returns the raw bytes, or null
+     * when the image could not be fetched — the challenge survives
+     * (the UI offers a refresh) instead of failing the whole fetch.
+     * Data: URIs are decoded inline, no network. Never throws.
+     */
+    public static byte[] downloadCaptchaImage(HttpTransport t,
+            String imageUrl, CookieJar jar) {
+        if (imageUrl == null || imageUrl.isEmpty()) return null;
+        if (imageUrl.startsWith("data:")) return decodeDataUri(imageUrl);
+        try {
+            String currentUrl = imageUrl;
+            int hops = 0;
+            while (true) {
+                List<String[]> reqHeaders = new ArrayList<String[]>();
+                reqHeaders.add(new String[]{"User-Agent", USER_AGENT});
+                reqHeaders.add(new String[]{"Accept-Language",
+                        ACCEPT_LANGUAGE});
+                if (jar != null && !jar.isEmpty()) {
+                    reqHeaders.add(new String[]{"Cookie",
+                            jar.headerValue()});
+                }
+                RawResponse resp =
+                        t.exchangeBytes(currentUrl, reqHeaders);
+                if (jar != null) {
+                    jar.absorb(setCookieHeaders(resp.headers));
+                }
+                if (isRedirectStatus(resp.status)) {
+                    if (hops >= MAX_REDIRECTS) return null;
+                    String location =
+                            firstHeader(resp.headers, "Location");
+                    if (location == null || location.isEmpty()) {
+                        return null;
+                    }
+                    currentUrl = new URL(new URL(currentUrl), location)
+                            .toString();
+                    hops++;
+                    continue;
+                }
+                if (resp.status >= 400) return null;
+                if (resp.bodyBytes == null
+                        || resp.bodyBytes.length == 0) {
+                    return null;
+                }
+                return resp.bodyBytes;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Decodes a data:[mime];base64,... URI, or null. Hand-rolled
+     *  base64 (no java.util.Base64 — that needs API 26+, minSdk is
+     *  24; no android.util.Base64 — the fetcher is plain JVM Java). */
+    private static byte[] decodeDataUri(String uri) {
+        int comma = uri.indexOf(',');
+        if (comma < 0) return null;
+        String meta = uri.substring(5, comma);
+        if (!meta.contains(";base64")) return null;
+        return decodeBase64(uri.substring(comma + 1));
+    }
+
+    /** Minimal standard-base64 decoder (whitespace-tolerant). */
+    private static byte[] decodeBase64(String s) {
+        if (s == null) return null;
+        String t = s.replaceAll("\\s+", "")
+                .replace('-', '+').replace('_', '/');
+        while (t.endsWith("=")) t = t.substring(0, t.length() - 1);
+        if (t.isEmpty() || t.length() % 4 == 1) return null;
+        java.io.ByteArrayOutputStream out =
+                new java.io.ByteArrayOutputStream();
+        int acc = 0;
+        int bits = 0;
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            int v;
+            if (c >= 'A' && c <= 'Z') v = c - 'A';
+            else if (c >= 'a' && c <= 'z') v = c - 'a' + 26;
+            else if (c >= '0' && c <= '9') v = c - '0' + 52;
+            else if (c == '+') v = 62;
+            else if (c == '/') v = 63;
+            else return null;
+            acc = (acc << 6) | v;
+            bits += 6;
+            if (bits >= 8) {
+                bits -= 8;
+                out.write((acc >> bits) & 0xFF);
+            }
+        }
+        return out.toByteArray();
+    }
+
+    // ------------------------------------------------------------------
     // v2.0.5 generic full-bill parser (PITC /general page)
     // ------------------------------------------------------------------
 
@@ -1335,11 +1821,18 @@ public final class LescoBillFetcher {
      * then div#ua, then broad error-phrase scan.
      */
     public static BillInfo parseFullBillHtml(String html, String refNo)
-            throws BillErrorException, FetchException {
+            throws BillErrorException, FetchException,
+            CaptchaRejectedException {
         if (looksLikeAntiForgery(html)) {
             throw new FetchException(FetchKind.ANTIFORGERY_ERROR,
                     "anti-forgery cookie rejected by portal",
                     "direct /general leg, anti-forgery cookie missing");
+        }
+        // v3.7.30: CAPTCHA rejection — never INVALID_REF (see
+        // parseBillHtml).
+        String captchaErr = captchaErrorText(html);
+        if (captchaErr != null) {
+            throw new CaptchaRejectedException(captchaErr);
         }
         // v2.0.6: new bill design first (same reason as in
         // parseBillHtml); the generic phases below stay as fallback.
@@ -1521,11 +2014,18 @@ public final class LescoBillFetcher {
      * Certificate Not Found!" on every real bill.
      */
     public static BillInfo parseNewBillHtml(String html, String refNo)
-            throws BillErrorException, FetchException {
+            throws BillErrorException, FetchException,
+            CaptchaRejectedException {
         if (looksLikeAntiForgery(html)) {
             throw new FetchException(FetchKind.ANTIFORGERY_ERROR,
                     "anti-forgery cookie rejected by portal",
                     "new-design bill page, anti-forgery cookie missing");
+        }
+        // v3.7.30: CAPTCHA rejection — never INVALID_REF (see
+        // parseBillHtml).
+        String captchaErr = captchaErrorText(html);
+        if (captchaErr != null) {
+            throw new CaptchaRejectedException(captchaErr);
         }
         String error = errorDivText(html);
         if (error != null && !error.isEmpty()) {
@@ -2184,7 +2684,13 @@ public final class LescoBillFetcher {
         String[] phrases = {
             "does not belong", "doesn't belong", "record not found",
             "not found", "invalid reference", "invalid consumer",
-            "no such record"
+            "no such record",
+            // v3.7.30: CAPTCHA rejections — found here when the error
+            // is not inside div#ua. (Bare "captcha code" is NOT a
+            // phrase: the form label says "Enter CAPTCHA code".)
+            "invalid captcha", "incorrect captcha", "wrong captcha",
+            "captcha is required", "captcha mismatch",
+            "captcha expired"
         };
         String text = cleanText(html).toLowerCase();
         for (String p : phrases) {
@@ -2315,6 +2821,21 @@ public final class LescoBillFetcher {
     public interface HttpTransport {
         RawResponse exchange(String url, String method, String body,
                 List<String[]> reqHeaders) throws IOException;
+
+        /**
+         * Raw-bytes exchange (v3.7.30: the CAPTCHA image). The default
+         * implementation re-encodes the text body as UTF-8 — correct
+         * only for text; the production transport overrides it to
+         * read true bytes. Headless test transports inherit the
+         * default, so scripted "images" are just strings.
+         */
+        default RawResponse exchangeBytes(String url,
+                List<String[]> reqHeaders) throws IOException {
+            RawResponse r = exchange(url, "GET", null, reqHeaders);
+            r.bodyBytes = r.body == null ? new byte[0]
+                    : r.body.getBytes(StandardCharsets.UTF_8);
+            return r;
+        }
     }
 
     /** One raw exchange: status + headers + body + final URL. */
@@ -2323,6 +2844,9 @@ public final class LescoBillFetcher {
         public java.util.Map<String, List<String>> headers;
         public String body;
         public String finalUrl;
+        /** Raw bytes (v3.7.30: the CAPTCHA image); null unless
+         *  exchangeBytes filled it. */
+        public byte[] bodyBytes;
     }
 
     /** Result of one request() call (after following redirects). */
@@ -2495,6 +3019,25 @@ public final class LescoBillFetcher {
             c.disconnect();
             return r;
         }
+
+        /** v3.7.30: true raw bytes for the CAPTCHA image (a PNG/JPEG
+         *  through the text reader would corrupt it). */
+        @Override
+        public RawResponse exchangeBytes(String url,
+                List<String[]> reqHeaders) throws IOException {
+            HttpURLConnection c = open(url, "GET");
+            for (String[] h : reqHeaders) {
+                c.setRequestProperty(h[0], h[1]);
+            }
+            RawResponse r = new RawResponse();
+            r.status = c.getResponseCode();
+            r.headers = c.getHeaderFields();
+            r.finalUrl = c.getURL().toString();
+            r.bodyBytes = readBytes(c, r.status);
+            r.body = "";
+            c.disconnect();
+            return r;
+        }
     }
 
     private static HttpURLConnection open(String url, String method)
@@ -2526,6 +3069,21 @@ public final class LescoBillFetcher {
         while ((n = r.read(buf)) != -1) sb.append(buf, 0, n);
         r.close();
         return sb.toString();
+    }
+
+    /** v3.7.30: raw-bytes twin of readBody (CAPTCHA image). */
+    private static byte[] readBytes(HttpURLConnection c, int status)
+            throws IOException {
+        InputStream in =
+                status >= 400 ? c.getErrorStream() : c.getInputStream();
+        if (in == null) return new byte[0];
+        java.io.ByteArrayOutputStream out =
+                new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+        in.close();
+        return out.toByteArray();
     }
 
     private static void addParam(StringBuilder body, String name, String value) {

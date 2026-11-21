@@ -33,6 +33,14 @@
     <string name="fetch_token_error">Connected to the website but the form could not be understood — please try again in a little while</string>
     <string name="fetch_parse_empty">The website replied but the bill could not be read — the next update will fix this</string>
     <string name="fetch_antiforgery_error">The website asked for a security cookie that could not be sent — please try again</string>
+    <!-- v3.7.30 CAPTCHA (Nov 2026): the website now shows a picture code -->
+    <string name="captcha_title">Type the code in the picture</string>
+    <string name="captcha_hint">CAPTCHA code</string>
+    <string name="captcha_empty">Please type the code from the picture first</string>
+    <string name="fetch_captcha_wrong">Wrong CAPTCHA code — please try again</string>
+    <string name="captcha_refresh">New picture</string>
+    <string name="captcha_tip">Cannot read the code? Get a new picture.</string>
+    <string name="captcha_no_image">Picture did not load — tap "New picture" for a fresh one.</string>
     <string name="report_btn">📤 SEND REPORT</string>
     <string name="report_saved">Report created — now send it in the chat</string>
     <string name="report_failed">Could not create the report — please try again</string>
