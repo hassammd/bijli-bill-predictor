@@ -96,21 +96,21 @@ public final class Ui {
         return (LinearLayout) s.getTag();
     }
 
-    /** White 10dp card with subtle elevation. */
+    /** White 10dp card, flat (v3.7.41: elevation + blue shadow
+     *  removed — user: box shadow looks bad). */
     public static LinearLayout card(Context ctx) {
         LinearLayout c = col(ctx);
         c.setBackgroundResource(R.drawable.card_bg);
         int p = dp(ctx, 16);
         c.setPadding(p, p, p, p);
-        if (android.os.Build.VERSION.SDK_INT >= 21) c.setElevation(dp(ctx, 3));
-        Ds.blueShadow(c);
         return c;
     }
 
-    /** Card wrapped with the standard 16dp side / 12dp top rhythm. */
+    /** Card wrapped with the standard 16dp side / 16dp top rhythm
+     *  (v3.7.41: top 12dp -> 16dp, more space between cards). */
     public static LinearLayout padded(Context ctx, View card) {
         LinearLayout wrap = col(ctx);
-        wrap.setPadding(dp(ctx, 16), dp(ctx, 12), dp(ctx, 16), 0);
+        wrap.setPadding(dp(ctx, 16), dp(ctx, 16), dp(ctx, 16), 0);
         wrap.addView(card);
         return wrap;
     }

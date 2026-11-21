@@ -64,14 +64,13 @@ final class MeterUi {
         row.setBackgroundResource(R.drawable.ds_meter_card);
         row.setPadding(Ui.dp(ctx, 13), Ui.dp(ctx, 12),
                 Ui.dp(ctx, 13), Ui.dp(ctx, 12));
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            row.setElevation(Ui.dp(ctx, 2));
-        }
-        Ds.blueShadow(row);
+        // v3.7.41: flat — no elevation, no blue shadow (user: box
+        // shadow looks bad).
         LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        rlp.bottomMargin = Ui.dp(ctx, 9);
+        // v3.7.41: more space between rows (9dp -> 12dp).
+        rlp.bottomMargin = Ui.dp(ctx, 12);
         row.setLayoutParams(rlp);
 
         // avatar: light circle + person icon (v3.6.90, user request).

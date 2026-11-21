@@ -1,4 +1,27 @@
 #!/bin/bash
+# Bijli Bill v3.7.41 (173) — live-bug fixes (user order, voice call
+# 2026-11-21, screenshots):
+#   - PAID STATUS BUG (critical): v3.7.40's badge read the bill's
+#     own paid fields only through label-row/table harvesters, but
+#     the live bill's paid box lives in the slip section — so the
+#     NOV 26 bill (AMOUNT PAID 2,229 + PAYMENT DATE 17-Nov-26 +
+#     red PAID stamp) still showed Unpaid, and Total Payable
+#     counted the paid Rs 2,229 as pending. Fix: structure-agnostic
+#     parsePaidBox text-stream scan (label+value same line or next
+#     line, PAID stamp as corroboration); paidFieldsChecked is set
+#     ONLY when a paid marker is positively located — "not found"
+#     now means UNKNOWN (no badge, NEVER Unpaid), never a false
+#     Unpaid. History fallback kept for old saved bills.
+#   - ONE BLUE: Total Payable card is now solid #1B62B0 (was a
+#     #21507E->#1B62B0 gradient) — same as the language toggle
+#     pill and the header.
+#   - BOX SHADOW: elevation + blue shadow removed from ALL cards
+#     (home grid, Total Payable, form, bill detail, viewer,
+#     meter rows, Unit Check hero); buttons keep theirs. More
+#     spacing between cards (grid gap 8->12dp, card margins up).
+#   - QUICK TOOLS BACK on Home below the company grid: Unit Check
+#     + Bill History (v3.7.40 had removed them). Rate Us stays in
+#     Settings.
 # Bijli Bill v3.7.40 (172) — Paid badge from the BILL's own fields +
 # company-cards home grid (user orders, 2026-11-21):
 #   - Paid/Unpaid badge now reads the bill's own AMOUNT PAID +
@@ -306,16 +329,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.40.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.40.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.41.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.41.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.40.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.40.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.41.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.41.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.40.apk" "$OUTDIR/bijli-bill-publish-3.7.40.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.41.apk" "$OUTDIR/bijli-bill-publish-3.7.41.aab"
 echo BUILD_OK

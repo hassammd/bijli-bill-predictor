@@ -35,7 +35,19 @@ import java.util.List;
  * current bill never has a row in its own history.
  *
  * Derivation rule (conservative — never invent a status):
- *   bill fields: amountPaid &gt; 0 -&gt; PAID; else UNPAID
+ *   v3.7.41: the paid box must first be POSITIVELY LOCATED in
+ *     the fetched HTML (LescoBillFetcher.parsePaidBox sets
+ *     paidFieldsChecked only then). v3.7.40 set the flag after
+ *     every parse, so a paid box in the slip section — invisible
+ *     to the label-row/table harvesters — still resolved UNPAID
+ *     on the live NOV 26 bill. That false Unpaid is the bug
+ *     fixed here.
+ *   paid box located + red PAID stamp -&gt; PAID (even when the
+ *     amount cell could not be read)
+ *   paid box located + amountPaid &gt; 0 -&gt; PAID
+ *   paid box located + amount blank/0 -&gt; UNPAID
+ *   paid box NOT located -&gt; history fallback; no row -&gt;
+ *     UNKNOWN (show nothing, NEVER Unpaid)
  *   history: row found AND payment empty/0 -&gt; UNPAID
  *   history: row found AND payment &gt;= bill amount -&gt; PAID
  *   history: row found AND 0 &lt; payment &lt; bill -&gt; UNKNOWN (partial)
@@ -192,17 +204,32 @@ public final class PaidStatus {
 
     /**
      * Primary resolver: the bill's OWN paid fields. Freshly fetched
-     * bills (paidFieldsChecked) decide from AMOUNT PAID alone — a
-     * paid box with an amount &gt; 0 is PAID, anything else is UNPAID.
-     * Old saved bills (paidFieldsChecked == false) fall back to the
-     * history table. Never throws; any unexpected shape yields
-     * UNKNOWN.
+     * bills whose paid box was positively located
+     * (paidFieldsChecked, v3.7.41 — see LescoBillFetcher
+     * .parsePaidBox) decide from the box: the red PAID stamp alone
+     * proves PAID (even when the amount cell could not be read);
+     * AMOUNT PAID &gt; 0 is PAID; a located box with a blank/zero
+     * amount is UNPAID. Bills whose paid box was never located
+     * (paidFieldsChecked == false — old saved bills, or a page
+     * shape the scan did not recognise) fall back to the history
+     * table, and a current bill with no history row is UNKNOWN
+     * (no badge, NEVER Unpaid). Never throws; any unexpected
+     * shape yields UNKNOWN.
      */
     public static Result resolveBill(
             LescoBillFetcher.BillInfo b) {
         if (b == null) return UNKNOWN;
         try {
             if (b.paidFieldsChecked) {
+                // v3.7.41: the red PAID stamp is printed only on
+                // paid bills — it proves PAID even when the amount
+                // cell could not be read.
+                if (b.paidStampFound) {
+                    Double paid = parseFirstAmount(b.amountPaid);
+                    return new Result(State.PAID, b.amountPaid,
+                            paid == null ? -1 : paid, -1,
+                            formatPaymentDate(b.paymentDate));
+                }
                 Double paid = parseFirstAmount(b.amountPaid);
                 if (paid != null && paid > 0) {
                     return new Result(State.PAID, b.amountPaid, paid,

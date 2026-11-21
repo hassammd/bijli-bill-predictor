@@ -251,18 +251,19 @@ public class BillActivity extends BaseActivity {
     // Small builders (v2.6.0 design)
     // ------------------------------------------------------------------
 
-    /** v3.6.55: standard white card (reverted from v3.6.54). */
+    /** v3.6.55: standard white card (reverted from v3.6.54).
+     *  Flat (v3.7.41: elevation + blue shadow removed — user:
+     *  box shadow looks bad). Top margin 8dp -> 12dp for more
+     *  space between cards. */
     private LinearLayout card() {
         LinearLayout c = new LinearLayout(this);
         c.setOrientation(LinearLayout.VERTICAL);
         c.setBackgroundResource(R.drawable.ds_card);
         c.setPadding(dp(16), dp(16), dp(16), dp(16));
-        if (Build.VERSION.SDK_INT >= 21) c.setElevation(dp(2));
-        Ds.blueShadow(c);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(16), dp(8), dp(16), 0);
+        lp.setMargins(dp(16), dp(12), dp(16), 0);
         c.setLayoutParams(lp);
         return c;
     }
@@ -1955,11 +1956,11 @@ public class BillActivity extends BaseActivity {
         c.setBackgroundResource(R.drawable.ds_card_24);
         // v3.6.53: 30dp vertical, 18dp horizontal padding.
         c.setPadding(dp(18), dp(30), dp(18), dp(30));
-        if (Build.VERSION.SDK_INT >= 21) c.setElevation(dp(2));
+        // v3.7.41: flat — no elevation (user: box shadow looks bad).
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(dp(16), dp(8), dp(16), 0);
+        lp.setMargins(dp(16), dp(12), dp(16), 0);
         c.setLayoutParams(lp);
 
         // Dues chip at top.

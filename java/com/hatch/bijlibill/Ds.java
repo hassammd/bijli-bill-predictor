@@ -45,12 +45,9 @@ final class Ds {
     static int greenBg()     { return Color.parseColor("#E3EDFB"); }
     static int faint()       { return Color.parseColor("#71858B"); }
 
-    /** v3.6.60: blue-tinted shadow for cards (user feedback). API 28+. */
-    static void blueShadow(android.view.View v) {
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            v.setOutlineSpotShadowColor(Color.parseColor("#165598"));
-        }
-    }
+    // v3.7.41: shadow helper deleted — all card shadows removed
+    // (user: box shadow looks bad). Cards are flat now; only
+    // buttons keep elevation.
     static int stepNum()   { return Color.parseColor("#3A2700"); }
     static int blueBg()    { return Color.parseColor("#EAF1FD"); }
     static int blueBorder(){ return Color.parseColor("#CCD9F5"); }
@@ -678,8 +675,9 @@ final class Ds {
     }
 
     /**
-     * White design card (22dp radius, 1dp line border, 18dp padding,
-     * soft elevation). Design: .card.
+     * White design card (22dp radius, 1dp line border, 18dp padding).
+     * Flat (v3.7.41: elevation + blue shadow removed — user: box
+     * shadow looks bad). Design: .card.
      */
     static android.widget.LinearLayout card(Context ctx) {
         android.widget.LinearLayout c =
@@ -688,10 +686,6 @@ final class Ds {
         c.setBackgroundResource(R.drawable.ds_card);
         int p = Ui.dp(ctx, 16);
         c.setPadding(p, p, p, p);
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            c.setElevation(Ui.dp(ctx, 2));
-        }
-        blueShadow(c);
         return c;
     }
 

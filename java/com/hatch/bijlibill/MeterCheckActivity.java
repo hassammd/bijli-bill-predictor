@@ -1206,9 +1206,7 @@ public class MeterCheckActivity extends BaseActivity {
         // prominent below it.
         LinearLayout hero = Ds.card(this);
         hero.setBackgroundResource(R.drawable.ds_card_est);
-        if (Build.VERSION.SDK_INT >= 21) {
-            hero.setElevation(Ui.dp(this, 3));
-        }
+        // v3.7.41: flat — no elevation (user: box shadow looks bad).
         hero.setGravity(Gravity.CENTER_HORIZONTAL);
         int hp = Ui.dp(this, 22);
         hero.setPadding(hp, Ui.dp(this, 30), hp, Ui.dp(this, 30));

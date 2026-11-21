@@ -569,6 +569,10 @@ public class HomeActivity extends BaseActivity {
         gridSection.addView(totalPayableCard());
         gridSection.addView(secLabel(R.string.select_company, 10));
         gridSection.addView(companyGrid());
+        // v3.7.41: Quick Tools BACK on Home (user order 2026-11-21)
+        // — Unit Check + Bill History below the company grid.
+        // v3.7.40 had removed them; Rate Us stays in Settings.
+        gridSection.addView(quickToolsSection());
         content.addView(gridSection);
 
         formSection = new LinearLayout(this);
@@ -581,9 +585,8 @@ public class HomeActivity extends BaseActivity {
         // v3.6.77: BILL DEKHO button moved INSIDE inputCard (user request).
         int hm = Ui.dp(this, 20);
 
-        // v3.7.40: Quick Tools REMOVED from Home (user order) — Unit
-        // Check + Bill History already live in the bottom nav
-        // (Bills / Unit Check tabs), so nothing is lost.
+        // v3.7.41: Quick Tools live in gridSection now (below the
+        // company grid) — see quickToolsSection() below.
 
 
         // v3.4.0: streak card — flame + consecutive check-in days;
@@ -751,20 +754,21 @@ public class HomeActivity extends BaseActivity {
             Disco.QESCO, Disco.PESCO, Disco.TESCO, Disco.SEPCO,
             Disco.HAZECO};
 
-    /** Blue gradient "Total Payable" card + "N bills pending" pill. */
+    /** v3.7.41: SOLID #1B62B0 "Total Payable" card + "N bills
+     *  pending" pill. The old gradient (#21507E -> #1B62B0) showed
+     *  a different blue than the language toggle's solid #1B62B0
+     *  (user: same colour). Flat — no elevation (v3.7.41: shadows
+     *  removed from all cards). */
     private View totalPayableCard() {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackgroundResource(R.drawable.nd_btn_gradient);
+        card.setBackgroundResource(R.drawable.ds_total_card);
         card.setPadding(Ui.dp(this, 20), Ui.dp(this, 18),
                 Ui.dp(this, 20), Ui.dp(this, 18));
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            card.setElevation(Ui.dp(this, 4));
-        }
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        clp.setMargins(Ui.dp(this, 20), Ui.dp(this, 8),
+        clp.setMargins(Ui.dp(this, 20), Ui.dp(this, 12),
                 Ui.dp(this, 20), 0);
         card.setLayoutParams(clp);
 
@@ -849,15 +853,15 @@ public class HomeActivity extends BaseActivity {
         card.setBackgroundResource(R.drawable.ds_card_24);
         int pad = Ui.dp(this, 10);
         card.setPadding(pad, Ui.dp(this, 14), pad, Ui.dp(this, 12));
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            card.setElevation(Ui.dp(this, 2));
-        }
+        // v3.7.41: flat — no elevation (user: box shadow looks bad).
         GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
         lp.width = 0;
         lp.height = GridLayout.LayoutParams.WRAP_CONTENT;
         lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
         lp.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-        int gap = Ui.dp(this, 8);
+        // v3.7.41: wider gaps between cards (8dp -> 12dp, user:
+        // cards ke darmiyan spacing zyada karo).
+        int gap = Ui.dp(this, 12);
         lp.setMargins(gap / 2, gap / 2, gap / 2, gap / 2);
         card.setLayoutParams(lp);
 
@@ -979,6 +983,162 @@ public class HomeActivity extends BaseActivity {
         super.onBackPressed();
     }
 
+    // ---- QUICK TOOLS (v3.6.71; restored v3.7.41) ----
+    // v3.7.41: back on Home below the company grid (user order
+    // 2026-11-21 — v3.7.40 had removed them). Only Unit Check +
+    // Bill History; Rate Us stays in Settings (v3.7.38). Flat
+    // cards — no elevation, no shadow (v3.7.41).
+
+    private View quickToolsSection() {
+        LinearLayout sec = new LinearLayout(this);
+        sec.setOrientation(LinearLayout.VERTICAL);
+        int hm = Ui.dp(this, 20);
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        // v3.6.97: top margin 24dp (user QA: thodi si aur).
+        slp.setMargins(hm, Ui.dp(this, 24), hm, Ui.dp(this, 10));
+        sec.setLayoutParams(slp);
+
+        // Heading
+        TextView h = new TextView(this);
+        h.setText(getString(R.string.quick_tools_title));
+        h.setTextSize(19);
+        h.setTextColor(Ds.ink());
+        Ds.heading(this, h);
+        LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        hlp.bottomMargin = Ui.dp(this, 12);
+        // RTL: heading aligns right in Urdu
+        if (isUrdu()) h.setGravity(Gravity.END);
+        h.setLayoutParams(hlp);
+        sec.addView(h);
+
+        // Two cards side by side
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        View card1 = quickToolCard(
+                R.drawable.icon_gauge,
+                "#E3EDFB", // mint circle
+                getString(R.string.quick_unit_check),
+                getString(R.string.quick_unit_check_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(HomeActivity.this,
+                                MeterCheckActivity.class));
+                    }
+                });
+        LinearLayout.LayoutParams c1lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        // v3.7.41: wider gap between the two cards (4dp -> 6dp).
+        c1lp.rightMargin = Ui.dp(this, 6);
+        card1.setLayoutParams(c1lp);
+        row.addView(card1);
+
+        View card2 = quickToolCard(
+                R.drawable.icon_document,
+                "#E8E4F8", // lavender circle
+                getString(R.string.quick_bill_history),
+                getString(R.string.quick_bill_history_sub),
+                new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        startActivity(new Intent(HomeActivity.this,
+                                BillsActivity.class));
+                    }
+                });
+        LinearLayout.LayoutParams c2lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        c2lp.leftMargin = Ui.dp(this, 6);
+        card2.setLayoutParams(c2lp);
+        row.addView(card2);
+
+        sec.addView(row);
+
+        return sec;
+    }
+
+    private View quickToolCard(int iconRes, String circleColor,
+            String title, String sub, View.OnClickListener onClick) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setBackgroundResource(R.drawable.ds_card);
+        int p = Ui.dp(this, 12);
+        card.setPadding(p, p, p, p);
+        // v3.7.41: flat — no elevation, no shadow (was 4dp
+        // elevation + tinted shadow; user: box shadow looks bad).
+
+        // Icon circle
+        // v3.6.76: smaller icon (user: make room for full headings).
+        // v3.7.28: even smaller on narrow screens (more room for text).
+        FrameLayout circle = new FrameLayout(this);
+        int cs = Ui.dp(this, Ui.narrow(this, 40, 36));
+        circle.setLayoutParams(new LinearLayout.LayoutParams(cs, cs));
+        android.graphics.drawable.GradientDrawable bg =
+                new android.graphics.drawable.GradientDrawable();
+        bg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        bg.setColor(Color.parseColor(circleColor));
+        circle.setBackground(bg);
+        ImageView ic = new ImageView(this);
+        ic.setImageResource(iconRes);
+        int is = Ui.dp(this, 22);
+        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(
+                is, is, Gravity.CENTER);
+        ic.setLayoutParams(ilp);
+        circle.addView(ic);
+        card.addView(circle);
+
+        // Text (title + subtitle)
+        LinearLayout txt = new LinearLayout(this);
+        txt.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        tlp.leftMargin = Ui.dp(this, 10);
+        tlp.rightMargin = Ui.dp(this, 6);
+        txt.setLayoutParams(tlp);
+
+        TextView t = new TextView(this);
+        t.setText(title);
+        // v3.7.28: 2 lines allowed (was single-line + ellipsis → "Unit C..."
+        // on narrow screens). Title never truncates now.
+        t.setTextSize(Ui.narrow(this, 12, 11));
+        t.setMaxLines(2);
+        t.setTextColor(Ds.ink());
+        Ds.heading(this, t);
+        txt.addView(t);
+
+        TextView s = new TextView(this);
+        s.setText(sub);
+        s.setTextSize(11);
+        // v3.6.76: subtitle allows 2 lines (user request).
+        s.setMaxLines(2);
+        s.setTextColor(Ds.muted());
+        Ds.body(this, s, 400);
+        txt.addView(s);
+        card.addView(txt);
+
+        // Chevron
+        ImageView chev = new ImageView(this);
+        chev.setImageResource(R.drawable.ic_chev_right);
+        chev.setColorFilter(Ds.muted(),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+        int chs = Ui.dp(this, 18);
+        chev.setLayoutParams(new LinearLayout.LayoutParams(chs, chs));
+        // RTL: flip chevron in Urdu
+        if (isUrdu()) chev.setRotation(180);
+        card.addView(chev);
+
+        card.setClickable(true);
+        card.setFocusable(true);
+        card.setOnClickListener(onClick);
+        return card;
+    }
+
 
     // ---- input card: seg + label + field + paste + helper ----
 
@@ -990,15 +1150,13 @@ public class HomeActivity extends BaseActivity {
         // fit without scrolling (user: screen bilkul fixed rehni chahiye).
         card.setPadding(Ui.dp(this, 20), Ui.dp(this, 14),
                 Ui.dp(this, 20), Ui.dp(this, 16));
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            card.setElevation(Ui.dp(this, 4));
-        }
-        Ds.blueShadow(card);
+        // v3.7.41: flat — no elevation, no blue shadow (user: box
+        // shadow looks bad).
         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         int hm = Ui.dp(this, 20);
-        clp.setMargins(hm, Ui.dp(this, 8), hm, 0);
+        clp.setMargins(hm, Ui.dp(this, 12), hm, 0);
         card.setLayoutParams(clp);
 
         // segmented toggle

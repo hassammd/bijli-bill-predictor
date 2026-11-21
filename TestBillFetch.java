@@ -2225,9 +2225,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"172\""), true);
+                man.contains("android:versionCode=\"173\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.40\""), true);
+                man.contains("android:versionName=\"3.7.41\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -3940,9 +3940,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"172\""), true);
+                man.contains("android:versionCode=\"173\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.40\""), true);
+                man.contains("android:versionName=\"3.7.41\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4313,10 +4313,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"172\""),
+                manifest.contains("android:versionCode=\"173\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.40\""),
+                manifest.contains("android:versionName=\"3.7.41\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4475,10 +4475,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"172\""),
+                manifest.contains("android:versionCode=\"173\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.40\""),
+                manifest.contains("android:versionName=\"3.7.41\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4841,12 +4841,13 @@ public class TestBillFetch {
                 home.contains(
                         "https://play.google.com/store/apps/details?id="),
                 false);
-        // v3.7.40: Quick Tools LEFT Home (user order) — Unit Check +
-        // Bill History live in the bottom nav now (Bills / Unit
-        // Check tabs), so nothing is lost.
-        check("v3737 task cards gone from home",
+        // v3.7.41: Quick Tools BACK on Home (user order 2026-11-21)
+        // — Unit Check + Bill History below the company grid.
+        // v3.7.40 had removed them; Rate Us still stays out of
+        // Home (Settings only).
+        check("v3741 task cards back on home",
                 home.contains("quick_unit_check")
-                        || home.contains("quick_bill_history"), false);
+                        && home.contains("quick_bill_history"), true);
         // Rate Us strings stay in both locales (Settings uses them).
         java.util.Map<String, String> en =
                 readStrings("res/values/strings.xml");
@@ -4863,11 +4864,11 @@ public class TestBillFetch {
         //      removed voice feature ----
         check("v3737 bill no snapshot call",
                 bill.contains("BillSnapshots"), false);
-        // ---- 7. Version 172 / 3.7.40 in the manifest ----
-        check("v3737 manifest version 172",
-                man.contains("android:versionCode=\"172\""), true);
-        check("v3737 manifest name 3.7.40",
-                man.contains("android:versionName=\"3.7.40\""), true);
+        // ---- 7. Version 173 / 3.7.41 in the manifest ----
+        check("v3737 manifest version 173",
+                man.contains("android:versionCode=\"173\""), true);
+        check("v3737 manifest name 3.7.41",
+                man.contains("android:versionName=\"3.7.41\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5060,11 +5061,11 @@ public class TestBillFetch {
                 java.nio.file.Files.exists(java.nio.file.Paths.get(
                         "res/drawable/ic_privacy.xml")), true);
 
-        // ---- 4. Version 172 / 3.7.40 in the manifest ----
-        check("v3738 manifest version 172",
-                man.contains("android:versionCode=\"172\""), true);
-        check("v3738 manifest name 3.7.40",
-                man.contains("android:versionName=\"3.7.40\""), true);
+        // ---- 4. Version 173 / 3.7.41 in the manifest ----
+        check("v3738 manifest version 173",
+                man.contains("android:versionCode=\"173\""), true);
+        check("v3738 manifest name 3.7.41",
+                man.contains("android:versionName=\"3.7.41\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5128,11 +5129,11 @@ public class TestBillFetch {
         check("v3739 ke still comingSoon",
                 Disco.KELECTRIC.comingSoon, true);
 
-        // ---- 4. Version 172 / 3.7.40 in the manifest ----
-        check("v3739 manifest version 172",
-                man.contains("android:versionCode=\"172\""), true);
-        check("v3739 manifest name 3.7.40",
-                man.contains("android:versionName=\"3.7.40\""), true);
+        // ---- 4. Version 173 / 3.7.41 in the manifest ----
+        check("v3739 manifest version 173",
+                man.contains("android:versionCode=\"173\""), true);
+        check("v3739 manifest name 3.7.41",
+                man.contains("android:versionName=\"3.7.41\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5173,20 +5174,25 @@ public class TestBillFetch {
 
         // ---- 2. UNPAID bill: the REAL Sep-20 capture (unpaid SEP 26
         //      bill, same consumer). The word "paid" appears ZERO
-        //      times in it — the fresh parse resolves UNPAID.
+        //      times in it — v3.7.40 resolved UNPAID from the
+        //      blanket-true flag. v3.7.41: no paid marker was ever
+        //      located in this HTML, so it is UNKNOWN (no badge,
+        //      NEVER Unpaid) — a bill whose paid fields were never
+        //      actually checked must never show "Unpaid".
         String realUnpaid =
                 readUserFile("bijli-bill-debug-20260920-003440.html");
         LescoBillFetcher.BillInfo unpaid =
                 LescoBillFetcher.parseBillHtml(realUnpaid,
                         "02118240618604U");
-        check("v3740 unpaid amountPaid null",
+        check("v3741 unpaid amountPaid null",
                 unpaid.amountPaid == null, true);
-        check("v3740 unpaid paymentDate null",
+        check("v3741 unpaid paymentDate null",
                 unpaid.paymentDate == null, true);
-        check("v3740 unpaid checked", unpaid.paidFieldsChecked, true);
-        check("v3740 unpaid state",
+        check("v3741 unpaid not checked",
+                unpaid.paidFieldsChecked, false);
+        check("v3741 unpaid state unknown",
                 com.hatch.bijlibill.PaidStatus.resolveBill(unpaid).state,
-                com.hatch.bijlibill.PaidStatus.State.UNPAID);
+                com.hatch.bijlibill.PaidStatus.State.UNKNOWN);
 
         // ---- 3. Paid WITHOUT a date: old-style table rows, AMOUNT
         //      PAID only -> PAID with no date (never invented).
@@ -5210,6 +5216,117 @@ public class TestBillFetch {
                 com.hatch.bijlibill.PaidStatus.State.PAID);
         check("v3740 nodate date null",
                 nr.paymentDateDisplay == null, true);
+
+        // ---- 3a. v3.7.41 REGRESSION — the live NOV 26 bill bug:
+        //      the paid box lives in the top-right SLIP section,
+        //      label and value on SEPARATE divs (no label-row, no
+        //      table row). v3.7.40's harvesters never saw it, so
+        //      the live bill resolved UNPAID. The structure-agnostic
+        //      parsePaidBox scan must find it: PAID + 17 Nov 2026.
+        String slipHtml = "<html><head><title>LESCO Duplicate Bill"
+                + " - SYNTHETIC SLIP PAID</title></head><body>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "REFERENCE NO</span><span class=\"ur-lbl\">x</span>"
+                + "02 11824 0618604</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "BILL MONTH</span><span class=\"ur-lbl\">x</span>"
+                + "NOV 26</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "PAYABLE WITHIN DUE DATE</span>"
+                + "<span class=\"ur-lbl\">x</span>2,229</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "METER NO</span><span class=\"ur-lbl\">x</span>"
+                + "S-P 0127416</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "UNITS</span><span class=\"ur-lbl\">x</span>2</div>"
+                + "<div class=\"slip-box\">"
+                + "<div class=\"slip-label\">AMOUNT PAID</div>"
+                + "<div class=\"slip-value\">2,229</div>"
+                + "<div class=\"slip-label\">PAYMENT DATE</div>"
+                + "<div class=\"slip-value\">17-Nov-26</div>"
+                + "<div class=\"paid-stamp\">PAID</div>"
+                + "</div></body></html>";
+        LescoBillFetcher.BillInfo slip =
+                LescoBillFetcher.parseNewBillHtml(slipHtml,
+                        "02118240618604U");
+        check("v3741 slip amountPaid", slip.amountPaid, "2,229");
+        check("v3741 slip paymentDate", slip.paymentDate,
+                "17-Nov-26");
+        check("v3741 slip stamp", slip.paidStampFound, true);
+        check("v3741 slip checked", slip.paidFieldsChecked, true);
+        com.hatch.bijlibill.PaidStatus.Result sr =
+                com.hatch.bijlibill.PaidStatus.resolveBill(slip);
+        check("v3741 slip state", sr.state,
+                com.hatch.bijlibill.PaidStatus.State.PAID);
+        check("v3741 slip date display", sr.paymentDateDisplay,
+                "17 Nov 2026");
+
+        // ---- 3b. PAID stamp alone (no amount cell readable):
+        //      the stamp is printed only on paid bills, so it
+        //      proves PAID with no date (never invented).
+        String stampHtml = "<html><head><title>LESCO Duplicate Bill"
+                + " - SYNTHETIC STAMP ONLY</title></head><body>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "BILL MONTH</span><span class=\"ur-lbl\">x</span>"
+                + "NOV 26</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "PAYABLE WITHIN DUE DATE</span>"
+                + "<span class=\"ur-lbl\">x</span>2,229</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "METER NO</span><span class=\"ur-lbl\">x</span>"
+                + "S-P 0127416</div>"
+                + "<div class=\"paid-stamp\">PAID</div>"
+                + "</body></html>";
+        LescoBillFetcher.BillInfo stamp =
+                LescoBillFetcher.parseNewBillHtml(stampHtml,
+                        "02118240618604U");
+        check("v3741 stamp found", stamp.paidStampFound, true);
+        check("v3741 stamp checked", stamp.paidFieldsChecked, true);
+        check("v3741 stamp amount null",
+                stamp.amountPaid == null, true);
+        com.hatch.bijlibill.PaidStatus.Result str =
+                com.hatch.bijlibill.PaidStatus.resolveBill(stamp);
+        check("v3741 stamp state", str.state,
+                com.hatch.bijlibill.PaidStatus.State.PAID);
+        check("v3741 stamp date null",
+                str.paymentDateDisplay == null, true);
+
+        // ---- 3c. Paid box present but BLANK (labels with no
+        //      values): the box WAS located, so this honestly
+        //      resolves UNPAID — and the following label-row's
+        //      digits (METER NO S-P 0127416) must never be mistaken
+        //      for the paid amount.
+        String blankHtml = "<html><head><title>LESCO Duplicate Bill"
+                + " - SYNTHETIC BLANK BOX</title></head><body>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "BILL MONTH</span><span class=\"ur-lbl\">x</span>"
+                + "NOV 26</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "PAYABLE WITHIN DUE DATE</span>"
+                + "<span class=\"ur-lbl\">x</span>1,500</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "AMOUNT PAID</span><span class=\"ur-lbl\">x</span>"
+                + "</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "PAYMENT DATE</span><span class=\"ur-lbl\">x</span>"
+                + "</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "METER NO</span><span class=\"ur-lbl\">x</span>"
+                + "S-P 0127416</div>"
+                + "<div class=\"label-row\"><span class=\"en-lbl\">"
+                + "UNITS</span><span class=\"ur-lbl\">x</span>2</div>"
+                + "</body></html>";
+        LescoBillFetcher.BillInfo blank =
+                LescoBillFetcher.parseNewBillHtml(blankHtml,
+                        "02118240618604U");
+        check("v3741 blank checked", blank.paidFieldsChecked, true);
+        check("v3741 blank amount null",
+                blank.amountPaid == null, true);
+        check("v3741 blank stamp false",
+                blank.paidStampFound, false);
+        check("v3741 blank state",
+                com.hatch.bijlibill.PaidStatus.resolveBill(blank).state,
+                com.hatch.bijlibill.PaidStatus.State.UNPAID);
 
         // ---- 4. History fallback: old saved bills (flag false).
         LescoBillFetcher.BillInfo old =
@@ -5279,7 +5396,7 @@ public class TestBillFetch {
         check("v3740 bill last bill record",
                 bill.contains("LastBillStore.record(this"), true);
 
-        // ---- 7. Home grid: carousel + Quick Tools gone, cards in.
+        // ---- 7. Home grid: carousel gone, Quick Tools back, cards in.
         check("v3740 grid order", home.contains(
                 "Disco.MEPCO, Disco.LESCO,"), true);
         check("v3740 grid 4 cols", home.contains(
@@ -5294,8 +5411,17 @@ public class TestBillFetch {
                 home.contains("discoChips") == false
                         && home.contains("refreshChips") == false
                         && home.contains("discoRow") == false, true);
-        check("v3740 quicktools gone",
-                home.contains("quickToolsSection") == false, true);
+        // v3.7.41: Quick Tools restored below the company grid
+        // (Unit Check + Bill History; Rate Us stays in Settings).
+        check("v3741 quicktools back",
+                home.contains("quickToolsSection"), true);
+        check("v3741 quicktools in grid",
+                home.contains("gridSection.addView(quickToolsSection())"),
+                true);
+        check("v3741 quicktools unit card",
+                home.contains("R.string.quick_unit_check"), true);
+        check("v3741 quicktools history card",
+                home.contains("R.string.quick_bill_history"), true);
         check("v3740 total payable card", home.contains(
                 "totalPayableCard()"), true);
         check("v3740 total payable refresh", home.contains(
@@ -5327,6 +5453,20 @@ public class TestBillFetch {
         check("v3740 total fmt",
                 com.hatch.bijlibill.TotalPayable.formatAmount(19615),
                 "19,615");
+
+        // v3.7.41: the user's exact case — PAID NOV 26 bill
+        // (Rs 2,229) + UNPAID MEPCO bill (Rs 19,615) -> only the
+        // unpaid one counts (v3.7.40 counted the paid one too).
+        java.util.List<com.hatch.bijlibill.TotalPayable.Record> recs2 =
+                new java.util.ArrayList<com.hatch.bijlibill.TotalPayable.Record>();
+        recs2.add(new com.hatch.bijlibill.TotalPayable.Record("2,229",
+                com.hatch.bijlibill.PaidStatus.State.PAID));
+        recs2.add(new com.hatch.bijlibill.TotalPayable.Record("19,615",
+                com.hatch.bijlibill.PaidStatus.State.UNPAID));
+        com.hatch.bijlibill.TotalPayable.Result tr2 =
+                com.hatch.bijlibill.TotalPayable.compute(recs2);
+        check("v3741 total paid excluded", tr2.total, 19615.0);
+        check("v3741 total paid count", tr2.pendingCount, 1);
 
         // ---- 9. LastBillStore encode/decode round-trip. ----
         com.hatch.bijlibill.LastBillStore.Record lr =
@@ -5399,11 +5539,54 @@ public class TestBillFetch {
                     fmtArgs(ur.get(k)));
         }
 
-        // ---- 12. Version 172 / 3.7.40 in the manifest ----
-        check("v3740 manifest version 172",
-                man.contains("android:versionCode=\"172\""), true);
-        check("v3740 manifest name 3.7.40",
-                man.contains("android:versionName=\"3.7.40\""), true);
+        // ---- 12. Version 173 / 3.7.41 in the manifest ----
+        check("v3740 manifest version 173",
+                man.contains("android:versionCode=\"173\""), true);
+        check("v3740 manifest name 3.7.41",
+                man.contains("android:versionName=\"3.7.41\""), true);
+
+        // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
+        String totalCard = readFile("res/drawable/ds_total_card.xml");
+        check("v3741 total card solid blue",
+                totalCard.contains("#1B62B0"), true);
+        check("v3741 total card no gradient",
+                totalCard.contains("gradient"), false);
+        check("v3741 total card no deep blue",
+                totalCard.contains("#21507E"), false);
+        check("v3741 total card wired",
+                home.contains("R.drawable.ds_total_card"), true);
+        check("v3741 total card no gradient drawable",
+                home.contains("nd_btn_gradient"), false);
+        // No elevation left on any card — only buttons keep
+        // theirs (HomeActivity: tintSeg 2dp + BILL DEKHO 8dp;
+        // Ds: greenBtn 2dp; BillActivity: amber button 6dp).
+        check("v3741 home elevation only buttons",
+                countOcc(home, "setElevation") == 2, true);
+        check("v3741 bill elevation only button",
+                countOcc(bill, "setElevation") == 1, true);
+        check("v3741 ds elevation only button",
+                countOcc(ds, "setElevation") == 1, true);
+        check("v3741 ui no elevation",
+                countOcc(readFile("java/com/hatch/bijlibill/Ui.java"),
+                        "setElevation") == 0, true);
+        check("v3741 meterui no elevation",
+                countOcc(readFile(
+                        "java/com/hatch/bijlibill/MeterUi.java"),
+                        "setElevation") == 0, true);
+        check("v3741 viewer no elevation",
+                countOcc(readFile(
+                        "java/com/hatch/bijlibill/BillViewerActivity.java"),
+                        "setElevation") == 0, true);
+        check("v3741 metercheck no elevation",
+                countOcc(readFile(
+                        "java/com/hatch/bijlibill/MeterCheckActivity.java"),
+                        "setElevation") == 0, true);
+        check("v3741 no shadow helper anywhere",
+                countOcc(ds, "blueShadow") == 0
+                        && countOcc(home, "blueShadow") == 0
+                        && countOcc(bill, "blueShadow") == 0, true);
+        check("v3741 grid gap 12",
+                home.contains("int gap = Ui.dp(this, 12)"), true);
     }
 
     static void addPoint(

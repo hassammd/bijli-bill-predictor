@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- v3.7.41: SOLID #1B62B0 Total Payable card — the old
+     two-tone background showed a DIFFERENT blue than the
+     language toggle's solid #1B62B0 pill (user: same colour,
+     2026-11-21). One blue everywhere: header, toggle and this
+     card are all #1B62B0 now. 16dp radius matches the old card.
+     Flat — no elevation (v3.7.41: shadows removed from all
+     cards). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="16dp" />
+    <solid android:color="#1B62B0" />
+</shape>

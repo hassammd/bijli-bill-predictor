@@ -188,13 +188,24 @@ public final class LescoBillFetcher {
         //      on the printed bill): "AMOUNT PAID" + "PAYMENT DATE"
         //      + red PAID stamp. A PAID bill prints both; an UNPAID
         //      bill prints the box blank/absent. parsed by
-        //      applyFullLabel / mapRow / LINE_FRAGMENTS below.
+        //      applyFullLabel / mapRow / LINE_FRAGMENTS / parsePaidBox
+        //      below.
         public String amountPaid;   // as printed, e.g. "2,229"
         public String paymentDate;  // as printed, e.g. "17-Nov-26"
-        /** True once a v3.7.40+ parse ran over this bill. Old saved
-         *  bills (fetched before these fields existed) have false —
-         *  PaidStatus falls back to the history table for those. */
+        /** v3.7.41 — true ONLY when parsePaidBox positively located
+         *  a paid marker ("AMOUNT PAID" / "PAYMENT DATE" label or
+         *  the standalone red PAID stamp) in the fetched HTML.
+         *  v3.7.40 set this true after EVERY successful parse, so a
+         *  paid box the harvesters never saw still resolved UNPAID
+         *  (the live NOV 26 bill bug). Now "not found" means
+         *  PaidStatus falls back to history -> UNKNOWN for the
+         *  current month (no badge, NEVER Unpaid). */
         public boolean paidFieldsChecked;
+        /** v3.7.41 — the red PAID stamp was found as standalone
+         *  text in the fetched HTML. The stamp is printed only on
+         *  paid bills, so it proves PAID even when the amount cell
+         *  itself could not be read. */
+        public boolean paidStampFound;
         // ---- v2.0.5: extra fields printed on the full /general bill page ----
         public String billMonth;      // BILL MONTH, e.g. "SEP 26"
         public String feeder;         // FEEDER, e.g. "(036209) Pandoriyan"
@@ -1618,9 +1629,12 @@ public final class LescoBillFetcher {
                     debugMeta + ", div#ua=" + (uaPresent ? "y" : "n")
                             + ", title=\"" + pageTitle(html) + "\"");
         }
-        // v3.7.40: a fresh parse ran — PaidStatus may trust the
-        // bill's own paid fields (blank amountPaid = unpaid).
-        b.paidFieldsChecked = true;
+        // v3.7.41: run the paid-box scan — it sets
+        // paidFieldsChecked ONLY when a paid marker ("AMOUNT PAID"
+        // / "PAYMENT DATE" / PAID stamp) was positively located.
+        // Never blanket-true: v3.7.40's unconditional flag turned
+        // "box not found" into a false UNPAID (live NOV 26 bill).
+        parsePaidBox(b, html);
         return b;
     }
 
@@ -1968,8 +1982,9 @@ public final class LescoBillFetcher {
         if (recognizedFieldCount(b) == 0) {
             return parseBillHtml(html, refNo, "direct /general leg");
         }
-        // v3.7.40: fresh parse — bill's own paid fields are trusted.
-        b.paidFieldsChecked = true;
+        // v3.7.41: paid-box scan (sets paidFieldsChecked only on a
+        // positively located marker — never blanket-true).
+        parsePaidBox(b, html);
         return b;
     }
 
@@ -2135,8 +2150,11 @@ public final class LescoBillFetcher {
                     "new-design bill page, title=\""
                             + pageTitle(nc) + "\"");
         }
-        // v3.7.40: fresh parse — bill's own paid fields are trusted.
-        b.paidFieldsChecked = true;
+        // v3.7.41: paid-box scan (sets paidFieldsChecked only on a
+        // positively located marker — never blanket-true; the live
+        // NOV 26 bill's paid box lives in the slip section, which
+        // the label-row harvesters never see).
+        parsePaidBox(b, nc);
         return b;
     }
 
@@ -2592,6 +2610,149 @@ public final class LescoBillFetcher {
                 }
             }
         }
+    }
+
+    /**
+     * v3.7.41 — dedicated paid-box scan. THE fix for the live NOV 26
+     * bill showing Unpaid (user-verified 2026-11-21).
+     *
+     * ROOT CAUSE: v3.7.40 harvested the paid labels ONLY through
+     * the label-row / table harvesters. The live bill's paid box
+     * sits in the top-right slip section (different markup — no
+     * label-row, no table row), so no harvester ever saw "AMOUNT
+     * PAID" / "PAYMENT DATE" — while paidFieldsChecked was set
+     * true unconditionally at the end of every successful parse,
+     * turning "box not found" into a false UNPAID. The synthetic
+     * v3.7.40 fixture guessed label-rows, so its test passed
+     * while the live bill still failed.
+     *
+     * This scan is structure-agnostic: it works on the visible
+     * text stream (tags -> newlines), so it finds the paid box
+     * whether it is a label-row, a table row, a slip div, or bare
+     * text — label and value on the same line OR on the next
+     * line. A next-line value is accepted ONLY when the line is
+     * (nearly) just a number/date, so a following label-row (e.g.
+     * "METER NO S-P 0127416") can never be mistaken for the paid
+     * amount.
+     *
+     * Contract (honest — never assert what was not seen):
+     *   - "AMOUNT PAID" label + first number after it > 0 -> PAID
+     *   - "AMOUNT PAID" label + no number / 0 -> UNPAID (box blank)
+     *   - "PAYMENT DATE" label -> date (never invented)
+     *   - standalone red "PAID" stamp text -> PAID (corroborates
+     *     even when the amount cell could not be read)
+     *   - NO paid marker anywhere -> paidFieldsChecked stays
+     *     false -> PaidStatus falls back to history -> UNKNOWN
+     *     for the current month (no badge, NEVER Unpaid).
+     * Sets paidFieldsChecked ONLY when a marker was found, and
+     * never overwrites a value an earlier harvester already set.
+     * Never throws.
+     */
+    static void parsePaidBox(BillInfo b, String html) {
+        if (b == null || html == null) return;
+        try {
+            // Head content (page <title> etc.) is not bill content:
+            // a title like "BLANK PAID BOX" must never trip the
+            // stamp check. Strip <head>...</head> first.
+            String body = html.replaceAll(
+                    "(?is)<head.*?</head>", " ");
+            String t = withoutComments(body).replaceAll(
+                    "(?i)</?(p|div|br|tr|td|th|li|h[1-6]|span|b|strong|em|i)[^>]*>",
+                    "\n");
+            t = t.replace("&nbsp;", " ").replace("&amp;", "&");
+            java.util.List<String> lines =
+                    new java.util.ArrayList<String>();
+            for (String rawLine : t.split("\n")) {
+                String cl = cleanText(rawLine);
+                if (!cl.isEmpty()) lines.add(cl);
+            }
+            boolean boxFound = false;
+            for (int i = 0; i < lines.size(); i++) {
+                String low = lines.get(i).toLowerCase();
+                if (low.contains("amount paid")) {
+                    boxFound = true;
+                    if (b.amountPaid == null) {
+                        String v = firstNumberAfter(
+                                lines, i, "amount paid");
+                        if (v != null) b.amountPaid = v;
+                    }
+                } else if (low.contains("payment date")) {
+                    boxFound = true;
+                    if (b.paymentDate == null) {
+                        String d = firstDateAfter(
+                                lines, i, "payment date");
+                        if (d != null) b.paymentDate = d;
+                    }
+                }
+            }
+            // Red PAID stamp: a standalone whole-word PAID on a line
+            // that is NOT one of the paid labels themselves. The
+            // stamp is printed only on paid bills; the history table
+            // ("PAYMENT (RS.)") and "PAYABLE ..." lines contain no
+            // whole-word PAID, so they can never trip this.
+            for (int i = 0; i < lines.size(); i++) {
+                String low = lines.get(i).toLowerCase();
+                if (low.contains("amount paid")
+                        || low.contains("payment date")) continue;
+                if (Pattern.compile("\\bpaid\\b").matcher(low).find()) {
+                    b.paidStampFound = true;
+                    boxFound = true;
+                    break;
+                }
+            }
+            if (boxFound) b.paidFieldsChecked = true;
+        } catch (RuntimeException ignored) {
+            // A broken paid scan must never block the bill itself.
+        }
+    }
+
+    /** First number at/after a label: same-line remainder first,
+     *  then the next two non-empty lines — but only when such a
+     *  line is (nearly) just a number, so a following label-row
+     *  can never donate its digits. Null when none found. */
+    private static String firstNumberAfter(java.util.List<String> lines,
+            int idx, String label) {
+        String low = lines.get(idx).toLowerCase();
+        int at = low.indexOf(label);
+        String rest = lines.get(idx).substring(at + label.length());
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "[0-9][0-9,]*(\\.[0-9]+)?").matcher(rest);
+        if (m.find()) return m.group();
+        for (int j = idx + 1; j < lines.size() && j <= idx + 2; j++) {
+            String cand = lines.get(j).trim();
+            if (cand.matches("[0-9][0-9,]*(\\.[0-9]+)?")) return cand;
+        }
+        return null;
+    }
+
+    /** First date at/after a label: same-line remainder first,
+     *  then the next two non-empty lines — but only when such a
+     *  line is (nearly) just a date. Null when none found. */
+    private static String firstDateAfter(java.util.List<String> lines,
+            int idx, String label) {
+        String low = lines.get(idx).toLowerCase();
+        int at = low.indexOf(label);
+        String rest = lines.get(idx).substring(at + label.length());
+        String d = firstDateToken(rest);
+        if (d != null) return d;
+        for (int j = idx + 1; j < lines.size() && j <= idx + 2; j++) {
+            String cand = lines.get(j).trim();
+            if (cand.matches(
+                    "\\d{1,2}-[A-Za-z]{3}-\\d{2,4}|\\d{1,2}\\s+[A-Za-z]{3}\\s+\\d{2,4}|\\d{1,2}/\\d{1,2}/\\d{2,4}")) {
+                return cand;
+            }
+        }
+        return null;
+    }
+
+    /** First date-like token in s (17-Nov-26, 17 Nov 2026,
+     *  17/11/2026), or null. */
+    private static String firstDateToken(String s) {
+        if (s == null) return null;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "\\d{1,2}-[A-Za-z]{3}-\\d{2,4}|\\d{1,2}\\s+[A-Za-z]{3}\\s+\\d{2,4}|\\d{1,2}/\\d{1,2}/\\d{2,4}")
+                .matcher(s);
+        return m.find() ? m.group() : null;
     }
 
     /** Index of a whole-word occurrence, or -1. */

@@ -247,9 +247,7 @@ public class BillViewerActivity extends Activity {
         LinearLayout cardWrap = new LinearLayout(this);
         cardWrap.setOrientation(LinearLayout.VERTICAL);
         cardWrap.setBackgroundResource(R.drawable.ds_card_24);
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            cardWrap.setElevation(dp(3));
-        }
+        // v3.7.41: flat — no elevation (user: box shadow looks bad).
         int m = dp(16);
         LinearLayout.LayoutParams clp2 = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
