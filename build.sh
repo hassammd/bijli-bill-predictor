@@ -1,4 +1,8 @@
 #!/bin/bash
+# Bijli Bill v3.7.53 (185) — user order, 2026-11-23:
+#   - ROUNDED SPLASH ICON: splash_icon.png corners rounded (~23.5%
+#     radius, transparent) to match the launcher squircle; launcher
+#     mipmap icons stay SQUARE (the launcher masks them itself).
 # Bijli Bill v3.7.52 (184) — user order, 2026-11-23:
 #   - BIGGER LAUNCHER ICON: artwork enlarged ~1.15x from the 2048
 #     original (downscaled, no blur); all mipmap densities + the
@@ -438,16 +442,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.52.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.52.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.53.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.53.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.52.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.52.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.53.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.53.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.52.apk" "$OUTDIR/bijli-bill-publish-3.7.52.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.53.apk" "$OUTDIR/bijli-bill-publish-3.7.53.aab"
 echo BUILD_OK
