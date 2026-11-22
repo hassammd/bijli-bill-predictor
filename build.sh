@@ -1,11 +1,14 @@
 #!/bin/bash
+# Bijli Bill v3.7.52 (184) — user order, 2026-11-23:
+#   - BIGGER LAUNCHER ICON: artwork enlarged ~1.15x from the 2048
+#     original (downscaled, no blur); all mipmap densities + the
+#     432 adaptive foreground + splash icon replaced.
+#   - SPLASH REDESIGN: illustration band removed; centered new icon
+#     120dp + title + tagline, fade/scale entrance animation,
+#     slim progress indicator near the bottom; ~1500ms.
+#   - LAUNCH POPUP REMOVED: "Are you outside Pakistan?" dialog no
+#     longer appears on app open (HomeActivity call + methods gone).
 # Bijli Bill v3.7.51 (183) — user order, 2026-11-23, ICON-ONLY build:
-#   - NEW APP ICON (user-finalized): his own icon — stacked
-#     white bill documents + golden yellow bolt (#FFC928) + cyan
-#     magnifying glass (#32C5E8) + "بل چیک" on a blue strip.
-#     All mipmap densities (48/72/96/144/192) + the 432 adaptive
-#     foreground replaced; NO app-logic change in this release.
-# Bijli Bill v3.7.50 (182) — user order, 2026-11-22, ONE build:
 #   - PENDING BILLS rows show the CONSUMER NAME (user: "jo bill
 #     pending hain unki thodi si detail bhi likho, BY NAME"):
 #     name first on each row, from the saved meter's holder name
@@ -435,16 +438,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.51.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.51.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.52.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.52.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.51.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.51.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.52.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.52.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.51.apk" "$OUTDIR/bijli-bill-publish-3.7.51.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.52.apk" "$OUTDIR/bijli-bill-publish-3.7.52.aab"
 echo BUILD_OK

@@ -1,30 +1,34 @@
 package com.hatch.bijlibill;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
- * Splash — v3.6.99 redesign (user request 2026-10-20):
+ * Splash — v3.7.52 redesign (user request 2026-11-23):
+ *  - Professional + simple: the top illustration band is gone; clean
+ *    light bg #F4F8F7 (Ds.bg), centered new icon 120dp + title +
+ *    tagline, slim progress indicator near the bottom.
+ *  - Animation (framework APIs only): icon fades in + scales
+ *    0.85 -> 1.0 over ~700ms (DecelerateInterpolator); title and
+ *    tagline fade in with a small +16dp -> 0 rise, staggered ~150ms
+ *    after the icon. Total splash ~1500ms, fade transition to Home.
  *  - English-only short text ("Bijli Bill" / "Your bill, before it
  *    arrives." / "Made for Pakistan") in BOTH locales (brand splash).
- *  - Current palette: light bg #F4F8F7 (Ds.bg), blue/ink text — the old
- *    dark-green gradient (splash_bg, #0B2C52) is gone.
- *  - Custom flat illustration (transmission towers + poles + houses,
- *    app palette) as a top band for a professional look.
- *  - App icon (Play Store icon, transparent) stays, 96dp.
- *  - v3.7.42: splash illustration (splash_illus.webp) recolored
- *    teal -> blue (#1B62B0 family) — the old teal towers are
- *    gone; launcher icon NOT changed (separate pick pending).
  */
 public class SplashActivity extends BaseActivity {
 
@@ -53,16 +57,6 @@ public class SplashActivity extends BaseActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // ---- illustration band (top) ----
-        ImageView illus = new ImageView(this);
-        illus.setImageResource(R.drawable.splash_illus);
-        illus.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        FrameLayout.LayoutParams ilp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                Ui.dp(this, 250));
-        ilp.gravity = Gravity.TOP;
-        root.addView(illus, ilp);
-
         // ---- centered column: icon + title + tagline ----
         LinearLayout center = new LinearLayout(this);
         center.setOrientation(LinearLayout.VERTICAL);
@@ -71,20 +65,22 @@ public class SplashActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER);
-        // Nudge below true center so the column clears the illustration.
-        clp.topMargin = Ui.dp(this, 110);
         root.addView(center, clp);
 
-        // ---- icon: real app icon (Play Store icon, transparent) ----
+        // ---- icon: new app icon (v3.7.52, enlarged), 120dp ----
         ImageView appIcon = new ImageView(this);
         appIcon.setImageResource(R.drawable.splash_icon);
-        int iconPx = Ui.dp(this, 96);
+        int iconPx = Ui.dp(this, 120);
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
                 iconPx, iconPx);
         alp.gravity = Gravity.CENTER_HORIZONTAL;
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             appIcon.setElevation(Ui.dp(this, 12));
         }
+        // v3.7.52: entrance animation starts from invisible + 0.85x.
+        appIcon.setAlpha(0f);
+        appIcon.setScaleX(0.85f);
+        appIcon.setScaleY(0.85f);
         center.addView(appIcon, alp);
 
         // ---- title: "Bijli Bill" (English, heading font) ----
@@ -99,6 +95,8 @@ public class SplashActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         tlp.gravity = Gravity.CENTER_HORIZONTAL;
         tlp.topMargin = Ui.dp(this, 18);
+        title.setAlpha(0f);
+        title.setTranslationY(Ui.dp(this, 16));
         center.addView(title, tlp);
 
         // ---- tagline: short English ----
@@ -112,7 +110,24 @@ public class SplashActivity extends BaseActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         glp.gravity = Gravity.CENTER_HORIZONTAL;
         glp.topMargin = Ui.dp(this, 6);
+        tag.setAlpha(0f);
+        tag.setTranslationY(Ui.dp(this, 16));
         center.addView(tag, glp);
+
+        // ---- slim indeterminate progress indicator, near bottom ----
+        ProgressBar spinner = new ProgressBar(this, null,
+                android.R.attr.progressBarStyleSmall);
+        spinner.setIndeterminate(true);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            spinner.setIndeterminateTintList(
+                    ColorStateList.valueOf(Ds.ndBlueAccent()));
+        }
+        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        slp.bottomMargin = Ui.dp(this, 96);
+        root.addView(spinner, slp);
 
         // ---- foot anchored at bottom: "Made for Pakistan • vX.Y.Z" ----
         TextView foot = new TextView(this);
@@ -129,13 +144,41 @@ public class SplashActivity extends BaseActivity {
 
         setContentView(root);
 
+        // ---- v3.7.52 entrance animation ----
+        AnimatorSet iconAnim = new AnimatorSet();
+        iconAnim.playTogether(
+                ObjectAnimator.ofFloat(appIcon, "alpha", 0f, 1.0f),
+                ObjectAnimator.ofFloat(appIcon, "scaleX", 0.85f, 1.0f),
+                ObjectAnimator.ofFloat(appIcon, "scaleY", 0.85f, 1.0f));
+        iconAnim.setDuration(700);
+        iconAnim.setInterpolator(new DecelerateInterpolator());
+
+        AnimatorSet titleAnim = new AnimatorSet();
+        titleAnim.playTogether(
+                ObjectAnimator.ofFloat(title, "alpha", 0f, 1.0f),
+                ObjectAnimator.ofFloat(title, "translationY",
+                        Ui.dp(this, 16), 0f));
+        titleAnim.setDuration(500);
+        titleAnim.setStartDelay(150);
+
+        AnimatorSet tagAnim = new AnimatorSet();
+        tagAnim.playTogether(
+                ObjectAnimator.ofFloat(tag, "alpha", 0f, 1.0f),
+                ObjectAnimator.ofFloat(tag, "translationY",
+                        Ui.dp(this, 16), 0f));
+        tagAnim.setDuration(500);
+        tagAnim.setStartDelay(300);
+
+        AnimatorSet entrance = new AnimatorSet();
+        entrance.playTogether(iconAnim, titleAnim, tagAnim);
+        entrance.start();
+
         new Handler().postDelayed(new Runnable() {
             @Override public void run() {
-                // v3.7.16: har asal app-open Splash se guzarta hai —
-                // location popup ko yahin arm karo (Home dikhayega).
-                HomeActivity.popupArmed = true;
                 startActivity(new Intent(SplashActivity.this,
                         HomeActivity.class));
+                overridePendingTransition(android.R.anim.fade_in,
+                        android.R.anim.fade_out);
                 finish();
             }
         }, SPLASH_MS);
