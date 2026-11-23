@@ -7278,18 +7278,26 @@ public class TestBillFetch {
         check("v3756 manifest gms version",
                 man.contains("com.google.android.gms.version"), true);
 
-        // ---- 8. Phase 1: TEST ids still in place (real ids are
-        //      a config-only swap later — this test must be updated
-        //      by that swap, not before). ----
-        check("v3756 test banner id",
+        // ---- 8. Phase 2: REAL ids in place (swapped 2026-11-24;
+        //      TEST ids must be gone from banner/interstitial/app). ----
+        check("v3756 real banner id",
+                cfg.contains("ca-app-pub-8117548332904163/5352900926"),
+                true);
+        check("v3756 real interstitial id",
+                cfg.contains("ca-app-pub-8117548332904163/2016291143"),
+                true);
+        check("v3756 real app id",
+                man.contains("ca-app-pub-8117548332904163~2883931517"),
+                true);
+        check("v3756 no test banner id",
                 cfg.contains("ca-app-pub-3940256099942544/6300978111"),
-                true);
-        check("v3756 test interstitial id",
+                false);
+        check("v3756 no test interstitial id",
                 cfg.contains("ca-app-pub-3940256099942544/1033173712"),
-                true);
-        check("v3756 test app id",
+                false);
+        check("v3756 no test app id",
                 man.contains("ca-app-pub-3940256099942544~3347511713"),
-                true);
+                false);
 
         // ---- 9. Ad label string in both locales ----
         check("v3756 ad label en", en.get("ad_label"),

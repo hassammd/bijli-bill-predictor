@@ -89,7 +89,7 @@
              Must match AdsConfig.ADMOB_APP_ID. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-8117548332904163~2883931517" />
 
         <!-- v3.7.56 (188): Google Mobile Ads SDK 23.6.0 components,
              merged manually from the play-services-ads-lite AAR
