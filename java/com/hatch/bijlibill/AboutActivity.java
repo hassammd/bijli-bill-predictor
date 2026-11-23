@@ -44,7 +44,7 @@ public class AboutActivity extends BaseActivity {
 
     /** Privacy policy page (same URL as the Play listing). */
     private static final String PRIVACY_URL =
-            "https://bijli-bill-privacy.netlify.app/privacy-policy";
+            "https://incandescent-kringle-0ae76d.netlify.app/";
 
     /** Opens this app's Play Store listing (market:// first, web fallback). */
     private void openPlayStore() {

@@ -27,7 +27,7 @@ import android.widget.TextView;
  *    0.85 -> 1.0 over ~700ms (DecelerateInterpolator); title and
  *    tagline fade in with a small +16dp -> 0 rise, staggered ~150ms
  *    after the icon. Total splash ~1500ms, fade transition to Home.
- *  - English-only short text ("Bijli Bill" / "Your bill, before it
+ *  - English-only short text ("Bijli Bill Check Pakistan" / "Your bill, before it
  *    arrives." / "Made for Pakistan") in BOTH locales (brand splash).
  */
 public class SplashActivity extends BaseActivity {
@@ -83,10 +83,13 @@ public class SplashActivity extends BaseActivity {
         appIcon.setScaleY(0.85f);
         center.addView(appIcon, alp);
 
-        // ---- title: "Bijli Bill" (English, heading font) ----
+        // ---- title: "Bijli Bill Check Pakistan" (English, heading font) ----
+        // 25 chars: 22sp + single line so it fits on one line (~276dp at 22sp,
+        // safe on 320dp+ screens); was 30sp for the short "Bijli Bill".
         TextView title = new TextView(this);
         title.setText(getString(R.string.splash_title));
-        title.setTextSize(30);
+        title.setTextSize(22);
+        title.setSingleLine(true);
         Ds.heading(this, title);
         title.setTextColor(Ds.ink());
         title.setGravity(Gravity.CENTER);

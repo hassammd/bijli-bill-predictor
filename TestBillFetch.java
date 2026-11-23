@@ -5139,7 +5139,7 @@ public class TestBillFetch {
                 about.contains("settings_privacy"), true);
         check("v3738 settings privacy url",
                 about.contains(
-                        "https://bijli-bill-privacy.netlify.app/privacy-policy"),
+                        "https://incandescent-kringle-0ae76d.netlify.app/"),
                 true);
         check("v3738 settings scrollable",
                 about.contains("new ScrollView(this)"), true);
@@ -5793,7 +5793,7 @@ public class TestBillFetch {
                 starIdx < howIdx, true);
         check("v3742 settings privacy url",
                 about.contains(
-                        "https://bijli-bill-privacy.netlify.app/privacy-policy"),
+                        "https://incandescent-kringle-0ae76d.netlify.app/"),
                 true);
     }
 
@@ -6089,7 +6089,7 @@ public class TestBillFetch {
                 about.contains("Intent.ACTION_SEND"), true);
         check("v3744 settings privacy url",
                 about.contains(
-                        "https://bijli-bill-privacy.netlify.app/privacy-policy"),
+                        "https://incandescent-kringle-0ae76d.netlify.app/"),
                 true);
     }
 
