@@ -133,12 +133,17 @@ public final class MeterCheckCalc {
         // v3.1.3: classify carefully — the old contains("protected")
         // matched "Non-Protected" as PROTECTED. Check lifeline first,
         // then the non-protected spellings, then protected.
+        // v3.7.54: normalize separators FIRST — strip every
+        // non-letter, so "Non-Protected", "Non Protected",
+        // "NonProtected" AND odd variants ("Non - Protected",
+        // "Non—Protected") all read as NON_PROTECTED. The bare
+        // "protected" check runs only after the negated forms.
         String catLower = category == null ? ""
-                : category.toLowerCase(Locale.US);
+                : category.toLowerCase(Locale.US)
+                        .replaceAll("[^a-z]", "");
         boolean isLifeline = catLower.contains("lifeline");
-        boolean isNonProtected = catLower.contains("non-protected")
-                || catLower.contains("non protected")
-                || catLower.contains("nonprotected");
+        boolean isNonProtected = catLower.contains("nonprotected")
+                || catLower.contains("unprotected");
         r.isProtected = !isLifeline && !isNonProtected
                 && catLower.contains("protected");
         int tariffCat = r.isProtected ? Tariff.PROTECTED

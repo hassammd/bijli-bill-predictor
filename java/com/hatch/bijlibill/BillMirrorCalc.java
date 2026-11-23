@@ -159,15 +159,19 @@ public final class BillMirrorCalc {
      * v3.1.3: "Non-Protected" (any case/spelling) is NON_PROTECTED.
      * The old code checked contains("protected") first, which wrongly
      * matched "Non-Protected" as PROTECTED.
+     * v3.7.54: separators are stripped before classifying, so odd
+     * variants ("Non - Protected", "Non—Protected") also read as
+     * NON_PROTECTED — the negated forms are checked BEFORE the bare
+     * "protected" substring (it appears inside "nonprotected").
      */
     public static int tariffCat(String category) {
         if (category == null) return Tariff.NON_PROTECTED;
-        String c = category.toLowerCase(Locale.US);
+        String c = category.toLowerCase(Locale.US)
+                .replaceAll("[^a-z]", "");
         if (c.contains("lifeline")) return Tariff.LIFELINE;
         // NB: non-protected spellings BEFORE "protected" — the
         // substring "protected" appears inside "non-protected".
-        if (c.contains("non-protected") || c.contains("non protected")
-                || c.contains("nonprotected")) {
+        if (c.contains("nonprotected") || c.contains("unprotected")) {
             return Tariff.NON_PROTECTED;
         }
         if (c.contains("protected")) return Tariff.PROTECTED;

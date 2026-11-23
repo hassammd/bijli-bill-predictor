@@ -510,6 +510,13 @@ public class BillActivity extends BaseActivity {
                     }
                     final int msgRes;
                     switch (e.kind) {
+                        case INVALID_REF:
+                            // v3.7.54: malformed reference (fetcher
+                            // converts splitReference's throw) — the
+                            // friendly "reference number looks wrong"
+                            // message, not the generic fetch-failed.
+                            msgRes = R.string.fetch_invalid_ref;
+                            break;
                         case TOKEN_ERROR:
                             msgRes = R.string.fetch_token_error;
                             break;
@@ -973,6 +980,13 @@ public class BillActivity extends BaseActivity {
                     }
                     final int msgRes;
                     switch (e.kind) {
+                        case INVALID_REF:
+                            // v3.7.54: malformed reference (fetcher
+                            // converts splitReference's throw) — the
+                            // friendly "reference number looks wrong"
+                            // message, not the generic fetch-failed.
+                            msgRes = R.string.fetch_invalid_ref;
+                            break;
                         case TOKEN_ERROR:
                             msgRes = R.string.fetch_token_error;
                             break;

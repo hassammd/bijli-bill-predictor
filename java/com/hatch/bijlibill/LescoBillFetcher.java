@@ -686,7 +686,8 @@ public final class LescoBillFetcher {
      * v2.0.4 form-POST flow only when the direct pages yield no bill.
      *
      * @param typedReference e.g. "02118240618604U" or "02118240618604"
-     * @throws IllegalArgumentException if the reference number is malformed
+     * @throws FetchException(INVALID_REF) if the reference number
+     *         is malformed (v3.7.54 — never IllegalArgumentException)
      * @throws BillErrorException if the portal rejects the number / no bill
      * @throws IOException on transport failures
      */
@@ -770,7 +771,22 @@ public final class LescoBillFetcher {
     public static BillPage fetchBillPageWith(HttpTransport t,
             String typedReference, Disco disco) throws IOException {
         if (disco == null || disco.comingSoon) disco = Disco.LESCO;
-        String[] parts = splitReference(typedReference); // validates
+        // v3.7.54: a malformed reference must NEVER crash the app.
+        // splitReference validates by throwing IllegalArgumentException
+        // (a RuntimeException the UI thread's catch blocks never saw
+        // — the live v161 crash). Convert it here to
+        // FetchException(INVALID_REF) so every fetch path shows the
+        // friendly "reference number looks wrong" error instead.
+        String[] parts;
+        try {
+            parts = splitReference(typedReference);
+        } catch (IllegalArgumentException e) {
+            throw new FetchException(FetchKind.INVALID_REF,
+                    "Reference number must be 14 digits + optional U/R",
+                    "malformed reference: " + (typedReference == null
+                            ? "null" : "\"" + typedReference.trim()
+                            + "\""));
+        }
         String typed = typedReference.trim();
 
         FetchDebug dbg = newFetchDebug(typed, "ref");
@@ -926,11 +942,16 @@ public final class LescoBillFetcher {
         return browserFallbackUrl(typedRef, mode, Disco.LESCO);
     }
 
-    /** v2.5.0: browser fallback for an explicit disco. */
+    /** v2.5.0: browser fallback for an explicit disco.
+     *  v3.7.54: NEVER throws — a malformed reference (or null) returns
+     *  the portal landing page, where the user can search manually.
+     *  The old splitReference() call threw IllegalArgumentException
+     *  here (same live-crash class as the fetch path). */
     public static String browserFallbackUrl(String typedRef, String mode,
             Disco disco) {
         if (disco == null || disco.comingSoon) disco = Disco.LESCO;
         if ("cid".equals(mode)) return disco.baseUrl();
+        if (!isValidReference(typedRef)) return disco.baseUrl();
         String[] parts = splitReference(typedRef);
         return generalBillUrl(disco.baseUrl(), parts[0], "");
     }
@@ -1194,7 +1215,8 @@ public final class LescoBillFetcher {
      * The radio value "custid" is best-effort and NOT live-verified —
      * see the class javadoc.
      *
-     * @throws IllegalArgumentException if the customer ID is malformed
+     * @throws FetchException(INVALID_REF) if the customer ID is
+     *         malformed (v3.7.54 — never IllegalArgumentException)
      * @throws BillErrorException if the portal rejects the ID / no bill
      * @throws IOException on transport failures
      */
@@ -1218,14 +1240,18 @@ public final class LescoBillFetcher {
         return fetchByCustomerIdWith(t, customerId, Disco.LESCO);
     }
 
-    /** v2.5.0: customer-ID lookup against an explicit disco. */
+    /** v2.5.0: customer-ID lookup against an explicit disco.
+     *  v3.7.54: a malformed customer ID is FetchException(INVALID_REF),
+     *  never IllegalArgumentException — same live-crash class as the
+     *  reference path (the UI thread catches IOException kinds only). */
     public static BillInfo fetchByCustomerIdWith(HttpTransport t,
             String customerId, Disco disco) throws IOException {
         if (disco == null || disco.comingSoon) disco = Disco.LESCO;
         String id = customerId == null ? "" : customerId.trim();
         if (!isValidCustomerId(id)) {
-            throw new IllegalArgumentException(
-                    "Customer ID must be exactly 7 digits");
+            throw new FetchException(FetchKind.INVALID_REF,
+                    "Customer ID must be exactly 7 digits",
+                    "malformed customer ID: \"" + id + "\"");
         }
         try {
             return doFetchWith(t, disco.baseUrl(), SEARCH_MODE_CUSTOMER_ID,

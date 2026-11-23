@@ -792,22 +792,34 @@ public class TestBillFetch {
         check("not-network token-error", LescoBillFetcher.isNetworkDown(
                 new FetchException(FetchKind.TOKEN_ERROR, "x", "y")), false);
 
-        // ---- fetch methods reject bad input without network ----
-        boolean iae = false;
+        // ---- v3.7.54: fetch methods reject bad input with
+        //      FetchException(INVALID_REF) — never
+        //      IllegalArgumentException (the old IAE escaped the
+        //      UI thread's catch blocks and crashed the app — live
+        //      v161 crash). No network is used for bad input. ----
+        boolean badRef = false;
+        boolean badRefIae = false;
         try {
             LescoBillFetcher.fetchBill("ABC");
+        } catch (FetchException e) {
+            badRef = e.kind == FetchKind.INVALID_REF;
         } catch (IllegalArgumentException e) {
-            iae = true;
+            badRefIae = true;
         }
-        check("fetchBill rejects bad ref", iae, true);
+        check("fetchBill rejects bad ref", badRef, true);
+        check("fetchBill bad ref never IAE", badRefIae, false);
 
-        boolean iaeCid = false;
+        boolean badCid = false;
+        boolean badCidIae = false;
         try {
             LescoBillFetcher.fetchByCustomerId("12");
+        } catch (FetchException e) {
+            badCid = e.kind == FetchKind.INVALID_REF;
         } catch (IllegalArgumentException e) {
-            iaeCid = true;
+            badCidIae = true;
         }
-        check("fetchByCustomerId rejects bad id", iaeCid, true);
+        check("fetchByCustomerId rejects bad id", badCid, true);
+        check("fetchByCustomerId bad id never IAE", badCidIae, false);
 
         // ---- v2.0.3: __RequestVerificationToken "undefined" quirk ----
         // When the GET page lacks the token, the working reference
@@ -1102,6 +1114,11 @@ public class TestBillFetch {
         // ---- v3.7.50: Pending Bills rows show the consumer name
         //      (BY NAME) + pending cards same width as Bills list ----
         runV3750Tests();
+
+        // ---- v3.7.54: malformed-ref crash fix (INVALID_REF, never
+        //      IllegalArgumentException) + portrait feature optional
+        //      + Non-Protected separator variants ----
+        runV3754Tests();
 
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
@@ -2268,9 +2285,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -2667,14 +2684,22 @@ public class TestBillFetch {
         check("v250 cid mepco post id",
                 tc.seenBodies.get(1).contains("searchTextBox=7654321"),
                 true);
+        // v3.7.54: malformed customer ID is FetchException
+        // (INVALID_REF) now, never IllegalArgumentException (the
+        // old throw escaped the UI thread's catch blocks — same
+        // live-crash class as the reference path).
         boolean cidBad = false;
+        boolean cidBadIae = false;
         try {
             LescoBillFetcher.fetchByCustomerIdWith(tc, "123",
                     Disco.MEPCO);
+        } catch (FetchException e) {
+            cidBad = e.kind == FetchKind.INVALID_REF;
         } catch (IllegalArgumentException e) {
-            cidBad = true;
+            cidBadIae = true;
         }
         check("v250 cid invalid rejected", cidBad, true);
+        check("v250 cid invalid never IAE", cidBadIae, false);
         check("v250 cid invalid no fetch", tc.exchanges, 2);
 
         // ---- orchestrator with disco: cid path + ref path ----
@@ -3990,9 +4015,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4370,10 +4395,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"185\""),
+                manifest.contains("android:versionCode=\"186\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.53\""),
+                manifest.contains("android:versionName=\"3.7.54\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4532,10 +4557,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"185\""),
+                manifest.contains("android:versionCode=\"186\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.53\""),
+                manifest.contains("android:versionName=\"3.7.54\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4924,9 +4949,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5121,9 +5146,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5189,9 +5214,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5605,9 +5630,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5666,9 +5691,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5775,9 +5800,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5953,9 +5978,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6073,9 +6098,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6197,9 +6222,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6302,9 +6327,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6452,9 +6477,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 180 / 3.7.48 in the manifest ----
         check("v3748 manifest version 180",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3748 manifest name 3.7.48",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. The "Estimate vs Actual Bill" card is GONE from
         //      BillActivity — view, wiring and helpers, all of it.
@@ -6520,9 +6545,9 @@ public class TestBillFetch {
         //      by v3.7.50; the v3749 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3749 manifest version 181",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3749 manifest name 3.7.49",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. Arrears (dues) chip UNTOUCHED (user order
         //      2026-11-22: "Arrears KO remove na krna") ----
@@ -6627,9 +6652,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 185 / 3.7.53 in the manifest ----
         check("v3753 manifest version 185",
-                man.contains("android:versionCode=\"185\""), true);
+                man.contains("android:versionCode=\"186\""), true);
         check("v3753 manifest name 3.7.53",
-                man.contains("android:versionName=\"3.7.53\""), true);
+                man.contains("android:versionName=\"3.7.54\""), true);
 
         // ---- 2. Pending row name lookup (headless): the user's
         //      live pending rows — Rs 5,629 (ref 02118240620201)
@@ -6750,6 +6775,245 @@ public class TestBillFetch {
         check("v3750 v3749 mdi category",
                 com.hatch.bijlibill.BillSummary.categoryChipKey(info),
                 "COMMERCIAL");
+    }
+
+    /**
+     * v3.7.54 (186) — FIXES-ONLY build (user order 2026-11-24: no
+     * issue should come). Three fixes, all regression-guarded here:
+     * (1) the live v161 crash — splitReference's
+     * IllegalArgumentException escaped fetchBillPageWith and
+     * browserFallbackUrl uncaught; (2) Play's portrait-feature
+     * block on the 185 submission; (3) Non-Protected separator
+     * variants misclassified as PROTECTED.
+     */
+    static void runV3754Tests() throws Exception {
+        String man = readFile("AndroidManifest.xml");
+        String fetch = readFile(
+                "java/com/hatch/bijlibill/LescoBillFetcher.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String buildSh = readFile("build.sh");
+
+        // ---- 1. Version 186 / 3.7.54 in the manifest ----
+        check("v3754 manifest version 186",
+                man.contains("android:versionCode=\"186\""), true);
+        check("v3754 manifest name 3.7.54",
+                man.contains("android:versionName=\"3.7.54\""), true);
+
+        // ---- 2. Malformed references through fetchBillPageWith:
+        //      FetchException(INVALID_REF) — NEVER
+        //      IllegalArgumentException — and zero network use
+        //      (validation happens before any request). ----
+        String[] badRefs = {"0211824061860",       // 13 digits
+                "0211824061860X",                   // bad trailing letter
+                "",                                 // empty
+                null,                               // null
+                "0211 8240 618604",                 // embedded spaces
+                "02118240618604UU",                 // 14 digits + 2 letters
+                "ABCDEFGHIJKLMN"};                  // letters, no digits
+        for (String bad : badRefs) {
+            String tag = bad == null ? "null" : bad;
+            FakeTransport t = new FakeTransport();
+            try {
+                LescoBillFetcher.fetchBillPageWith(t, bad,
+                        Disco.LESCO);
+                check("v3754 fetch bad ref throws [" + tag + "]",
+                        "no throw", "FetchException");
+            } catch (FetchException e) {
+                check("v3754 fetch bad ref kind [" + tag + "]",
+                        e.kind, FetchKind.INVALID_REF);
+                check("v3754 fetch bad ref no network [" + tag + "]",
+                        t.exchanges, 0);
+            } catch (IllegalArgumentException e) {
+                check("v3754 fetch bad ref never IAE [" + tag + "]",
+                        "IllegalArgumentException", "FetchException");
+            }
+        }
+
+        // ---- 3. Same through the real entry point (the
+        //      BillActivity fetch task calls FetchOrchestrator). ----
+        FakeTransport tOrch = new FakeTransport();
+        try {
+            LescoBillFetcher.FetchOrchestrator.fetchOrThrow(
+                    tOrch, null, "0211824061860", "ref", Disco.LESCO);
+            check("v3754 orchestrator bad ref throws",
+                    "no throw", "FetchException");
+        } catch (FetchException e) {
+            check("v3754 orchestrator bad ref kind",
+                    e.kind, FetchKind.INVALID_REF);
+            check("v3754 orchestrator bad ref no network",
+                    tOrch.exchanges, 0);
+        } catch (IllegalArgumentException e) {
+            check("v3754 orchestrator bad ref never IAE",
+                    "IllegalArgumentException", "FetchException");
+        }
+
+        // ---- 4. Malformed customer IDs: same conversion (the cid
+        //      fetch path had the identical escaping-throw bug). ----
+        String[] badCids = {"123456",     // 6 digits
+                "1234567A",               // bad trailing letter
+                "",                       // empty
+                null,                     // null
+                "123 4567"};              // embedded space
+        for (String bad : badCids) {
+            String tag = bad == null ? "null" : bad;
+            FakeTransport t = new FakeTransport();
+            try {
+                LescoBillFetcher.fetchByCustomerIdWith(t, bad,
+                        Disco.LESCO);
+                check("v3754 fetch bad cid throws [" + tag + "]",
+                        "no throw", "FetchException");
+            } catch (FetchException e) {
+                check("v3754 fetch bad cid kind [" + tag + "]",
+                        e.kind, FetchKind.INVALID_REF);
+                check("v3754 fetch bad cid no network [" + tag + "]",
+                        t.exchanges, 0);
+            } catch (IllegalArgumentException e) {
+                check("v3754 fetch bad cid never IAE [" + tag + "]",
+                        "IllegalArgumentException", "FetchException");
+            }
+        }
+        FakeTransport tCid = new FakeTransport();
+        try {
+            LescoBillFetcher.FetchOrchestrator.fetchOrThrow(
+                    tCid, null, "123456", "cid", Disco.LESCO);
+            check("v3754 orchestrator bad cid throws",
+                    "no throw", "FetchException");
+        } catch (FetchException e) {
+            check("v3754 orchestrator bad cid kind",
+                    e.kind, FetchKind.INVALID_REF);
+        } catch (IllegalArgumentException e) {
+            check("v3754 orchestrator bad cid never IAE",
+                    "IllegalArgumentException", "FetchException");
+        }
+
+        // ---- 5. Happy path untouched: valid refs still split. ----
+        String[] pU = LescoBillFetcher.splitReference("02118240618604U");
+        check("v3754 split digits", pU[0], "02118240618604");
+        check("v3754 split flag U", pU[1], "U");
+        String[] pR = LescoBillFetcher.splitReference("02118240618604r");
+        check("v3754 split flag R", pR[1], "R");
+        String[] pD = LescoBillFetcher.splitReference("02118240618604");
+        check("v3754 split flag default U", pD[1], "U");
+        check("v3754 valid ref trims",
+                LescoBillFetcher.isValidReference(" 02118240618604 "),
+                true);
+
+        // ---- 6. browserFallbackUrl NEVER throws: malformed ref
+        //      (or null) -> the portal landing page; valid ref ->
+        //      the /general full-bill page, as before. ----
+        check("v3754 fallback malformed ref",
+                LescoBillFetcher.browserFallbackUrl("0211824061860",
+                        "ref", Disco.LESCO),
+                "https://bill.pitc.com.pk/lescobill");
+        check("v3754 fallback null ref",
+                LescoBillFetcher.browserFallbackUrl(null, "ref",
+                        Disco.LESCO),
+                "https://bill.pitc.com.pk/lescobill");
+        check("v3754 fallback spaced ref",
+                LescoBillFetcher.browserFallbackUrl("0211 8240 618604",
+                        "ref", Disco.LESCO),
+                "https://bill.pitc.com.pk/lescobill");
+        check("v3754 fallback valid ref",
+                LescoBillFetcher.browserFallbackUrl("02118240618604",
+                        "ref", Disco.LESCO),
+                "https://bill.pitc.com.pk/lescobill"
+                        + "/general?refno=02118240618604");
+        check("v3754 fallback cid mode",
+                LescoBillFetcher.browserFallbackUrl("1234567", "cid",
+                        Disco.LESCO),
+                "https://bill.pitc.com.pk/lescobill");
+        check("v3754 fallback mepco",
+                LescoBillFetcher.browserFallbackUrl("15158130010993",
+                        "ref", Disco.MEPCO),
+                "https://bill.pitc.com.pk/mepcobill"
+                        + "/general?refno=15158130010993");
+
+        // ---- 7. BillActivity shows the friendly message for
+        //      INVALID_REF on BOTH fetch paths (doLoadBill +
+        //      submitCaptcha), not the generic fetch-failed. ----
+        check("v3754 bill invalid ref case x2",
+                countOcc(bill, "case INVALID_REF:"), 2);
+        check("v3754 bill invalid ref message",
+                bill.contains("R.string.fetch_invalid_ref"), true);
+
+        // ---- 8. Fetcher wiring (structural): the conversion +
+        //      the fallback guard are in the code. ----
+        check("v3754 fetcher converts IAE",
+                fetch.contains("catch (IllegalArgumentException e)"),
+                true);
+        check("v3754 fetcher fallback guards ref",
+                fetch.contains("if (!isValidReference(typedRef))"),
+                true);
+
+        // ---- 9. Portrait feature optional in the manifest;
+        //      the portrait lock itself is untouched. ----
+        check("v3754 manifest portrait feature",
+                man.contains("<uses-feature android:name="
+                        + "\"android.hardware.screen.portrait\""),
+                true);
+        check("v3754 manifest portrait optional",
+                man.contains("android:required=\"false\""), true);
+        check("v3754 portrait feature once",
+                countOcc(man, "android.hardware.screen.portrait"), 1);
+        check("v3754 portrait lock kept",
+                countOcc(man,
+                        "android:screenOrientation=\"portrait\""), 11);
+
+        // ---- 10. Non-Protected: plain case (already correct
+        //      since v3.1.3 — regression guard) AND separator
+        //      variants that the old spelling list missed. ----
+        check("v3754 cat non-protected",
+                BillMirrorCalc.tariffCat("Non-Protected"),
+                Tariff.NON_PROTECTED);
+        check("v3754 cat non dash space protected",
+                BillMirrorCalc.tariffCat("Non - Protected"),
+                Tariff.NON_PROTECTED);
+        check("v3754 cat non em-dash protected",
+                BillMirrorCalc.tariffCat("Non—Protected"),
+                Tariff.NON_PROTECTED);
+        check("v3754 cat non-protected upper",
+                BillMirrorCalc.tariffCat("NON-PROTECTED"),
+                Tariff.NON_PROTECTED);
+        check("v3754 cat unprotected",
+                BillMirrorCalc.tariffCat("Unprotected"),
+                Tariff.NON_PROTECTED);
+        check("v3754 cat domestic non-protected",
+                BillMirrorCalc.tariffCat("Domestic (Non-Protected)"),
+                Tariff.NON_PROTECTED);
+        check("v3754 cat protected still",
+                BillMirrorCalc.tariffCat("Protected"),
+                Tariff.PROTECTED);
+        check("v3754 cat lifeline still",
+                BillMirrorCalc.tariffCat("Lifeline"),
+                Tariff.LIFELINE);
+        check("v3754 cat null still",
+                BillMirrorCalc.tariffCat(null),
+                Tariff.NON_PROTECTED);
+        MeterCheckCalc.Result rDash = MeterCheckCalc.compute(
+                "0", "100", "Non - Protected", null, null, null, null,
+                12);
+        check("v3754 compute non dash protected flag",
+                rDash.isProtected, false);
+        checkClose("v3754 compute non dash protected energy",
+                rDash.energyEstimate, 2244.0, 1e-9);
+        MeterCheckCalc.Result rNp = MeterCheckCalc.compute(
+                "0", "100", "Non-Protected", null, null, null, null, 12);
+        check("v3754 compute non-protected flag",
+                rNp.isProtected, false);
+        checkClose("v3754 compute non-protected energy",
+                rNp.energyEstimate, 2244.0, 1e-9);
+        MeterCheckCalc.Result rP = MeterCheckCalc.compute(
+                "0", "100", "Protected", null, null, null, null, 12);
+        check("v3754 compute protected flag", rP.isProtected, true);
+
+        // ---- 11. build.sh carries the new version + outputs. ----
+        check("v3754 build.sh version",
+                buildSh.contains("v3.7.54 (186)"), true);
+        check("v3754 build.sh apk name",
+                buildSh.contains("bijli-bill-v3.7.54.apk"), true);
+        check("v3754 build.sh aab name",
+                buildSh.contains("bijli-bill-publish-3.7.54.aab"), true);
     }
 
     /** Synthetic commercial (MDI) bill: the user's live case (Abdul
