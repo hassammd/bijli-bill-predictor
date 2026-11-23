@@ -1120,6 +1120,12 @@ public class TestBillFetch {
         //      + Non-Protected separator variants ----
         runV3754Tests();
 
+        // ---- v3.7.55: zero-risk audit fixes — PREMIUM purchase UI
+        //      removed (billing never wired), CAMERA permission
+        //      removed (system camera app captures), nudge no longer
+        //      promises an "accuracy score", dead VPN strings out ----
+        runV3755Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2285,9 +2291,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -4015,9 +4021,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4395,10 +4401,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"186\""),
+                manifest.contains("android:versionCode=\"187\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.54\""),
+                manifest.contains("android:versionName=\"3.7.55\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4557,10 +4563,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"186\""),
+                manifest.contains("android:versionCode=\"187\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.54\""),
+                manifest.contains("android:versionName=\"3.7.55\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4949,9 +4955,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5146,9 +5152,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5214,9 +5220,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5630,9 +5636,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5691,9 +5697,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5800,9 +5806,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5978,9 +5984,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6098,9 +6104,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6222,9 +6228,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6327,9 +6333,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6477,9 +6483,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 180 / 3.7.48 in the manifest ----
         check("v3748 manifest version 180",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3748 manifest name 3.7.48",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. The "Estimate vs Actual Bill" card is GONE from
         //      BillActivity — view, wiring and helpers, all of it.
@@ -6545,9 +6551,9 @@ public class TestBillFetch {
         //      by v3.7.50; the v3749 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3749 manifest version 181",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3749 manifest name 3.7.49",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Arrears (dues) chip UNTOUCHED (user order
         //      2026-11-22: "Arrears KO remove na krna") ----
@@ -6652,9 +6658,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 185 / 3.7.53 in the manifest ----
         check("v3753 manifest version 185",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3753 manifest name 3.7.53",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Pending row name lookup (headless): the user's
         //      live pending rows — Rs 5,629 (ref 02118240620201)
@@ -6796,9 +6802,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 186 / 3.7.54 in the manifest ----
         check("v3754 manifest version 186",
-                man.contains("android:versionCode=\"186\""), true);
+                man.contains("android:versionCode=\"187\""), true);
         check("v3754 manifest name 3.7.54",
-                man.contains("android:versionName=\"3.7.54\""), true);
+                man.contains("android:versionName=\"3.7.55\""), true);
 
         // ---- 2. Malformed references through fetchBillPageWith:
         //      FetchException(INVALID_REF) — NEVER
@@ -6958,7 +6964,9 @@ public class TestBillFetch {
                 countOcc(man, "android.hardware.screen.portrait"), 1);
         check("v3754 portrait lock kept",
                 countOcc(man,
-                        "android:screenOrientation=\"portrait\""), 11);
+                        "android:screenOrientation=\"portrait\""), 10);
+        // v3.7.55: was 11 — PremiumActivity (portrait) was deleted
+        // with the premium purchase UI (zero-risk audit).
 
         // ---- 10. Non-Protected: plain case (already correct
         //      since v3.1.3 — regression guard) AND separator
@@ -7009,11 +7017,155 @@ public class TestBillFetch {
 
         // ---- 11. build.sh carries the new version + outputs. ----
         check("v3754 build.sh version",
-                buildSh.contains("v3.7.54 (186)"), true);
+                buildSh.contains("v3.7.55 (187)"), true);
         check("v3754 build.sh apk name",
-                buildSh.contains("bijli-bill-v3.7.54.apk"), true);
+                buildSh.contains("bijli-bill-v3.7.55.apk"), true);
         check("v3754 build.sh aab name",
-                buildSh.contains("bijli-bill-publish-3.7.54.aab"), true);
+                buildSh.contains("bijli-bill-publish-3.7.55.aab"), true);
+    }
+
+    static void runV3755Tests() throws Exception {
+        String man = readFile("AndroidManifest.xml");
+        String about = readFile(
+                "java/com/hatch/bijlibill/AboutActivity.java");
+        String meter = readFile(
+                "java/com/hatch/bijlibill/MeterCheckActivity.java");
+        String stub = readFile(
+                "java/com/hatch/bijlibill/BillingStub.java");
+        java.util.Map<String, String> en =
+                readStrings("res/values/strings.xml");
+        java.util.Map<String, String> ur =
+                readStrings("res/values-ur/strings.xml");
+
+        // ---- 1. Version 187 / 3.7.55 in the manifest ----
+        check("v3755 manifest version 187",
+                man.contains("android:versionCode=\"187\""), true);
+        check("v3755 manifest name 3.7.55",
+                man.contains("android:versionName=\"3.7.55\""), true);
+
+        // ---- 2. CAMERA permission is GONE from the manifest —
+        //      the system camera app does the capture, this app
+        //      never touches the camera hardware directly. ----
+        check("v3755 manifest no camera perm",
+                man.contains("android.permission.CAMERA"), false);
+        check("v3755 manifest no camera word",
+                man.contains("CAMERA"), false);
+
+        // ---- 3. No premium purchase UI anywhere: the About
+        //      entry point is gone, the activity is gone, and no
+        //      string value promises a purchase anymore. ----
+        check("v3755 manifest no premium activity",
+                man.contains("PremiumActivity"), false);
+        check("v3755 about no premium activity",
+                about.contains("PremiumActivity"), false);
+        check("v3755 about no premium button",
+                about.contains("R.string.premium_btn"), false);
+        boolean enPromises = false;
+        for (String v : en.values()) {
+            if (v.contains("BUY PREMIUM") || v.contains("Rs 499")
+                    || v.contains("Go Premium")) enPromises = true;
+        }
+        check("v3755 no premium promise en", enPromises, false);
+        boolean urPromises = false;
+        for (String v : ur.values()) {
+            if (v.contains("پریمیم خریدیں")
+                    || v.contains("گو پریمیم")
+                    || v.contains("499 روپے")) urPromises = true;
+        }
+        check("v3755 no premium promise ur", urPromises, false);
+        check("v3755 premium_btn deleted en",
+                en.containsKey("premium_btn"), false);
+        check("v3755 premium_btn deleted ur",
+                ur.containsKey("premium_btn"), false);
+        check("v3755 buy_premium deleted en",
+                en.containsKey("buy_premium"), false);
+        check("v3755 buy_premium deleted ur",
+                ur.containsKey("buy_premium"), false);
+        check("v3755 premium_note deleted en",
+                en.containsKey("premium_note"), false);
+        check("v3755 premium_note deleted ur",
+                ur.containsKey("premium_note"), false);
+        check("v3755 premium_title deleted en",
+                en.containsKey("premium_title"), false);
+        check("v3755 premium_sub deleted en",
+                en.containsKey("premium_sub"), false);
+        check("v3755 billing msg no publish en",
+                en.get("billing_msg").contains("publish"), false);
+        check("v3755 billing msg no publish ur",
+                ur.get("billing_msg").contains("پبلش"), false);
+        check("v3755 billing msg text en",
+                en.get("billing_msg"),
+                "Premium purchases are not available in this "
+                        + "version of the app.");
+        check("v3755 billing msg text ur",
+                ur.get("billing_msg"),
+                "اس ایپ کے اس ورژن میں پریمیم خریداری دستیاب نہیں ہے۔");
+        // BillingStub itself stays: ad gating (isPremium) is the
+        // single read path AdsManager uses; the purchase flow is
+        // kept only for when real billing is wired.
+        check("v3755 stub isPremium kept",
+                stub.contains("public static boolean isPremium"),
+                true);
+        check("v3755 stub no publish promise",
+                stub.contains("will be enabled"), false);
+
+        // ---- 4. Nudge no longer promises an "accuracy score"
+        //      (no such UI exists — the Estimate-vs-Actual card
+        //      was removed in v3.7.48). ----
+        check("v3755 nudge no accuracy en",
+                en.get("nudge_notif_text").contains("accuracy score"),
+                false);
+        check("v3755 nudge no accuracy ur",
+                ur.get("nudge_notif_text").contains("ایکوریسی اسکور"),
+                false);
+        check("v3755 nudge text en",
+                en.get("nudge_notif_text"),
+                "Your new bill should be here — fetch it now!");
+        check("v3755 nudge text ur",
+                ur.get("nudge_notif_text"),
+                "نیا بل آیا ہوگا — ابھی فیچ کرو!");
+
+        // ---- 5. Dead VPN-advice strings deleted (zero code
+        //      references — verified before deleting). ----
+        check("v3755 guide_body deleted en",
+                en.containsKey("guide_body"), false);
+        check("v3755 guide_body deleted ur",
+                ur.containsKey("guide_body"), false);
+        check("v3755 pop_info deleted en",
+                en.containsKey("pop_info"), false);
+        check("v3755 pop_info deleted ur",
+                ur.containsKey("pop_info"), false);
+
+        // ---- 6. Meter capture still launches with NO permission
+        //      gate: onCaptureClicked calls launchCapture() directly,
+        //      and the video-capture intent is untouched. ----
+        check("v3755 capture no camera perm",
+                meter.contains("Manifest.permission.CAMERA"), false);
+        check("v3755 capture no req camera",
+                meter.contains("REQ_CAMERA"), false);
+        check("v3755 capture no perm request",
+                meter.contains("requestPermissions"), false);
+        check("v3755 capture no perm callback",
+                meter.contains("onRequestPermissionsResult"), false);
+        int capIdx = meter.indexOf("private void onCaptureClicked()");
+        check("v3755 capture method exists", capIdx >= 0, true);
+        String capBody = meter.substring(capIdx,
+                Math.min(meter.length(), capIdx + 400));
+        check("v3755 capture launches directly",
+                capBody.contains("launchCapture();"), true);
+        check("v3755 capture no perm check",
+                capBody.contains("checkSelfPermission"), false);
+        check("v3755 capture no manifest perm",
+                capBody.contains("Manifest.permission"), false);
+        check("v3755 capture intent kept",
+                meter.contains("MediaStore.ACTION_VIDEO_CAPTURE"),
+                true);
+        check("v3755 capture result kept",
+                meter.contains("startActivityForResult(i, REQ_VIDEO)"),
+                true);
+        check("v3755 gallery path kept",
+                meter.contains("startActivityForResult(Intent.createChooser(i,"),
+                true);
     }
 
     /** Synthetic commercial (MDI) bill: the user's live case (Abdul

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bijli Bill v3.7.54 (186) — FIXES-ONLY build (user order, 2026-11-24:
+# Bijli Bill v3.7.55 (187) — ZERO-RISK FIXES build (user order, 2026-11-24:
 # "koi bhi issue nahi ana chahiye"):
 #   - CRASH FIX (live v161 crash, 1 user): LescoBillFetcher
 #     .splitReference validates by THROWING IllegalArgumentException,
@@ -466,16 +466,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.54.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.54.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.55.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.55.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.54.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.54.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.55.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.55.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.54.apk" "$OUTDIR/bijli-bill-publish-3.7.54.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.55.apk" "$OUTDIR/bijli-bill-publish-3.7.55.aab"
 echo BUILD_OK

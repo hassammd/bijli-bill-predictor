@@ -65,7 +65,6 @@
     <string name="cancel">Cancel</string>
     <string name="back">BACK</string>
     <string name="about_btn">ABOUT</string>
-    <string name="premium_btn">PREMIUM</string>
 
     <!-- Bill screen -->
     <string name="bill_title">Electricity Bill</string>
@@ -91,16 +90,14 @@
     <string name="about_update_msg">Update check coming soon.</string>
     <string name="about_version">Version</string>
 
-    <!-- Premium -->
-    <string name="premium_title">★ Go Premium</string>
-    <string name="premium_sub">Make Bill Fetcher ad-free</string>
+    <!-- Billing (stub — v3.7.55: no purchase UI until real Play Billing
+         is wired; the old purchase strings promised a purchase that
+         could never complete, so they are gone) -->
     <string name="feat_noads">✓  No ads — banner and interstitial ads removed</string>
     <string name="feat_refs">✓  Unlimited saved references</string>
     <string name="feat_priority">✓  Priority support</string>
-    <string name="buy_premium">BUY PREMIUM — Rs 499 (one-time)</string>
-    <string name="premium_note">Payment will be processed securely via Google Play. Billing will be enabled at publish time.</string>
-    <string name="billing_title">Go Premium</string>
-    <string name="billing_msg">Google Play Billing will be enabled when this app is published on the Play Console.\n\nAfter publishing, premium will be available for purchase here. (Product ID: %1$s)</string>
+    <string name="billing_title">Premium</string>
+    <string name="billing_msg">Premium purchases are not available in this version of the app.</string>
 
     <!-- v2.0.5 -->
     <string name="fetch_offline">No internet — check your WiFi or mobile data</string>
@@ -342,7 +339,7 @@
     <!-- v3.4.0: bill-day nudge -->
     <string name="nudge_notif_channel">Bill reminders</string>
     <string name="nudge_notif_title">Your new bill should be here</string>
-    <string name="nudge_notif_text">Your new bill should be here — fetch it and see your accuracy score!</string>
+    <string name="nudge_notif_text">Your new bill should be here — fetch it now!</string>
     <!-- v3.4.0: weekly usage report -->
     <string name="weekly_notif_channel">Weekly report</string>
     <string name="weekly_notif_title">This week\'s report</string>
@@ -367,9 +364,7 @@
     <string name="pop_pk_sub">Continue to check your electricity bill.</string>
     <string name="pop_out_title">I\'m outside Pakistan</string>
     <string name="pop_out_sub">View connection instructions and try again.</string>
-    <string name="pop_info">Our official electricity bill service is designed for users in Pakistan.</string>
     <string name="guide_title">Quick Guide for You</string>
-    <string name="guide_body">Live bill fetch only works inside Pakistan — the official bill service blocks connections from other countries.\n\nTo fetch your bill from abroad:\n1. Turn on any VPN app\n2. Select Pakistan as the location\n3. Come back and fetch your bill again\n\nYou can still use Bill Estimate, Unit Check and the other tools without a VPN.</string>
     <string name="guide_btn">Got It</string>
 
     <!-- v3.6.54: new bill page design strings -->

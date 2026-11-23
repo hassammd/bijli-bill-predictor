@@ -8,19 +8,25 @@ import android.content.SharedPreferences;
 /**
  * Google Play Billing wiring STUB for the "Go Premium" upgrade.
  *
- * CURRENT STATE: stubbed. The purchase button calls launchPurchaseFlow(),
- * which today explains that billing activates at Play Console publish time.
- * All UI, feature gating points (BillingStub.isPremium) and the SKU constant
- * are already wired — enabling real billing later is mechanical.
+ * CURRENT STATE: stubbed, and the purchase UI is REMOVED (v3.7.55,
+ * zero-risk audit). The old About-screen PREMIUM button promised a
+ * paid purchase, but real billing was never wired — and the app has
+ * been LIVE on Play since 21 Nov 2026, so the old claim that billing
+ * would switch on at publish was false. There is no purchase entry
+ * point anywhere in the app until real billing is implemented.
+ * All feature gating points (BillingStub.isPremium) and the SKU
+ * constant stay wired — enabling real billing later is mechanical.
  *
  * TO ENABLE (full steps in README.txt):
- *   1. Publish the app's Play Console listing (needs the $25 developer account).
- *   2. Play Console -> Monetize -> In-app products -> create product with ID
- *      below (PREMIUM_SKU), type "Non-consumable", set price.
- *   3. Add dependency: com.android.billingclient:billing:7.x (Gradle) and
- *      implement BillingClient with queryProductDetails + launchBillingFlow.
- *   4. Replace isPremium() to check real purchases; persist with
+ *   1. Play Console -> Monetize -> In-app products -> create product
+ *      with ID below (PREMIUM_SKU), type "Non-consumable", set price.
+ *   2. Add dependency: com.android.billingclient:billing:7.x (Gradle)
+ *      and implement BillingClient with queryProductDetails +
+ *      launchBillingFlow.
+ *   3. Replace isPremium() to check real purchases; persist with
  *      setPremium() below (already the single write path).
+ *   4. Re-add a purchase entry point (About screen) ONLY once the
+ *      flow above is tested end to end.
  */
 public final class BillingStub {
 
@@ -44,12 +50,15 @@ public final class BillingStub {
                 .edit().putBoolean(KEY_PREMIUM, premium).apply();
     }
 
-    /** Wired to the "Buy Premium" button. Today: explains pending state. */
+    /** v3.7.55: no purchase UI calls this — kept for when real
+     *  billing is wired. Today it only explains that premium is
+     *  unavailable (the old text promised billing "at publish
+     *  time", but the app has been published since Nov 2026). */
     public static void launchPurchaseFlow(final Activity activity) {
         // PRODUCTION SWAP: billingClient.launchBillingFlow(activity, params)
         // with PREMIUM_SKU; on success call setPremium(activity, true).
         android.widget.TextView msgView = new android.widget.TextView(activity);
-        msgView.setText(activity.getString(R.string.billing_msg, PREMIUM_SKU));
+        msgView.setText(activity.getString(R.string.billing_msg));
         msgView.setTextSize(14);
         float density = activity.getResources().getDisplayMetrics().density;
         int px48 = (int) (48 * density + 0.5f);

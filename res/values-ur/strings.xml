@@ -65,7 +65,6 @@
     <string name="cancel">Cancel</string>
     <string name="back">واپس</string>
     <string name="about_btn">تعارف</string>
-    <string name="premium_btn">پریمیم</string>
 
     <!-- Bill screen -->
     <string name="bill_title">بجلی کا بل</string>
@@ -91,16 +90,14 @@
     <string name="about_update_msg">اپ ڈیٹ چیک جلد آ رہا ہے۔</string>
     <string name="about_version">ورژن</string>
 
-    <!-- Premium -->
-    <string name="premium_title">★ گو پریمیم</string>
-    <string name="premium_sub">بل فیچر کو اشتہارات سے پاک بنائیں</string>
+    <!-- Billing (stub — v3.7.55: no purchase UI until real Play Billing
+         is wired; the old purchase strings promised a purchase that
+         could never complete, so they are gone) -->
     <string name="feat_noads">✓  کوئی اشتہار نہیں — بینر اور انٹرسٹیشل ختم</string>
     <string name="feat_refs">✓  لامحدود محفوظ ریفرنسز</string>
     <string name="feat_priority">✓  ترجیحی سپورٹ</string>
-    <string name="buy_premium">پریمیم خریدیں — 499 روپے (ایک بار)</string>
-    <string name="premium_note">ادائیگی گوگل پلے کے ذریعے محفوظ طریقے سے ہوگی۔ بلنگ پلے کنسول پر پبلش کے وقت فعال ہوگی۔</string>
-    <string name="billing_title">پریمیم لیں</string>
-    <string name="billing_msg">گوگل پلے بلنگ اس ایپ کے پلے کنسول پر پبلش ہونے کے بعد فعال ہوگی۔\n\nپبلش کے بعد یہاں سے پریمیم خریدا جا سکے گا۔ (Product ID: %1$s)</string>
+    <string name="billing_title">پریمیم</string>
+    <string name="billing_msg">اس ایپ کے اس ورژن میں پریمیم خریداری دستیاب نہیں ہے۔</string>
 
     <!-- v2.0.5 -->
     <string name="fetch_offline">انٹرنیٹ نہیں ہے — وائی فائی یا موبائل ڈیٹا چیک کریں</string>
@@ -341,7 +338,7 @@
     <!-- v3.4.0: bill-day nudge -->
     <string name="nudge_notif_channel">بل یاد دہانی</string>
     <string name="nudge_notif_title">نیا بل آیا ہوگا</string>
-    <string name="nudge_notif_text">نیا بل آیا ہوگا — فیچ کرو اور اپنا ایکوریسی اسکور دیکھو!</string>
+    <string name="nudge_notif_text">نیا بل آیا ہوگا — ابھی فیچ کرو!</string>
     <!-- v3.4.0: weekly usage report -->
     <string name="weekly_notif_channel">ہفتہ وار رپورٹ</string>
     <string name="weekly_notif_title">اس ہفتے کی رپورٹ</string>
@@ -366,9 +363,7 @@
     <string name="pop_pk_sub">اپنا بجلی کا بل چیک کرنا جاری رکھیں۔</string>
     <string name="pop_out_title">میں پاکستان سے باہر ہوں</string>
     <string name="pop_out_sub">کنکشن کی ہدایات دیکھیں اور دوبارہ کوشش کریں۔</string>
-    <string name="pop_info">ہماری آفیشل بجلی بل سروس پاکستان کے صارفین کے لیے بنائی گئی ہے۔</string>
     <string name="guide_title">آپ کے لیے ایک رہنمائی</string>
-    <string name="guide_body">لائیو بل صرف پاکستان کے اندر سے نکلتا ہے — آفیشل بل سروس دوسرے ممالک کے کنکشن بلاک کر دیتی ہے۔\n\nپاکستان سے باہر بل نکالنے کے لیے:\n۱۔ کوئی VPN ایپ آن کریں\n۲۔ لوکیشن میں پاکستان منتخب کریں\n۳۔ واپس آ کر بل دوبارہ نکالیں\n\nبل Estimate، Unit Check اور باقی ٹولز آپ VPN کے بغیر بھی استعمال کر سکتے ہیں۔</string>
     <string name="guide_btn">سمجھ گیا</string>
 
     <!-- v3.6.54: new bill page design strings -->

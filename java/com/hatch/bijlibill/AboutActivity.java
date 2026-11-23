@@ -14,11 +14,14 @@ import android.widget.TextView;
 
 /**
  * v2.0 About: version, how-it-works 1-2-3, data source note, update check
- * placeholder, premium link.
+ * placeholder.
  * v3.7.24: NON-scrollable one-screen layout (user request) — upper content
  * condensed to short bullet points, disclaimer text unchanged (policy),
  * compact card spacing, actions pinned above the banner so CHECK FOR
- * UPDATES + Premium are always visible without scrolling.
+ * UPDATES is always visible without scrolling.
+ * v3.7.55: premium entry point REMOVED (zero-risk audit) — the PREMIUM
+ * button promised a paid purchase that real Play Billing never wired,
+ * so it is gone until billing is actually implemented.
  */
 public class AboutActivity extends BaseActivity {
 
@@ -261,15 +264,6 @@ public class AboutActivity extends BaseActivity {
             }
         });
         actions.addView(upd);
-        actions.addView(Ui.spacer(this, 8));
-        Button prem = Ui.ghostButton(this, R.string.premium_btn);
-        prem.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                startActivity(new Intent(AboutActivity.this,
-                        PremiumActivity.class));
-            }
-        });
-        actions.addView(prem);
         // v3.6.11: back button removed (user request) — bottom nav handles it.
 
         // v3.6.4: bottom nav on every tab (tester feedback #3).

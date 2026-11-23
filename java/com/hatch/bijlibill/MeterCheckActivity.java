@@ -1,8 +1,6 @@
 package com.hatch.bijlibill;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -71,7 +69,6 @@ public class MeterCheckActivity extends BaseActivity {
     public static final String EXTRA_FROM_BILL = "from_bill";
 
     private static final int REQ_VIDEO = 41;
-    private static final int REQ_CAMERA = 42;
     private static final int REQ_GALLERY = 43;
     /** v2.2.0: meter cycles are slow — allow up to a minute of video. */
     private static final int MAX_VIDEO_SECONDS = 60;
@@ -667,29 +664,11 @@ public class MeterCheckActivity extends BaseActivity {
     }
 
     private void onCaptureClicked() {
-        if (Build.VERSION.SDK_INT >= 23
-                && checkSelfPermission(Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(
-                    new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
-            return;
-        }
+        // v3.7.55: no CAMERA permission needed (zero-risk audit) —
+        // the SYSTEM camera app performs the capture via
+        // MediaStore.ACTION_VIDEO_CAPTURE; this app never touches
+        // the camera hardware directly. Launch straight away.
         launchCapture();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-            String[] permissions, int[] grantResults) {
-        if (requestCode == REQ_CAMERA) {
-            // The system camera app performs the capture either way;
-            // the permission only covers direct camera use.
-            if (grantResults.length == 0
-                    || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, R.string.meter_camera_denied,
-                        Toast.LENGTH_LONG).show();
-            }
-            launchCapture();
-        }
     }
 
     private void launchCapture() {

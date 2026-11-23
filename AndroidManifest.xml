@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hatch.bijlibill"
-    android:versionCode="186"
-    android:versionName="3.7.54">
+    android:versionCode="187"
+    android:versionName="3.7.55">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
 
@@ -10,9 +10,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- needed for the v2.0.5 internet pre-check before fetching -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- v2.1.0: Meter Check video capture (runtime request in
-         MeterCheckActivity; the system camera app does the capture) -->
-    <uses-permission android:name="android.permission.CAMERA" />
     <!-- v2.3.0: due-date reminder notification (runtime request on
          Android 13+, once, with a plain-words rationale) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -106,11 +103,6 @@
 
         <activity
             android:name=".AboutActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".PremiumActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
