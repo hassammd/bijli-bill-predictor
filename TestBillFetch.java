@@ -1126,6 +1126,14 @@ public class TestBillFetch {
         //      promises an "accuracy score", dead VPN strings out ----
         runV3755Tests();
 
+        // ---- v3.7.56: ADS build — real Google Mobile Ads SDK
+        //      23.6.0 with the audit §2-B placement rules: banner
+        //      16dp + divider from the bottom nav, interstitial
+        //      NEVER before fetch/view/result (only after the
+        //      bill/result displays), one per session + 5-min gap.
+        //      TEST ids only in this phase; real ids = later swap. ----
+        runV3756Tests();
+
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
 
@@ -2291,9 +2299,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -4021,9 +4029,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4401,10 +4409,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"187\""),
+                manifest.contains("android:versionCode=\"188\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.55\""),
+                manifest.contains("android:versionName=\"3.7.56\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4563,10 +4571,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"187\""),
+                manifest.contains("android:versionCode=\"188\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.55\""),
+                manifest.contains("android:versionName=\"3.7.56\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4955,9 +4963,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5152,9 +5160,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5220,9 +5228,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5636,9 +5644,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5697,9 +5705,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5806,9 +5814,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5984,9 +5992,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6104,9 +6112,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6228,9 +6236,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6333,9 +6341,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6483,9 +6491,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 180 / 3.7.48 in the manifest ----
         check("v3748 manifest version 180",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3748 manifest name 3.7.48",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. The "Estimate vs Actual Bill" card is GONE from
         //      BillActivity — view, wiring and helpers, all of it.
@@ -6551,9 +6559,9 @@ public class TestBillFetch {
         //      by v3.7.50; the v3749 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3749 manifest version 181",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3749 manifest name 3.7.49",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Arrears (dues) chip UNTOUCHED (user order
         //      2026-11-22: "Arrears KO remove na krna") ----
@@ -6658,9 +6666,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 185 / 3.7.53 in the manifest ----
         check("v3753 manifest version 185",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3753 manifest name 3.7.53",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Pending row name lookup (headless): the user's
         //      live pending rows — Rs 5,629 (ref 02118240620201)
@@ -6802,9 +6810,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 186 / 3.7.54 in the manifest ----
         check("v3754 manifest version 186",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3754 manifest name 3.7.54",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. Malformed references through fetchBillPageWith:
         //      FetchException(INVALID_REF) — NEVER
@@ -7017,11 +7025,11 @@ public class TestBillFetch {
 
         // ---- 11. build.sh carries the new version + outputs. ----
         check("v3754 build.sh version",
-                buildSh.contains("v3.7.55 (187)"), true);
+                buildSh.contains("v3.7.56 (188)"), true);
         check("v3754 build.sh apk name",
-                buildSh.contains("bijli-bill-v3.7.55.apk"), true);
+                buildSh.contains("bijli-bill-v3.7.56.apk"), true);
         check("v3754 build.sh aab name",
-                buildSh.contains("bijli-bill-publish-3.7.55.aab"), true);
+                buildSh.contains("bijli-bill-publish-3.7.56.aab"), true);
     }
 
     static void runV3755Tests() throws Exception {
@@ -7037,11 +7045,11 @@ public class TestBillFetch {
         java.util.Map<String, String> ur =
                 readStrings("res/values-ur/strings.xml");
 
-        // ---- 1. Version 187 / 3.7.55 in the manifest ----
+        // ---- 1. Version 188 / 3.7.56 in the manifest ----
         check("v3755 manifest version 187",
-                man.contains("android:versionCode=\"187\""), true);
+                man.contains("android:versionCode=\"188\""), true);
         check("v3755 manifest name 3.7.55",
-                man.contains("android:versionName=\"3.7.55\""), true);
+                man.contains("android:versionName=\"3.7.56\""), true);
 
         // ---- 2. CAMERA permission is GONE from the manifest —
         //      the system camera app does the capture, this app
@@ -7166,6 +7174,132 @@ public class TestBillFetch {
         check("v3755 gallery path kept",
                 meter.contains("startActivityForResult(Intent.createChooser(i,"),
                 true);
+    }
+
+    static void runV3756Tests() throws Exception {
+        String man = readFile("AndroidManifest.xml");
+        String ads = readFile(
+                "java/com/hatch/bijlibill/AdsManager.java");
+        String cfg = readFile(
+                "java/com/hatch/bijlibill/AdsConfig.java");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String viewer = readFile(
+                "java/com/hatch/bijlibill/BillViewerActivity.java");
+        String meter = readFile(
+                "java/com/hatch/bijlibill/MeterCheckActivity.java");
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String splash = readFile(
+                "java/com/hatch/bijlibill/SplashActivity.java");
+        String buildSh = readFile("build.sh");
+        java.util.Map<String, String> en =
+                readStrings("res/values/strings.xml");
+        java.util.Map<String, String> ur =
+                readStrings("res/values-ur/strings.xml");
+
+        // ---- 1. Version 188 / 3.7.56 in the manifest ----
+        check("v3756 manifest version 188",
+                man.contains("android:versionCode=\"188\""), true);
+        check("v3756 manifest name 3.7.56",
+                man.contains("android:versionName=\"3.7.56\""), true);
+
+        // ---- 2. Real AdMob SDK wired (no test-mode placeholders) ----
+        check("v3756 sdk init", ads.contains("MobileAds.initialize"),
+                true);
+        check("v3756 sdk interstitial load",
+                ads.contains("InterstitialAd.load"), true);
+        check("v3756 sdk adview",
+                ads.contains("new AdView(activity)"), true);
+        check("v3756 sdk banner size",
+                ads.contains("AdSize.BANNER"), true);
+        check("v3756 sdk no fake dialog",
+                ads.contains("TEST INTERSTITIAL AD"), false);
+        check("v3756 sdk no test banner text",
+                ads.contains("TEST AD"), false);
+        check("v3756 sdk no alert dialog",
+                ads.contains("AlertDialog"), false);
+
+        // ---- 3. No ad-gate before any action (audit §2-B #14) ----
+        check("v3756 no gate method",
+                ads.contains("showInterstitialBefore"), false);
+        check("v3756 no gate bill",
+                bill.contains("showInterstitialBefore"), false);
+        check("v3756 no gate viewer",
+                viewer.contains("showInterstitialBefore"), false);
+        check("v3756 no gate meter",
+                meter.contains("showInterstitialBefore"), false);
+        check("v3756 no old trigger",
+                ads.contains("onCalculationDone"), false);
+
+        // ---- 4. Interstitial only AFTER the bill/result displays ----
+        check("v3756 after bill",
+                bill.contains("maybeShowInterstitialAfter(this)"), true);
+        check("v3756 after viewer",
+                viewer.contains("maybeShowInterstitialAfter(this)"), true);
+        check("v3756 after meter",
+                meter.contains("maybeShowInterstitialAfter(this)"), true);
+        check("v3756 no show on home",
+                home.contains("maybeShowInterstitialAfter"), false);
+        check("v3756 no show on splash",
+                splash.contains("maybeShowInterstitialAfter"), false);
+
+        // ---- 5. Frequency: one per session + 5-min gap
+        //      (audit §2-B #15) ----
+        check("v3756 gap 5min", ads.contains("5 * 60 * 1000"), true);
+        check("v3756 session cap",
+                ads.contains("sShownThisSession"), true);
+        check("v3756 no 2min gap", ads.contains("2 * 60 * 1000"),
+                false);
+
+        // ---- 6. Banner separation from the bottom nav
+        //      (audit §2-B #13) ----
+        check("v3756 banner gap",
+                ads.contains("setPadding(16 * d, 6 * d, 16 * d, 16 * d)"),
+                true);
+        check("v3756 banner divider",
+                ads.contains("Divider between the banner"), true);
+
+        // ---- 7. Manifest: AdMob components merged by hand (no
+        //      Gradle manifest merger in this manual build) ----
+        check("v3756 manifest ad activity",
+                man.contains("com.google.android.gms.ads.AdActivity"),
+                true);
+        check("v3756 manifest init provider",
+                man.contains(
+                        "com.google.android.gms.ads.MobileAdsInitProvider"),
+                true);
+        check("v3756 manifest ad id perm",
+                man.contains("com.google.android.gms.permission.AD_ID"),
+                true);
+        check("v3756 manifest gms version",
+                man.contains("com.google.android.gms.version"), true);
+
+        // ---- 8. Phase 1: TEST ids still in place (real ids are
+        //      a config-only swap later — this test must be updated
+        //      by that swap, not before). ----
+        check("v3756 test banner id",
+                cfg.contains("ca-app-pub-3940256099942544/6300978111"),
+                true);
+        check("v3756 test interstitial id",
+                cfg.contains("ca-app-pub-3940256099942544/1033173712"),
+                true);
+        check("v3756 test app id",
+                man.contains("ca-app-pub-3940256099942544~3347511713"),
+                true);
+
+        // ---- 9. Ad label string in both locales ----
+        check("v3756 ad label en", en.get("ad_label"),
+                "Advertisement");
+        check("v3756 ad label ur", ur.get("ad_label"), "اشتہار");
+
+        // ---- 10. build.sh carries the new version + outputs ----
+        check("v3756 build.sh version",
+                buildSh.contains("v3.7.56 (188)"), true);
+        check("v3756 build.sh apk name",
+                buildSh.contains("bijli-bill-v3.7.56.apk"), true);
+        check("v3756 build.sh aab name",
+                buildSh.contains("bijli-bill-publish-3.7.56.aab"), true);
     }
 
     /** Synthetic commercial (MDI) bill: the user's live case (Abdul

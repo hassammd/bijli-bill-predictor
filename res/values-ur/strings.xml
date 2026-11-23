@@ -94,6 +94,8 @@
          is wired; the old purchase strings promised a purchase that
          could never complete, so they are gone) -->
     <string name="feat_noads">✓  کوئی اشتہار نہیں — بینر اور انٹرسٹیشل ختم</string>
+    <!-- v3.7.56 (188): accessibility label for the AdView banner slot -->
+    <string name="ad_label">اشتہار</string>
     <string name="feat_refs">✓  لامحدود محفوظ ریفرنسز</string>
     <string name="feat_priority">✓  ترجیحی سپورٹ</string>
     <string name="billing_title">پریمیم</string>

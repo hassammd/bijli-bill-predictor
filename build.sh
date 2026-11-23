@@ -1,4 +1,22 @@
 #!/bin/bash
+# Bijli Bill v3.7.56 (188) — ADS build, phase 1 (user order, 2026-11-24:
+# "release mn app ready jani ha chye sb kuch ads wgra lga k"):
+#   - REAL GOOGLE MOBILE ADS SDK 23.6.0 wired into the manual build
+#     (resolve_ads.py + the shared build/mlkit/aar-repo; the AAR
+#     jars + res + R classes flow through the same paths as ML Kit).
+#     AdsManager now calls MobileAds.initialize / InterstitialAd
+#     / AdView for real — no more test-mode placeholder views.
+#     TEST AdMob IDs only in this phase (real IDs = later swap).
+#   - PLACEMENT (audit §2-B): banner sits 16dp above the bottom nav
+#     with a 1dp divider line; interstitial NEVER before a fetch,
+#     a full-bill view or a unit-check result — only AFTER the bill
+#     or result has displayed; at most ONE per session and at least
+#     5 minutes between interstitials; never on open / back / exit.
+#   - MANIFEST: AdMob components merged by hand (AdActivity,
+#     MobileAdsInitProvider, AdService, AD_ID + adservices
+#     permissions, gms.version) — no Gradle merger here.
+#   - v3.7.55 fixes INTACT: crash fix, portrait feature optional,
+#     no premium purchase UI, no camera, policy URL, splash title.
 # Bijli Bill v3.7.55 (187) — ZERO-RISK FIXES build (user order, 2026-11-24:
 # "koi bhi issue nahi ana chahiye"):
 #   - CRASH FIX (live v161 crash, 1 user): LescoBillFetcher
@@ -450,6 +468,17 @@ echo "== ML Kit classes in APK =="
 unzip -l build/final.apk | grep -c "classes.*dex"
 unzip -l build/final.apk | grep -m2 "classes" || true
 
+echo "== Mobile Ads classes in APK =="
+# v3.7.56: the real GMS ads SDK must be linked — fail loudly if
+# AdView is absent from every classes*.dex.
+rm -rf build/dexcheck && mkdir -p build/dexcheck
+unzip -o -q build/final.apk 'classes*.dex' -d build/dexcheck
+if ! grep -rl "com/google/android/gms/ads/AdView" build/dexcheck/classes*.dex >/dev/null 2>&1; then
+  echo "BUILD FAILED: AdMob AdView class missing from APK dex — SDK not linked" >&2
+  exit 1
+fi
+echo "  AdView present in dex"
+
 echo "== AAB manifest =="
 for xp in "/manifest/@package" "/manifest/@android:versionCode" "/manifest/@android:versionName"; do
   java -jar "$BUNDLETOOL" dump manifest --bundle=build/signed.aab --xpath="$xp"
@@ -466,16 +495,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.55.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.55.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.56.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.56.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.55.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.55.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.56.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.56.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.55.apk" "$OUTDIR/bijli-bill-publish-3.7.55.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.56.apk" "$OUTDIR/bijli-bill-publish-3.7.56.aab"
 echo BUILD_OK

@@ -1141,12 +1141,11 @@ public class MeterCheckActivity extends BaseActivity {
     // ------------------------------------------------------------------
 
     private void showResult(final Result r, final String currReading) {
-        // v3.6.35: ad-gate before showing unit-check result.
-        AdsManager.showInterstitialBefore(this, new Runnable() {
-            @Override public void run() {
-                doShowResult(r, currReading);
-            }
-        });
+        // v3.7.56 (188): audit §2-B #14 — NO ad-gate before the
+        // unit-check result. The result renders immediately; an
+        // interstitial may only show AFTER it displays (see the
+        // end of doShowResult).
+        doShowResult(r, currReading);
     }
 
     private void doShowResult(Result r, String currReading) {
@@ -1399,6 +1398,10 @@ public class MeterCheckActivity extends BaseActivity {
         content.addView(actions);
 
         AdsManager.loadBannerInto(this, bannerBox);
+        // v3.7.56 (188): audit §2-B #14 — the result has displayed,
+        // so an interstitial MAY show here (at most one per
+        // session, 5-min gap — enforced inside AdsManager).
+        AdsManager.maybeShowInterstitialAfter(this);
     }
 
     private View paddedAlert(View alert) {

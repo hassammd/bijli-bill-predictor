@@ -98,18 +98,12 @@ public class BillViewerActivity extends Activity {
         // v3.6.73: status bar WHITE (user request — only this page).
         // Apply in onCreate AND onResume to be safe on all APIs.
         applyWhiteStatusBar();
-        // v3.6.35: ad-gate before viewing full bill.
-        // v3.6.42: skip ad on recreate (e.g. language toggle) — the
-        // ad was breaking the toggle flow.
-        if (savedInstanceState != null) {
-            doOnCreate(savedInstanceState);
-        } else {
-            AdsManager.showInterstitialBefore(this, new Runnable() {
-                @Override public void run() {
-                    doOnCreate(savedInstanceState);
-                }
-            });
-        }
+        // v3.6.35: ad-gate before viewing full bill — REMOVED in
+        // v3.7.56 (188), audit §2-B #14. The bill opens immediately;
+        // an interstitial may only show AFTER it displays (see the
+        // end of doOnCreate). The recreate check stays: on recreate
+        // (e.g. language toggle) the page is rebuilt directly.
+        doOnCreate(savedInstanceState);
     }
 
     private void doOnCreate(Bundle savedInstanceState) {
@@ -322,6 +316,10 @@ public class BillViewerActivity extends Activity {
         // v3.6.28: viewer 50dp (user fine-tune: 48dp se thora aur).
         // Other pages use 8dp default — proven perfect.
         root.addView(Ds.bottomNav(this, Ds.TAB_BILLS, 50));
+        // v3.7.56 (188): audit §2-B #14 — the bill view is set up,
+        // so an interstitial MAY show here (at most one per
+        // session, 5-min gap — enforced inside AdsManager).
+        AdsManager.maybeShowInterstitialAfter(this);
     }
 
     /**

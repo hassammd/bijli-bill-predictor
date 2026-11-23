@@ -437,12 +437,10 @@ public class BillActivity extends BaseActivity {
     // ------------------------------------------------------------------
 
     private void loadBill(final boolean forceRefresh) {
-        // v3.6.33: ad-gate — interstitial before fetch, then proceed.
-        AdsManager.showInterstitialBefore(this, new Runnable() {
-            @Override public void run() {
-                doLoadBill(forceRefresh);
-            }
-        });
+        // v3.7.56 (188): audit §2-B #14 — NO ad-gate before fetch.
+        // The fetch runs immediately; an interstitial may only
+        // show AFTER the bill displays (see showBillPage).
+        doLoadBill(forceRefresh);
     }
 
     private void doLoadBill(final boolean forceRefresh) {
@@ -1514,6 +1512,10 @@ public class BillActivity extends BaseActivity {
         }
 
         AdsManager.loadBannerInto(this, bannerBox);
+        // v3.7.56 (188): audit §2-B #14 — the bill has displayed,
+        // so an interstitial MAY show here (at most one per
+        // session, 5-min gap — enforced inside AdsManager).
+        AdsManager.maybeShowInterstitialAfter(this);
     }
 
     /**

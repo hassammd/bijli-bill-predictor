@@ -1,170 +1,185 @@
 package com.hatch.bijlibill;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 /**
- * Ad framework for the app.
+ * Ad framework for the app — REAL Google Mobile Ads SDK
+ * (play-services-ads 23.6.0), wired behind the existing call sites.
  *
- * CURRENT MODE: TEST-MODE (no AdMob SDK bundled — see note below).
- * The full wiring is real: call sites, frequency logic, config-driven IDs,
- * manifest APPLICATION_ID meta-data. Only the final SDK binding is stubbed.
+ * PLACEMENT RULES (zero-risk audit §2-B, 2026-11-24 — these are
+ * the law for every ad in the app):
+ *   - Banner: one slot per screen, standard AdSize.BANNER, clearly
+ *     labelled (the SDK draws its own "Ad" badge; the slot also
+ *     carries an accessibility label). The slot sits at least
+ *     16dp above the bottom nav with a divider line between the
+ *     banner and the nav — never flush against the nav tabs.
+ *     If an ad fails to load, the slot collapses (no empty box).
+ *   - Interstitial: NEVER before the user's action. No gate on
+ *     bill fetch, full-bill view, or unit-check result. An
+ *     interstitial may show ONLY after the bill/result has
+ *     displayed (see maybeShowInterstitialAfter), and at most
+ *     ONE per session with a minimum 5-minute gap between shows.
+ *     Never on app open, never on back press, never on exit.
+ *   - The interstitial is PRELOADED at init; if nothing is loaded
+ *     when an "after" point is reached, nothing shows — the user
+ *     is never made to wait for an ad.
  *
- * WHY TEST-MODE: this project uses the lightweight manual build pipeline
- * (javac + d8 + aapt2, no Gradle). The play-services-ads AAR has many
- * transitive dependencies (ads-lite, basement, measurement, …) that make a
- * manual AAR merge fragile. So v1 ships with this clean slot framework:
- * banner container + interstitial trigger points, driven by AdsConfig's
- * official Google TEST ids. Going production is a ~5-minute job:
- *
- *   PRODUCTION SWAP (in this file, each marked below):
- *   1. Add to build: implementation 'com.google.android.gms:play-services-ads:23.x'
- *   2. init():            MobileAds.initialize(context, status -> {});
- *   3. loadBannerInto():   AdView ad = new AdView(activity);
- *                          ad.setAdSize(AdSize.BANNER);
- *                          ad.setAdUnitId(AdsConfig.BANNER_AD_UNIT_ID);
- *                          container.addView(ad);
- *                          ad.loadAd(new AdRequest.Builder().build());
- *   4. Interstitial:      InterstitialAd.load(activity, AdsConfig.INTERSTITIAL_AD_UNIT_ID,
- *                          new AdRequest.Builder().build(), callback -> { mAd = …; });
- *                          then mAd.show(activity) at the trigger point.
- *   5. Replace test IDs in AdsConfig.java + manifest meta-data with real ones.
+ * IDs come from AdsConfig (Google TEST ids in this phase; real ids
+ * are a config-only swap later — no code change needed).
  */
 public final class AdsManager {
 
     private static final String PREFS = "bijli_bill_ads";
-    private static final String KEY_CALC_COUNT = "calc_count";
-    private static boolean initialized = false;
-
-    private AdsManager() {}
-
-    /** Call once from MainActivity.onCreate(). */
-    public static void init(Context ctx) {
-        if (initialized) return;
-        initialized = true;
-        // PRODUCTION SWAP: MobileAds.initialize(ctx, status -> {});
-    }
-
-    /**
-     * Renders the banner slot. In production this creates a real AdView;
-     * in test-mode it renders a clearly-labeled placeholder so layout,
-     * sizing and placement can be verified without the SDK.
-     */
-    public static void loadBannerInto(Activity activity, ViewGroup container) {
-        container.removeAllViews();
-        // v3.6.17: consistent padding on the container — banner height
-        // same on all pages (user feedback).
-        int d = (int) (activity.getResources().getDisplayMetrics().density
-                + 0.5f);
-        container.setPadding(16 * d, 6 * d, 16 * d, 6 * d);
-        if (!AdsConfig.ADS_ENABLED || BillingStub.isPremium(activity)) return;
-
-        // PRODUCTION SWAP: replace the block below with the real AdView code
-        // from the class javadoc (uses AdsConfig.BANNER_AD_UNIT_ID).
-        TextView test = new TextView(activity);
-        test.setText("TEST AD  \u2022  banner slot (" + AdsConfig.BANNER_AD_UNIT_ID + ")");
-        test.setTextSize(11);
-        test.setTextColor(Color.parseColor("#616161"));
-        test.setGravity(Gravity.CENTER);
-        test.setBackgroundColor(Color.parseColor("#E8EAF6"));
-        int pad = (int) (12 * activity.getResources().getDisplayMetrics().density + 0.5f);
-        test.setPadding(pad, (int) (pad * 2.2), pad, (int) (pad * 2.2));
-        container.addView(test, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-    }
-
-    /**
-     * Call after every successful bill calculation. Shows an interstitial
-     * every AdsConfig.INTERSTITIAL_EVERY_N_CALCULATIONS calculations.
-     */
-    /** Minimum gap between interstitials (avoid spam on rapid fetches). */
-    private static final long INTERSTITIAL_MIN_GAP_MS = 2 * 60 * 1000;
     private static final String KEY_LAST_INTERSTITIAL =
             "last_interstitial_ms";
 
-    public static void onCalculationDone(Activity activity) {
+    /** Audit §2-B #15: minimum gap between interstitial shows. */
+    private static final long INTERSTITIAL_MIN_GAP_MS = 5 * 60 * 1000;
+
+    private static boolean initialized = false;
+    private static InterstitialAd mInterstitialAd = null;
+    private static boolean sLoadingInterstitial = false;
+    /** Audit §2-B #15: at most ONE interstitial per session. */
+    private static boolean sShownThisSession = false;
+
+    private AdsManager() {}
+
+    /** Call once from HomeActivity.onCreate(). */
+    public static void init(Context ctx) {
+        if (initialized) return;
+        initialized = true;
+        final Context appCtx = ctx.getApplicationContext();
+        MobileAds.initialize(appCtx,
+                new OnInitializationCompleteListener() {
+                    @Override public void onInitializationComplete(
+                            InitializationStatus status) {
+                        preloadInterstitial(appCtx);
+                    }
+                });
+    }
+
+    /** Loads the next interstitial in the background. Safe to call
+     *  any time; no-ops while a load is in flight or one is ready. */
+    private static void preloadInterstitial(Context ctx) {
+        if (sLoadingInterstitial || mInterstitialAd != null) return;
+        sLoadingInterstitial = true;
+        InterstitialAd.load(ctx.getApplicationContext(),
+                AdsConfig.INTERSTITIAL_AD_UNIT_ID,
+                new AdRequest.Builder().build(),
+                new InterstitialAdLoadCallback() {
+                    @Override public void onAdLoaded(InterstitialAd ad) {
+                        sLoadingInterstitial = false;
+                        mInterstitialAd = ad;
+                    }
+
+                    @Override public void onAdFailedToLoad(LoadAdError err) {
+                        sLoadingInterstitial = false;
+                        mInterstitialAd = null;
+                    }
+                });
+    }
+
+    /**
+     * The ONLY interstitial trigger. Call AFTER the bill or the
+     * unit-check result has displayed — never before the action.
+     * Shows at most one interstitial per session and only if at
+     * least 5 minutes passed since the last one. If no ad is
+     * preloaded yet, it starts a background load and shows
+     * nothing — the user is never blocked on an ad.
+     */
+    public static void maybeShowInterstitialAfter(final Activity activity) {
         if (!AdsConfig.ADS_ENABLED || BillingStub.isPremium(activity)) return;
-        // v3.6.32: show after EVERY fetch (user: max revenue), but with
-        // a 2-min minimum gap so rapid back-to-back fetches don't spam.
+        if (sShownThisSession) return;
         SharedPreferences p = activity.getSharedPreferences(PREFS,
                 Context.MODE_PRIVATE);
         long now = System.currentTimeMillis();
         long last = p.getLong(KEY_LAST_INTERSTITIAL, 0);
-        if (now - last >= INTERSTITIAL_MIN_GAP_MS) {
-            p.edit().putLong(KEY_LAST_INTERSTITIAL, now).apply();
-            showInterstitial(activity);
+        if (now - last < INTERSTITIAL_MIN_GAP_MS) return;
+        if (mInterstitialAd == null) {
+            preloadInterstitial(activity);
+            return;
         }
+        final InterstitialAd ad = mInterstitialAd;
+        mInterstitialAd = null;
+        ad.setFullScreenContentCallback(new FullScreenContentCallback() {
+            @Override public void onAdDismissedFullScreenContent() {
+                // Session cap: no reload — one interstitial per session.
+            }
+
+            @Override public void onAdFailedToShowFullScreenContent(
+                    AdError adError) {
+                // Nothing to retry this session.
+            }
+        });
+        sShownThisSession = true;
+        p.edit().putLong(KEY_LAST_INTERSTITIAL, now).apply();
+        ad.show(activity);
     }
 
     /**
-     * v3.6.33: show interstitial BEFORE an action, run onClosed after user
-     * dismisses it. Used as ad-gate before bill fetch.
+     * Renders the banner slot with a real AdView. The container
+     * gets 16dp of space below the ad plus a divider line, so the
+     * banner is never flush against the bottom nav (audit §2-B
+     * #13). A failed load collapses the slot. A previously loaded
+     * AdView in the same container is destroyed first (the
+     * MeterCheck and Bill screens re-render into one bannerBox).
      */
-    public static void showInterstitialBefore(final Activity activity,
-            final Runnable onClosed) {
-        if (!AdsConfig.ADS_ENABLED || BillingStub.isPremium(activity)) {
-            onClosed.run();
-            return;
+    public static void loadBannerInto(Activity activity, ViewGroup container) {
+        Object old = container.getTag();
+        if (old instanceof AdView) {
+            ((AdView) old).destroy();
         }
-        // v3.6.36: no gap — user wants ad on EVERY step (fetch/view/check).
-        SharedPreferences p = activity.getSharedPreferences(PREFS,
-                Context.MODE_PRIVATE);
-        p.edit().putLong(KEY_LAST_INTERSTITIAL,
-                System.currentTimeMillis()).apply();
-        // PRODUCTION SWAP: real AdMob interstitial with
-        // FullScreenContentCallback.onAdDismissed -> onClosed.run()
-        TextView body = new TextView(activity);
-        body.setText("TEST INTERSTITIAL AD\n\n" +
-                AdsConfig.INTERSTITIAL_AD_UNIT_ID +
-                "\n\n(Production: real AdMob interstitial yahan show hoga.)");
-        body.setGravity(Gravity.CENTER);
-        body.setTypeface(Typeface.DEFAULT_BOLD);
-        int pad = (int) (24 * activity.getResources().getDisplayMetrics().density + 0.5f);
-        body.setPadding(pad, pad, pad, pad);
-        new AlertDialog.Builder(activity)
-                .setTitle("Sponsored")
-                .setView(body)
-                .setPositiveButton("Close",
-                        new DialogInterface.OnClickListener() {
-                            @Override public void onClick(
-                                    DialogInterface d, int which) {
-                                onClosed.run();
-                            }
-                        })
-                .setOnCancelListener(
-                        new DialogInterface.OnCancelListener() {
-                            @Override public void onCancel(
-                                    DialogInterface d) {
-                                onClosed.run();
-                            }
-                        })
-                .show();
-    }
+        container.removeAllViews();
+        int d = (int) (activity.getResources().getDisplayMetrics().density
+                + 0.5f);
+        container.setPadding(16 * d, 6 * d, 16 * d, 16 * d);
+        if (!AdsConfig.ADS_ENABLED || BillingStub.isPremium(activity)) return;
 
-    private static void showInterstitial(final Activity activity) {
-        // PRODUCTION SWAP: if (mInterstitialAd != null) { mInterstitialAd.show(activity); reload…; return; }
-        // Test-mode: a dialog standing in for the interstitial, so the trigger
-        // point and frequency are verifiable end-to-end.
-        TextView body = new TextView(activity);
-        body.setText("TEST INTERSTITIAL AD\n\n" + AdsConfig.INTERSTITIAL_AD_UNIT_ID +
-                "\n\n(Production: real AdMob interstitial yahan show hoga.)");
-        body.setGravity(Gravity.CENTER);
-        body.setTypeface(Typeface.DEFAULT_BOLD);
-        int pad = (int) (24 * activity.getResources().getDisplayMetrics().density + 0.5f);
-        body.setPadding(pad, pad, pad, pad);
-        new AlertDialog.Builder(activity)
-                .setTitle("Sponsored")
-                .setView(body)
-                .setPositiveButton("Close", null)
-                .show();
+        final ViewGroup box = container;
+        AdView adView = new AdView(activity);
+        adView.setAdSize(AdSize.BANNER);
+        adView.setAdUnitId(AdsConfig.BANNER_AD_UNIT_ID);
+        adView.setContentDescription(activity.getString(R.string.ad_label));
+        adView.setAdListener(new AdListener() {
+            @Override public void onAdLoaded() {
+                box.setVisibility(View.VISIBLE);
+            }
+
+            @Override public void onAdFailedToLoad(LoadAdError error) {
+                // No ad available — collapse the slot instead of
+                // leaving an empty box on the screen.
+                box.setVisibility(View.GONE);
+            }
+        });
+        container.addView(adView, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        // Divider between the banner and the bottom nav (audit §2-B #13).
+        View divider = new View(activity);
+        divider.setBackgroundColor(Color.parseColor("#DDDDDD"));
+        int oneDp = Math.max(1, d);
+        container.addView(divider, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, oneDp));
+        container.setTag(adView);
+        adView.loadAd(new AdRequest.Builder().build());
     }
 }
