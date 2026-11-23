@@ -7212,7 +7212,10 @@ public class TestBillFetch {
         check("v3756 sdk adview",
                 ads.contains("new AdView(activity)"), true);
         check("v3756 sdk banner size",
-                ads.contains("AdSize.BANNER"), true);
+                ads.contains("AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize"),
+                true);
+        check("v3756 sdk banner no fixed size",
+                ads.contains("setAdSize(AdSize.BANNER)"), false);
         check("v3756 sdk no fake dialog",
                 ads.contains("TEST INTERSTITIAL AD"), false);
         check("v3756 sdk no test banner text",

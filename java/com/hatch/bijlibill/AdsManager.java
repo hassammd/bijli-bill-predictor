@@ -27,12 +27,14 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
  *
  * PLACEMENT RULES (zero-risk audit §2-B, 2026-11-24 — these are
  * the law for every ad in the app):
- *   - Banner: one slot per screen, standard AdSize.BANNER, clearly
- *     labelled (the SDK draws its own "Ad" badge; the slot also
- *     carries an accessibility label). The slot sits at least
- *     16dp above the bottom nav with a divider line between the
- *     banner and the nav — never flush against the nav tabs.
- *     If an ad fails to load, the slot collapses (no empty box).
+ *   - Banner: one slot per screen, anchored adaptive banner
+ *     (Google's recommended format — earns more than the fixed
+ *     320x50 standard banner), clearly labelled (the SDK draws
+ *     its own "Ad" badge; the slot also carries an accessibility
+ *     label). The slot sits at least 16dp above the bottom nav
+ *     with a divider line between the banner and the nav — never
+ *     flush against the nav tabs. If an ad fails to load, the slot
+ *     collapses (no empty box).
  *   - Interstitial: NEVER before the user's action. No gate on
  *     bill fetch, full-bill view, or unit-check result. An
  *     interstitial may show ONLY after the bill/result has
@@ -156,7 +158,24 @@ public final class AdsManager {
 
         final ViewGroup box = container;
         AdView adView = new AdView(activity);
-        adView.setAdSize(AdSize.BANNER);
+        // Anchored adaptive banner (Google's recommended format —
+        // earns more than the fixed 320x50): width = screen width
+        // minus the 16dp side padding on each side, so the ad
+        // never exceeds the space in the container.
+        // (User order 2026-11-24: use the higher-earning format
+        // Google allows; ads are already cut to the minimum.
+        // NOTE: getLargeAnchoredAdaptiveBannerAdSize does NOT exist
+        // in play-services-ads 23.6.0 (javac: cannot find symbol),
+        // so the current-orientation adaptive size is used instead
+        // — same responsive width, standard adaptive height.)
+        int adWidth = (int) (activity.getResources()
+                .getDisplayMetrics().widthPixels
+                / activity.getResources().getDisplayMetrics().density)
+                - 32;
+        if (adWidth < 320) adWidth = 320;
+        adView.setAdSize(
+                AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                        activity, adWidth));
         adView.setAdUnitId(AdsConfig.BANNER_AD_UNIT_ID);
         adView.setContentDescription(activity.getString(R.string.ad_label));
         adView.setAdListener(new AdListener() {
