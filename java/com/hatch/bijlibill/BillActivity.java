@@ -486,12 +486,21 @@ public class BillActivity extends BaseActivity {
                     // Server rejected the number: the fetcher already
                     // classified it as NOT_FOUND vs INVALID_REF. The raw
                     // server text is the real error line.
+                    // v3.7.57: NOT_FOUND on a well-formed number most
+                    // often means the number belongs to ANOTHER
+                    // company (the format is identical across all
+                    // 11 DISCOs) — say so in the detail line so the
+                    // user re-selects their company instead of
+                    // checking company by company.
                     final int msgRes = e.kind == FetchKind.NOT_FOUND
                             ? R.string.fetch_not_found
                             : R.string.fetch_invalid_ref;
+                    final String detail = e.kind == FetchKind.NOT_FOUND
+                            ? wrongCompanyDetail(e.getMessage())
+                            : e.getMessage();
                     runOnUiThread(new Runnable() {
                         @Override public void run() {
-                            showError(getString(msgRes), e.getMessage());
+                            showError(getString(msgRes), detail);
                         }
                     });
                 } catch (final FetchException e) {
@@ -648,6 +657,22 @@ public class BillActivity extends BaseActivity {
             pulse.start();
             sk.setTag(pulse);
         }
+    }
+
+    /**
+     * v3.7.57: detail line for a NOT_FOUND error — the wrong-company
+     * guidance first (the number format is identical across all 11
+     * DISCOs, so the app never guesses which company it belongs
+     * to), then the portal's own words underneath. Latin runs are
+     * isolated so the company list reads correctly in Urdu too.
+     */
+    private String wrongCompanyDetail(String serverMessage) {
+        String detail = BidiText.isolateLatinRuns(
+                getString(R.string.fetch_wrong_company));
+        if (serverMessage != null && !serverMessage.trim().isEmpty()) {
+            detail = detail + "\n" + serverMessage.trim();
+        }
+        return detail;
     }
 
     /**
@@ -943,7 +968,13 @@ public class BillActivity extends BaseActivity {
                         }
                     });
                 } catch (final CaptchaRequiredException e) {
-                    // Server re-challenged (fresh picture) — show it.
+                    // v3.7.57: re-challenge AFTER a code was submitted —
+                    // the portal answered with a FRESH picture instead
+                    // of a result. Never loop silently: say the code
+                    // was asked again and that a wrong-company number
+                    // is the likely cause if it keeps happening.
+                    pendingCaptchaError = BidiText.isolateLatinRuns(
+                            getString(R.string.captcha_asked_again));
                     runOnUiThread(new Runnable() {
                         @Override public void run() {
                             showCaptchaScreen(e.session);
@@ -959,12 +990,17 @@ public class BillActivity extends BaseActivity {
                         }
                     });
                 } catch (final BillErrorException e) {
+                    // v3.7.57: same wrong-company guidance as the
+                    // main fetch thread (see wrongCompanyDetail).
                     final int msgRes = e.kind == FetchKind.NOT_FOUND
                             ? R.string.fetch_not_found
                             : R.string.fetch_invalid_ref;
+                    final String detail = e.kind == FetchKind.NOT_FOUND
+                            ? wrongCompanyDetail(e.getMessage())
+                            : e.getMessage();
                     runOnUiThread(new Runnable() {
                         @Override public void run() {
-                            showError(getString(msgRes), e.getMessage());
+                            showError(getString(msgRes), detail);
                         }
                     });
                 } catch (final FetchException e) {
@@ -1498,6 +1534,12 @@ public class BillActivity extends BaseActivity {
         }
 
         // Parse failed but the page is still shown: say so honestly.
+        // v3.7.57: this is the silent dead end the user reported —
+        // after CAPTCHA, no bill AND no error, just this note. The
+        // portal's no-record page often carries no error text at
+        // all (zero fields -> parseOk=false), so add the
+        // wrong-company guidance here too: the number may belong
+        // to another company, re-select it.
         if (!p.parseOk) {
             LinearLayout nc = alertCard(R.drawable.ic_warning);
             TextView nt = new TextView(this);
@@ -1509,6 +1551,17 @@ public class BillActivity extends BaseActivity {
             nc.addView(nt, new LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             inner.addView(nc);
+            LinearLayout wc = alertCard(R.drawable.ic_warning);
+            TextView wt = new TextView(this);
+            wt.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.fetch_wrong_company)));
+            wt.setTextSize(13.5f);
+            wt.setTextColor(Color.parseColor("#6E4403"));
+            wt.setLineSpacing(dp(2), 1.6f);
+            Ds.body(this, wt, 500);
+            wc.addView(wt, new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            inner.addView(wc);
         }
 
         AdsManager.loadBannerInto(this, bannerBox);
@@ -2074,8 +2127,9 @@ public class BillActivity extends BaseActivity {
                     : days == 1
                     ? getString(R.string.due_day_left, days)
                     : getString(R.string.due_days_left, days);
-            ct.setText(getString(R.string.due_chip, dueDisplay.trim(),
-                    daysText));
+            ct.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, dueDisplay.trim(),
+                            daysText)));
             ct.setTextSize(12.5f);
             ct.setTextColor(Ds.ndDarkText());
             Ds.heading(this, ct);

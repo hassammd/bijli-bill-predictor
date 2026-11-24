@@ -1530,9 +1530,13 @@ public final class LescoBillFetcher {
         // re-serving the form with a FRESH challenge, go straight
         // to a fresh captcha screen. But a wrong-code rejection
         // must keep its honest message, so only do this when the
-        // response carries no captcha-error text (parseBillHtml
-        // step 0 handles that case).
-        if (captchaErrorText(resultHtml) == null) {
+        // response carries no captcha-error text — or only the
+        // routine "CAPTCHA is required" form label (v3.7.57: the
+        // portal prints that label on the form whenever it renders
+        // with an empty code field, so it is not a rejection of
+        // the code that was submitted).
+        if (captchaErrorText(resultHtml) == null
+                || captchaErrorIsOnlyRequired(resultHtml)) {
             CaptchaChallenge reChallenge =
                     parseCaptchaChallenge(resultHtml, session.pageUrl);
             if (reChallenge != null) {
@@ -1702,6 +1706,29 @@ public final class LescoBillFetcher {
                 || t.contains("mismatch") || t.contains("expired")
                 || t.contains("does not match") || t.contains("not match")
                 || t.contains("try again");
+    }
+
+    /** v3.7.57: true when the only captcha-error text on the page
+     *  is the routine "CAPTCHA is required" field-validation label
+     *  — the portal prints it on the search form whenever it
+     *  renders with an empty code field (user's 2026-11-21
+     *  screenshot), so it is NOT a rejection of a code the user
+     *  typed. A real rejection says invalid / incorrect / wrong /
+     *  mismatch / expired / does not match / try again. Used by
+     *  doFetchWithCaptcha so a re-served form after a submitted
+     *  code is recognised as a re-challenge instead of a
+     *  wrong-code rejection. */
+    public static boolean captchaErrorIsOnlyRequired(String html) {
+        String err = captchaErrorText(html);
+        if (err == null) return false;
+        String t = err.toLowerCase();
+        if (!t.contains("captcha") || !t.contains("required")) {
+            return false;
+        }
+        return !(t.contains("invalid") || t.contains("incorrect")
+                || t.contains("wrong") || t.contains("mismatch")
+                || t.contains("expired") || t.contains("does not match")
+                || t.contains("not match") || t.contains("try again"));
     }
 
     /**

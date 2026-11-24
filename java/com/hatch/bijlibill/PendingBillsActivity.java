@@ -262,8 +262,10 @@ public class PendingBillsActivity extends BaseActivity {
 
         if (p.ref != null && !p.ref.trim().isEmpty()) {
             TextView ref = new TextView(this);
-            ref.setText(getString(R.string.bill_ref_masked,
-                    p.ref.trim()));
+            // v3.7.57: bidi-safe — the masked ref is a Latin run
+            // inside RTL Urdu text (see BidiText).
+            ref.setText(BidiText.isolateLatinRuns(getString(
+                    R.string.bill_ref_masked, p.ref.trim())));
             ref.setTextSize(12);
             ref.setTextColor(Ds.muted());
             Ds.body(this, ref, 400);
@@ -278,30 +280,39 @@ public class PendingBillsActivity extends BaseActivity {
         Integer d = TotalPayable.daysLeft(p.dueDate, nowMs);
         String due = p.dueDate == null ? "" : p.dueDate.trim();
         boolean overdue = d != null && d.intValue() < 0;
+        // v3.7.57: every composed due line below goes through
+        // BidiText.isolateLatinRuns — the due date ("26 NOV 26")
+        // and day counts are Latin runs inside RTL Urdu text
+        // (same fix as HomeActivity.setTotalPayableDue).
         if (d == null) {
             dueTv.setText(due.isEmpty()
                     ? getString(R.string.pending_no_due)
-                    : getString(R.string.strip_due_date) + " " + due);
+                    : BidiText.isolateLatinRuns(
+                            getString(R.string.strip_due_date) + " " + due));
             dueTv.setTextColor(Ds.muted());
         } else if (overdue) {
-            dueTv.setText(getString(-d.intValue() == 1 ? R.string.pending_overdue_by_day
+            dueTv.setText(BidiText.isolateLatinRuns(getString(
+                    -d.intValue() == 1 ? R.string.pending_overdue_by_day
                             : R.string.pending_overdue_by,
-                    -d.intValue()));
+                    -d.intValue())));
             dueTv.setTextColor(Color.parseColor("#C62828"));
             dueTv.setTypeface(Typeface.DEFAULT_BOLD);
         } else if (d.intValue() == 0) {
-            dueTv.setText(getString(R.string.due_chip, due,
-                    getString(R.string.due_today)));
+            dueTv.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, due,
+                    getString(R.string.due_today))));
             dueTv.setTextColor(Color.parseColor("#C62828"));
         } else if (d.intValue() <= TotalPayable.DUE_SOON_DAYS) {
-            dueTv.setText(getString(R.string.due_chip, due,
+            dueTv.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, due,
                     getString(d.intValue() == 1 ? R.string.due_day_left
-                            : R.string.due_days_left, d.intValue())));
+                            : R.string.due_days_left, d.intValue()))));
             dueTv.setTextColor(Color.parseColor("#C62828"));
         } else {
-            dueTv.setText(getString(R.string.due_chip, due,
+            dueTv.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, due,
                     getString(d.intValue() == 1 ? R.string.due_day_left
-                            : R.string.due_days_left, d.intValue())));
+                            : R.string.due_days_left, d.intValue()))));
             dueTv.setTextColor(Ds.muted());
         }
         card.addView(dueTv);
@@ -311,8 +322,10 @@ public class PendingBillsActivity extends BaseActivity {
         if (overdue && p.afterDue != null
                 && !p.afterDue.trim().isEmpty()) {
             TextView late = new TextView(this);
-            late.setText(getString(R.string.pending_after_due,
-                    p.afterDue.trim()));
+            // v3.7.57: bidi-safe amount (see BidiText).
+            late.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.pending_after_due,
+                    p.afterDue.trim())));
             late.setTextSize(12.5f);
             late.setTextColor(Color.parseColor("#C62828"));
             Ds.body(this, late, 400);

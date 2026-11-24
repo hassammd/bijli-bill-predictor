@@ -30,6 +30,16 @@
     <string name="fetch_network_down">The LESCO website is not opening right now — please try again in a little while</string>
     <string name="fetch_invalid_ref">This reference number looks wrong — check your bill and try again</string>
     <string name="fetch_not_found">No bill found for this number — check your bill and try again</string>
+    <!-- v3.7.57: wrong-company guidance — shown as the detail line under
+         "No bill found" (and on the bill screen when nothing parses).
+         The number format is identical across all 11 DISCOs, so the
+         app NEVER guesses which company it belongs to — it only asks
+         the user to re-select theirs. -->
+    <string name="fetch_wrong_company">This number may belong to another company — please select the right company: FESCO, GEPCO, HAZECO, HESCO, IESCO, LESCO, MEPCO, PESCO, QESCO, SEPCO, TESCO</string>
+    <!-- v3.7.57: shown on the CAPTCHA screen when the portal answers a
+         submitted code with a FRESH picture instead of a result — the
+         silent re-challenge loop must never spin without a message. -->
+    <string name="captcha_asked_again">The website asked for the code again — if this keeps happening, this number may belong to another company. Please check your company selection.</string>
     <string name="fetch_token_error">Connected to the website but the form could not be understood — please try again in a little while</string>
     <string name="fetch_parse_empty">The website replied but the bill could not be read — the next update will fix this</string>
     <string name="fetch_antiforgery_error">The website asked for a security cookie that could not be sent — please try again</string>

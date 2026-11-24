@@ -359,12 +359,20 @@ public class HomeActivity extends BaseActivity {
         TextView l = new TextView(this);
         l.setText(getString(resId));
         l.setAllCaps(true);
+        // v3.7.57: ONE line, never wrapped — "کمپنی منتخب کریں"
+        // wrapped onto two lines (user screenshot, 2026-11-24).
+        // Full-width + END gravity so it sits right-aligned in RTL.
+        l.setSingleLine(true);
+        l.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        if (LocaleHelper.isUrdu(this)) {
+            l.setGravity(Gravity.END);
+        }
         l.setTextSize(11.5f);
         l.setLetterSpacing(0.1f);
         l.setTextColor(Ds.faint());
         Ds.heading(this, l);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         // v3.6.93: bottom margin 10dp→14dp (label→chips gap 12dp→16dp, user QA).
         lp.setMargins(Ui.dp(this, 20), Ui.dp(this, topMarginDp),
@@ -510,8 +518,10 @@ public class HomeActivity extends BaseActivity {
             }
             totalPayablePending.setTextColor(
                     Color.parseColor("#1E7A34"));
-            totalPayablePending.setText("\u2713 "
-                    + getString(R.string.bills_pending, 0));
+            // v3.7.57: bidi-safe — the "0 بل بقایا ہیں" digit is a
+            // Latin run inside RTL text, isolate it (see BidiText).
+            totalPayablePending.setText(BidiText.isolateLatinRuns(
+                    "\u2713 " + getString(R.string.bills_pending, 0)));
             if (totalPayableDue != null) {
                 totalPayableDue.setVisibility(View.GONE);
             }
@@ -522,8 +532,9 @@ public class HomeActivity extends BaseActivity {
                     R.drawable.ds_total_pill);
         }
         totalPayablePending.setTextColor(Color.WHITE);
-        totalPayablePending.setText(
-                getString(R.string.bills_pending, res.pendingCount));
+        // v3.7.57: bidi-safe pending pill (see BidiText).
+        totalPayablePending.setText(BidiText.isolateLatinRuns(
+                getString(R.string.bills_pending, res.pendingCount)));
         setTotalPayableDue(pending.isEmpty() ? null : pending.get(0));
     }
 
@@ -537,33 +548,41 @@ public class HomeActivity extends BaseActivity {
         String due = near.dueDate == null ? "" : near.dueDate.trim();
         Integer d = TotalPayable.daysLeft(near.dueDate,
                 System.currentTimeMillis());
+        // v3.7.57: every composed line below goes through
+        // BidiText.isolateLatinRuns — the due date ("26 NOV 26")
+        // and day counts are Latin runs inside RTL Urdu text, and
+        // without isolates the bidi algorithm scrambles the
+        // sentence for ANY values (user screenshot, 2026-11-24).
         if (d == null) {
             if (due.isEmpty()) {
                 totalPayableDue.setText(
                         getString(R.string.pending_no_due));
             } else {
-                totalPayableDue.setText(
-                        getString(R.string.strip_due_date) + " " + due);
+                totalPayableDue.setText(BidiText.isolateLatinRuns(
+                        getString(R.string.strip_due_date) + " " + due));
             }
             totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
         } else if (d.intValue() < 0) {
-            totalPayableDue.setText(getString(
+            totalPayableDue.setText(BidiText.isolateLatinRuns(getString(
                     -d.intValue() == 1 ? R.string.pending_overdue_by_day
-                            : R.string.pending_overdue_by, -d.intValue()));
+                            : R.string.pending_overdue_by, -d.intValue())));
             totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
         } else if (d.intValue() == 0) {
-            totalPayableDue.setText(getString(R.string.due_chip, due,
-                    getString(R.string.due_today)));
+            totalPayableDue.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, due,
+                    getString(R.string.due_today))));
             totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
         } else if (d.intValue() <= TotalPayable.DUE_SOON_DAYS) {
-            totalPayableDue.setText(getString(R.string.due_chip, due,
+            totalPayableDue.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, due,
                     getString(d.intValue() == 1 ? R.string.due_day_left
-                            : R.string.due_days_left, d.intValue())));
+                            : R.string.due_days_left, d.intValue()))));
             totalPayableDue.setTextColor(Color.parseColor("#FFB3B3"));
         } else {
-            totalPayableDue.setText(getString(R.string.due_chip, due,
+            totalPayableDue.setText(BidiText.isolateLatinRuns(
+                    getString(R.string.due_chip, due,
                     getString(d.intValue() == 1 ? R.string.due_day_left
-                            : R.string.due_days_left, d.intValue())));
+                            : R.string.due_days_left, d.intValue()))));
             totalPayableDue.setTextColor(Color.parseColor("#BFD6F2"));
         }
         totalPayableDue.setVisibility(View.VISIBLE);

@@ -10,6 +10,7 @@ import com.hatch.bijlibill.Tariff;
 import com.hatch.bijlibill.BillReminder;
 import com.hatch.bijlibill.BillPdf;
 import com.hatch.bijlibill.BillSummary;
+import com.hatch.bijlibill.BidiText;
 import com.hatch.bijlibill.Disco;
 import com.hatch.bijlibill.SavedMeters;
 import com.hatch.bijlibill.LangPolicy;
@@ -1133,6 +1134,13 @@ public class TestBillFetch {
         //      bill/result displays), one per session + 5-min gap.
         //      TEST ids only in this phase; real ids = later swap. ----
         runV3756Tests();
+
+        // ---- v3.7.57: wrong-company reference shows a clear
+        //      error (user report + his ref 02118240618600u, voice
+        //      call 2026-11-24) + Urdu RTL bidi-safe due lines
+        //      (user screenshot) + select-company label one line,
+        //      right-aligned. ----
+        runV3757Tests();
 
         // ---- v3.7.33: session-out goes straight to CAPTCHA ----
         runV3733SessionOutTests();
@@ -2299,9 +2307,9 @@ public class TestBillFetch {
         String man = new String(mfb,
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 versionCode 31",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v360 versionName 3.5.0",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
         check("v230 manifest POST_NOTIFICATIONS",
                 man.contains("android.permission.POST_NOTIFICATIONS"),
                 true);
@@ -4029,9 +4037,9 @@ public class TestBillFetch {
                 java.nio.file.Paths.get("AndroidManifest.xml")),
                 java.nio.charset.StandardCharsets.UTF_8);
         check("v360 manifest versionCode",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v360 manifest versionName",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
         check("v320 manifest guard activity",
                 man.contains("android:name=\".GuardActivity\""), true);
         check("v320 manifest whatif activity",
@@ -4409,10 +4417,10 @@ public class TestBillFetch {
 
         // ============ F. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"188\""),
+                manifest.contains("android:versionCode=\"189\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.56\""),
+                manifest.contains("android:versionName=\"3.7.57\""),
                 true);
         check("v340 manifest nudge receiver",
                 manifest.contains(".BillDayNudgeReceiver"), true);
@@ -4571,10 +4579,10 @@ public class TestBillFetch {
 
         // ============ D. MANIFEST ============
         check("v360 manifest versionCode",
-                manifest.contains("android:versionCode=\"188\""),
+                manifest.contains("android:versionCode=\"189\""),
                 true);
         check("v360 manifest versionName",
-                manifest.contains("android:versionName=\"3.7.56\""),
+                manifest.contains("android:versionName=\"3.7.57\""),
                 true);
         check("v360 manifest targetSdk 36",
                 manifest.contains("android:targetSdkVersion=\"36\""),
@@ -4963,9 +4971,9 @@ public class TestBillFetch {
                 bill.contains("BillSnapshots"), false);
         // ---- 7. Version 174 / 3.7.42 in the manifest ----
         check("v3737 manifest version 174",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3737 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 8. v3.7.31: CAPTCHA VIEW BILL stays grey until the
         //      6-char code is fully typed (TextWatcher; grey again
@@ -5160,9 +5168,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3738 manifest version 174",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3738 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
     }
 
     static void runV3739Tests() throws Exception {
@@ -5228,9 +5236,9 @@ public class TestBillFetch {
 
         // ---- 4. Version 174 / 3.7.42 in the manifest ----
         check("v3739 manifest version 174",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3739 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
     }
 
     static void runV3740Tests() throws Exception {
@@ -5644,9 +5652,9 @@ public class TestBillFetch {
 
         // ---- 12. Version 174 / 3.7.42 in the manifest ----
         check("v3740 manifest version 174",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3740 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 13. v3.7.41: one blue + flat cards + spacing. ----
         String totalCard = readFile("res/drawable/ds_total_card.xml");
@@ -5705,9 +5713,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 174 / 3.7.42 in the manifest ----
         check("v3742 manifest version 174",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3742 manifest name 3.7.42",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Quick Tools on the company form page (user
         //      order 2026-11-21, FINAL): below VIEW BILL
@@ -5814,9 +5822,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 175 / 3.7.43 in the manifest ----
         check("v3743 manifest version 175",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3743 manifest name 3.7.43",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
         check("v3743 pending activity registered",
                 man.contains(".PendingBillsActivity"), true);
 
@@ -5992,9 +6000,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3744 manifest version 177",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3744 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Badge date is 2-digit year: "Paid on" stays
         //      complete, only the date shortens ("17 Nov 26").
@@ -6112,9 +6120,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 177 / 3.7.45 in the manifest ----
         check("v3745 manifest version 177",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3745 manifest name 3.7.45",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. No-evidence bill resolves UNPAID (user rule
         //      2026-11-22, overrides v3.7.41): a bill with no
@@ -6236,9 +6244,9 @@ public class TestBillFetch {
         //      by v3.7.47; the v3746 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3746 manifest version 178",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3746 manifest name 3.7.46",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Stamp 56dp wide (was 72dp — user 2026-11-22:
         //      still too big), aspect kept, never stretched. ----
@@ -6341,9 +6349,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 179 / 3.7.47 in the manifest ----
         check("v3747 manifest version 179",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3747 manifest name 3.7.47",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Last-bill pointer: ONE shared writer used by
         //      BOTH the Home form submit and BillActivity's
@@ -6491,9 +6499,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 180 / 3.7.48 in the manifest ----
         check("v3748 manifest version 180",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3748 manifest name 3.7.48",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. The "Estimate vs Actual Bill" card is GONE from
         //      BillActivity — view, wiring and helpers, all of it.
@@ -6559,9 +6567,9 @@ public class TestBillFetch {
         //      by v3.7.50; the v3749 block's asserts track the
         //      manifest, same as every earlier version bump) ----
         check("v3749 manifest version 181",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3749 manifest name 3.7.49",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Arrears (dues) chip UNTOUCHED (user order
         //      2026-11-22: "Arrears KO remove na krna") ----
@@ -6666,9 +6674,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 185 / 3.7.53 in the manifest ----
         check("v3753 manifest version 185",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3753 manifest name 3.7.53",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Pending row name lookup (headless): the user's
         //      live pending rows — Rs 5,629 (ref 02118240620201)
@@ -6810,9 +6818,9 @@ public class TestBillFetch {
 
         // ---- 1. Version 186 / 3.7.54 in the manifest ----
         check("v3754 manifest version 186",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3754 manifest name 3.7.54",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Malformed references through fetchBillPageWith:
         //      FetchException(INVALID_REF) — NEVER
@@ -7025,11 +7033,11 @@ public class TestBillFetch {
 
         // ---- 11. build.sh carries the new version + outputs. ----
         check("v3754 build.sh version",
-                buildSh.contains("v3.7.56 (188)"), true);
+                buildSh.contains("v3.7.57 (189)"), true);
         check("v3754 build.sh apk name",
-                buildSh.contains("bijli-bill-v3.7.56.apk"), true);
+                buildSh.contains("bijli-bill-v3.7.57.apk"), true);
         check("v3754 build.sh aab name",
-                buildSh.contains("bijli-bill-publish-3.7.56.aab"), true);
+                buildSh.contains("bijli-bill-publish-3.7.57.aab"), true);
     }
 
     static void runV3755Tests() throws Exception {
@@ -7045,11 +7053,11 @@ public class TestBillFetch {
         java.util.Map<String, String> ur =
                 readStrings("res/values-ur/strings.xml");
 
-        // ---- 1. Version 188 / 3.7.56 in the manifest ----
+        // ---- 1. Version 189 / 3.7.57 in the manifest ----
         check("v3755 manifest version 187",
-                man.contains("android:versionCode=\"188\""), true);
+                man.contains("android:versionCode=\"189\""), true);
         check("v3755 manifest name 3.7.55",
-                man.contains("android:versionName=\"3.7.56\""), true);
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. CAMERA permission is GONE from the manifest —
         //      the system camera app does the capture, this app
@@ -7198,11 +7206,11 @@ public class TestBillFetch {
         java.util.Map<String, String> ur =
                 readStrings("res/values-ur/strings.xml");
 
-        // ---- 1. Version 188 / 3.7.56 in the manifest ----
-        check("v3756 manifest version 188",
-                man.contains("android:versionCode=\"188\""), true);
-        check("v3756 manifest name 3.7.56",
-                man.contains("android:versionName=\"3.7.56\""), true);
+        // ---- 1. Version 189 / 3.7.57 in the manifest ----
+        check("v3756 manifest version 189",
+                man.contains("android:versionCode=\"189\""), true);
+        check("v3756 manifest name 3.7.57",
+                man.contains("android:versionName=\"3.7.57\""), true);
 
         // ---- 2. Real AdMob SDK wired (no test-mode placeholders) ----
         check("v3756 sdk init", ads.contains("MobileAds.initialize"),
@@ -7306,11 +7314,312 @@ public class TestBillFetch {
 
         // ---- 10. build.sh carries the new version + outputs ----
         check("v3756 build.sh version",
-                buildSh.contains("v3.7.56 (188)"), true);
+                buildSh.contains("v3.7.57 (189)"), true);
         check("v3756 build.sh apk name",
-                buildSh.contains("bijli-bill-v3.7.56.apk"), true);
+                buildSh.contains("bijli-bill-v3.7.57.apk"), true);
         check("v3756 build.sh aab name",
-                buildSh.contains("bijli-bill-publish-3.7.56.aab"), true);
+                buildSh.contains("bijli-bill-publish-3.7.57.aab"), true);
+    }
+
+    // ---- v3.7.57 tests: wrong-company reference shows a clear
+    //      error (user report, voice call 2026-11-24 ~12:10 PKT) +
+    //      Urdu RTL bidi-safe due lines (user screenshot ~12:12 PKT).
+    //      The user's own case: ref 02118240618600u from his LESCO
+    //      form screenshot — entered under the WRONG company it gave
+    //      neither a bill nor an error after CAPTCHA. ----
+
+    static void runV3757Tests() throws Exception {
+        String man = readFile("AndroidManifest.xml");
+        String bill = readFile(
+                "java/com/hatch/bijlibill/BillActivity.java");
+        String home = readFile(
+                "java/com/hatch/bijlibill/HomeActivity.java");
+        String pending = readFile(
+                "java/com/hatch/bijlibill/PendingBillsActivity.java");
+        String buildSh = readFile("build.sh");
+        java.util.Map<String, String> en =
+                readStrings("res/values/strings.xml");
+        java.util.Map<String, String> ur =
+                readStrings("res/values-ur/strings.xml");
+
+        // ---- 1. Version 189 / 3.7.57 in the manifest ----
+        check("v3757 manifest version 189",
+                man.contains("android:versionCode=\"189\""), true);
+        check("v3757 manifest name 3.7.57",
+                man.contains("android:versionName=\"3.7.57\""), true);
+
+        // ---- 2. THE USER'S CASE: ref 02118240618600u, well-formed
+        //      (14 digits + U), fetched under the WRONG company
+        //      (MEPCO) while the portal answers "Record not found".
+        //      Must be BillErrorException(NOT_FOUND) — never the
+        //      misleading INVALID_REF headline, never silence, never
+        //      a crash. ----
+        String userRef = "02118240618600u";
+        String userDigits = "02118240618600";
+        String mepcoBase = "https://bill.pitc.com.pk/mepcobill";
+        check("v3757 user ref well-formed",
+                LescoBillFetcher.isValidReference(userRef), true);
+        String[] userParts =
+                LescoBillFetcher.splitReference(userRef);
+        check("v3757 user ref digits", userParts[0], userDigits);
+        check("v3757 user ref flag", userParts[1], "U");
+        FakeTransport t = new FakeTransport();
+        t.add(200, fakeFormHtml("T"), mepcoBase, "Set-Cookie",
+                FAKE_COOKIE);
+        t.add(200, "<html><body>no bill here</body></html>",
+                mepcoBase + "/general?refno=" + userDigits);
+        t.add(200, "<html><body>no bill here</body></html>",
+                mepcoBase + "/general?refno=" + userDigits + "U");
+        t.add(200, fakeFormHtml("T"), mepcoBase, "Set-Cookie",
+                FAKE_COOKIE);
+        t.add(200, "<html><head><title>MEPCO Web Bill</title></head>"
+                + "<body><div id=\"ua\">Record not found.</div>"
+                + "</body></html>", mepcoBase);
+        boolean notFound = false;
+        boolean becameInvalidRef = false;
+        boolean crashed = false;
+        try {
+            LescoBillFetcher.fetchBillPageWith(t, userRef, Disco.MEPCO);
+        } catch (LescoBillFetcher.BillErrorException e) {
+            notFound = e.kind
+                    == LescoBillFetcher.FetchKind.NOT_FOUND;
+        } catch (LescoBillFetcher.FetchException e) {
+            becameInvalidRef = e.kind
+                    == LescoBillFetcher.FetchKind.INVALID_REF;
+        } catch (RuntimeException e) {
+            crashed = true;
+        }
+        check("v3757 wrong-company ref NOT_FOUND", notFound, true);
+        check("v3757 wrong-company ref never INVALID_REF",
+                becameInvalidRef, false);
+        check("v3757 wrong-company ref no crash", crashed, false);
+
+        // A malformed ref in the same family is still INVALID_REF
+        // (the friendly "reference looks wrong" message, no crash).
+        boolean malformedInvalidRef = false;
+        try {
+            LescoBillFetcher.fetchBillPageWith(new FakeTransport(),
+                    "0211824061860", Disco.MEPCO);
+        } catch (LescoBillFetcher.FetchException e) {
+            malformedInvalidRef = e.kind
+                    == LescoBillFetcher.FetchKind.INVALID_REF;
+        }
+        check("v3757 malformed ref still INVALID_REF",
+                malformedInvalidRef, true);
+
+        // ---- 3. Post-CAPTCHA for the same ref under the wrong
+        //      company: (a) a wrong code is still
+        //      CaptchaRejectedException (never INVALID_REF);
+        //      (b) a portal re-challenge after a submitted code is
+        //      still detected (CaptchaRequiredException, fresh
+        //      session) — the UI shows the guidance on the fresh
+        //      picture instead of looping silently. ----
+        FakeTransport t2 = new FakeTransport();
+        t2.add(200, fakeFormHtml("T"), mepcoBase, "Set-Cookie",
+                FAKE_COOKIE);
+        t2.add(200, "<html><body>no bill here</body></html>",
+                mepcoBase + "/general?refno=" + userDigits);
+        t2.add(200, "<html><body>no bill here</body></html>",
+                mepcoBase + "/general?refno=" + userDigits + "U");
+        t2.add(200, fakeCaptchaFormHtml(), mepcoBase, "Set-Cookie",
+                FAKE_COOKIE);
+        t2.add(200, "FAKEPNG", mepcoBase + "/CaptchaImage?x=1");
+        LescoBillFetcher.CaptchaSession session = null;
+        boolean requiredThrown = false;
+        try {
+            LescoBillFetcher.fetchBillPageWith(t2, userRef, Disco.MEPCO);
+        } catch (LescoBillFetcher.CaptchaRequiredException e) {
+            requiredThrown = true;
+            session = e.session;
+        }
+        check("v3757 user ref captcha challenge",
+                requiredThrown, true);
+        check("v3757 user ref captcha session kept",
+                session != null, true);
+        check("v3757 user ref captcha search text",
+                session == null ? null : session.searchText, userDigits);
+
+        // (a) wrong code on resume.
+        t2.add(200, "<html><head><title>MEPCO Web Bill</title></head>"
+                + "<body><div id=\"ua\">Invalid CAPTCHA code. "
+                + "Please try again.</div></body></html>", mepcoBase);
+        boolean rejected = false;
+        boolean wrongBecameInvalidRef = false;
+        try {
+            LescoBillFetcher.FetchOrchestrator.fetchWithCaptcha(t2,
+                    new LescoBillFetcher.FetchOrchestrator.OnlineChecker() {
+                        @Override public boolean isOnline() { return true; }
+                    }, session, "XXXXXX");
+        } catch (LescoBillFetcher.CaptchaRejectedException e) {
+            rejected = true;
+        } catch (LescoBillFetcher.FetchException e) {
+            wrongBecameInvalidRef = e.kind
+                    == LescoBillFetcher.FetchKind.INVALID_REF;
+        }
+        check("v3757 user ref wrong code rejected", rejected, true);
+        check("v3757 user ref wrong code never INVALID_REF",
+                wrongBecameInvalidRef, false);
+
+        // (b) re-challenge after a submitted code.
+        t2.add(200, fakeCaptchaFormHtml(), mepcoBase, "Set-Cookie",
+                FAKE_COOKIE);
+        t2.add(200, "FAKEPNG", mepcoBase + "/CaptchaImage?x=1");
+        boolean rechallenged = false;
+        LescoBillFetcher.CaptchaSession fresh = null;
+        try {
+            LescoBillFetcher.FetchOrchestrator.fetchWithCaptcha(t2,
+                    new LescoBillFetcher.FetchOrchestrator.OnlineChecker() {
+                        @Override public boolean isOnline() { return true; }
+                    }, session, "W86E5T");
+        } catch (LescoBillFetcher.CaptchaRequiredException e) {
+            rechallenged = true;
+            fresh = e.session;
+        }
+        check("v3757 user ref re-challenge detected",
+                rechallenged, true);
+        check("v3757 user ref re-challenge fresh session",
+                fresh != null && fresh != session, true);
+
+        // The routine "CAPTCHA is required" form label is NOT a
+        // rejection: the re-served form above carries it, which is
+        // why the resume path must tell it apart from a real
+        // wrong-code rejection.
+        check("v3757 captcha label trips error text",
+                LescoBillFetcher.captchaErrorText(
+                        fakeCaptchaFormHtml()) != null, true);
+        check("v3757 captcha label only-required",
+                LescoBillFetcher.captchaErrorIsOnlyRequired(
+                        fakeCaptchaFormHtml()), true);
+        check("v3757 captcha invalid not only-required",
+                LescoBillFetcher.captchaErrorIsOnlyRequired(
+                        "<html><body><div id=\"ua\">Invalid CAPTCHA code. "
+                        + "Please try again.</div></body></html>"), false);
+
+        // ---- 4. Guidance strings exist in both locales and name
+        //      all 11 DISCOs (shown as the NOT_FOUND detail line,
+        //      the parse-failed card and the re-challenge note). ----
+        String[] discos = {"FESCO", "GEPCO", "HAZECO", "HESCO",
+                "IESCO", "LESCO", "MEPCO", "PESCO", "QESCO", "SEPCO",
+                "TESCO"};
+        String wEn = en.get("fetch_wrong_company");
+        String wUr = ur.get("fetch_wrong_company");
+        check("v3757 wrong-company en present",
+                wEn != null && !wEn.isEmpty(), true);
+        check("v3757 wrong-company ur present",
+                wUr != null && !wUr.isEmpty(), true);
+        check("v3757 wrong-company en asks to select",
+                wEn != null && wEn.contains("select the right company"),
+                true);
+        for (String d : discos) {
+            check("v3757 wrong-company en lists " + d,
+                    wEn != null && wEn.contains(d), true);
+            check("v3757 wrong-company ur lists " + d,
+                    wUr != null && wUr.contains(d), true);
+        }
+        String cEn = en.get("captcha_asked_again");
+        String cUr = ur.get("captcha_asked_again");
+        check("v3757 rechallenge note en present",
+                cEn != null && !cEn.isEmpty(), true);
+        check("v3757 rechallenge note ur present",
+                cUr != null && !cUr.isEmpty(), true);
+        check("v3757 rechallenge note en mentions company",
+                cEn != null && cEn.contains("company"), true);
+
+        // ---- 5. Wiring: BillActivity shows the guidance on every
+        //      NOT_FOUND path, on the post-submit re-challenge, and
+        //      on the parse-failed screen. ----
+        check("v3757 bill uses wrongCompanyDetail",
+                bill.contains("wrongCompanyDetail(e.getMessage())"),
+                true);
+        check("v3757 bill rechallenge note",
+                bill.contains("R.string.captcha_asked_again"), true);
+        check("v3757 bill parse-failed guidance",
+                bill.contains("R.string.fetch_wrong_company"), true);
+
+        // ---- 6. BidiText: isolates + Urdu due lines read in the
+        //      right order for ANY values (dynamic, not one
+        //      hardcoded sentence). ----
+        check("v3757 bidi isolate",
+                BidiText.isolate("26 NOV 26"),
+                "\u206626 NOV 26\u2069");
+        check("v3757 bidi isolate null", BidiText.isolate(null), "");
+        check("v3757 bidi runs null",
+                BidiText.isolateLatinRuns(null), "");
+        String due2 = "آخری تاریخ 26 NOV 26 • 2 دن باقی ہیں";
+        String due2Iso = "آخری تاریخ \u206626 NOV 26\u2069 • \u20662\u2069 دن باقی ہیں";
+        check("v3757 bidi due 26 NOV 26 + 2 days",
+                BidiText.isolateLatinRuns(due2), due2Iso);
+        String due1 = "آخری تاریخ 3 DEC 26 • 1 دن باقی ہے";
+        String due1Iso = "آخری تاریخ \u20663 DEC 26\u2069 • \u20661\u2069 دن باقی ہے";
+        check("v3757 bidi due 3 DEC 26 + 1 day",
+                BidiText.isolateLatinRuns(due1), due1Iso);
+        check("v3757 bidi overdue 5 days",
+                BidiText.isolateLatinRuns("5 دن کی تاخیر"),
+                "\u20665\u2069 دن کی تاخیر");
+        check("v3757 bidi pill 1 bill",
+                BidiText.isolateLatinRuns("1 بل بقایا ہیں"),
+                "\u20661\u2069 بل بقایا ہیں");
+        check("v3757 bidi after-due amount",
+                BidiText.isolateLatinRuns(
+                        "آخری تاریخ کے بعد: 6,048 روپے"),
+                "آخری تاریخ کے بعد: \u20666,048\u2069 روپے");
+        check("v3757 bidi masked ref",
+                BidiText.isolateLatinRuns("حوالہ: 0211********01"),
+                "حوالہ: \u20660211********01\u2069");
+        check("v3757 bidi pure urdu unchanged",
+                BidiText.isolateLatinRuns("آج آخری دن ہے"),
+                "آج آخری دن ہے");
+        check("v3757 bidi idempotent",
+                BidiText.isolateLatinRuns(due2Iso), due2Iso);
+        // The line composed from the REAL Urdu strings reads in
+        // the right order for any date / day count.
+        String daysLeftUr = String.format(ur.get("due_days_left"), 2);
+        String composedUr = String.format(
+                ur.get("due_chip").replace("\\u2022", "\u2022"),
+                "26 NOV 26", daysLeftUr);
+        check("v3757 urdu due line composed", composedUr, due2);
+        check("v3757 urdu due line isolated",
+                BidiText.isolateLatinRuns(composedUr), due2Iso);
+        String daysLeft1Ur = String.format(ur.get("due_day_left"), 1);
+        String composed1Ur = String.format(
+                ur.get("due_chip").replace("\\u2022", "\u2022"),
+                "3 DEC 26", daysLeft1Ur);
+        check("v3757 urdu due line 1 day isolated",
+                BidiText.isolateLatinRuns(composed1Ur), due1Iso);
+        // English line: isolates are invisible, plain text kept.
+        String composedEn = String.format(
+                en.get("due_chip").replace("\\u2022", "\u2022"),
+                "26 NOV 26",
+                String.format(en.get("due_days_left"), 2));
+        check("v3757 en due line composed", composedEn,
+                "Due 26 NOV 26 • 2 days left");
+        check("v3757 en due line strips back",
+                BidiText.isolateLatinRuns(composedEn)
+                        .replace("\u2066", "").replace("\u2069", ""),
+                composedEn);
+
+        // ---- 7. Home wiring: single-line right-aligned label +
+        //      bidi wraps on every composed due/pill line. ----
+        check("v3757 home label one line comment",
+                home.contains("ONE line, never wrapped"), true);
+        check("v3757 home label end gravity",
+                home.contains("setGravity(Gravity.END)"), true);
+        check("v3757 home label ellipsize",
+                home.contains("setEllipsize("), true);
+        check("v3757 home due wraps",
+                home.contains("BidiText.isolateLatinRuns("), true);
+        check("v3757 pending due wraps",
+                pending.contains("BidiText.isolateLatinRuns("), true);
+        check("v3757 bill due wraps",
+                bill.contains("BidiText.isolateLatinRuns("), true);
+
+        // ---- 8. build.sh carries the new version + outputs ----
+        check("v3757 build.sh version",
+                buildSh.contains("v3.7.57 (189)"), true);
+        check("v3757 build.sh apk name",
+                buildSh.contains("bijli-bill-v3.7.57.apk"), true);
+        check("v3757 build.sh aab name",
+                buildSh.contains("bijli-bill-publish-3.7.57.aab"), true);
     }
 
     /** Synthetic commercial (MDI) bill: the user's live case (Abdul

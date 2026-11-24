@@ -1,4 +1,22 @@
 #!/bin/bash
+# Bijli Bill v3.7.57 (189) — wrong-company + Urdu RTL build (user orders,
+# voice calls 2026-11-24 ~12:10 + ~12:12 PKT, go-ahead "laga ke bhejo"):
+#   - WRONG-COMPANY REFERENCE: a reference entered while another
+#     company is selected gave no bill AND no error after CAPTCHA.
+#     Now every NOT_FOUND shows wrong-company guidance (the number
+#     may belong to another company — re-select it; all 11 DISCOs
+#     named, EN + Urdu), the parse-failed screen carries the same
+#     guidance, and a post-submit CAPTCHA re-challenge surfaces the
+#     guidance instead of looping silently. No prefix->company
+#     guessing: reference format is identical across all 11 DISCOs.
+#   - URDU RTL (Home): the due-date line ("26 NOV 26" + day counts
+#     inside Urdu) is now wrapped in Unicode isolates (U+2066 LRI
+#     .. U+2069 PDI) by the new BidiText helper, so ANY date / day
+#     count reads in the right order — dynamic, not one hardcoded
+#     sentence. Same wrap on the pending pill, overdue / after-due
+#     lines and the Bill screen due chip. "Select Your Company"
+#     label is now ONE line, right-aligned.
+#   - v3.7.56 ADS build INTACT (real AdMob IDs, §2-B placement).
 # Bijli Bill v3.7.56 (188) — ADS build, phase 1 (user order, 2026-11-24:
 # "release mn app ready jani ha chye sb kuch ads wgra lga k"):
 #   - REAL GOOGLE MOBILE ADS SDK 23.6.0 wired into the manual build
@@ -348,6 +366,7 @@ javac -encoding UTF-8 -nowarn -d build/test-classes \
   java/com/hatch/bijlibill/DailyReminder.java \
   java/com/hatch/bijlibill/AccuracyTracker.java \
   java/com/hatch/bijlibill/LescoBillFetcher.java \
+  java/com/hatch/bijlibill/BidiText.java \
   java/com/hatch/bijlibill/BillWebRenderer.java \
   java/com/hatch/bijlibill/BillPrinter.java \
   java/com/hatch/bijlibill/Tariff.java \
@@ -495,16 +514,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.56.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.56.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.57.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.57.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.56.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.56.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.57.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.57.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.56.apk" "$OUTDIR/bijli-bill-publish-3.7.56.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.57.apk" "$OUTDIR/bijli-bill-publish-3.7.57.aab"
 echo BUILD_OK
