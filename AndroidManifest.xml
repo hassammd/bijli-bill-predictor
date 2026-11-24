@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hatch.bijlibill"
-    android:versionCode="189"
-    android:versionName="3.7.57">
+    android:versionCode="190"
+    android:versionName="3.7.58">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
 
@@ -23,48 +23,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
-    <!-- v3.7.56 (188): Google Mobile Ads SDK 23.6.0 — permissions
-         merged manually from the play-services-ads-lite /
-         play-services-measurement AAR manifests (no Gradle manifest
-         merger in this manual build). AD_ID lets the SDK read the
-         Advertising ID; the ADSERVICES permissions are for the
-         Privacy Sandbox (Topics/attribution); WAKE_LOCK is declared
-         by the measurement SDK. The ads-lite manifest's
-         tools:node="remove" on RECEIVE_BOOT_COMPLETED is
-         deliberately NOT copied — the app needs that permission
-         for its reminder re-arm receiver. -->
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
-    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
-    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" />
-    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- v3.7.56 (188): package-visibility queries from the ads-lite
-         AAR manifest — ad click-throughs need to resolve the
-         browser, Custom Tabs, calendar, SMS and dialer intents
-         (Android 11+ package visibility rules). -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" />
-        </intent>
-        <intent>
-            <action android:name="android.support.customtabs.action.CustomTabsService" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.INSERT" />
-            <data android:mimeType="vnd.android.cursor.dir/event" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="sms" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.DIAL" />
-            <data android:path="tel:" />
-        </intent>
-    </queries>
+    <!-- v3.7.58 (190) NO-ADS: the v3.7.56 AdMob permissions are gone
+         with the ads (AD_ID, ADSERVICES_*, WAKE_LOCK were all added
+         for the ads/measurement SDKs only — the app itself never
+         used them). The queries block that sat here is gone too:
+         it existed only for ad click-throughs. -->
 
     <!-- v3.7.54: portrait lock is a UI choice, not a hardware
          requirement. The screenOrientation="portrait" on the
@@ -85,53 +48,14 @@
         android:allowBackup="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- AdMob App ID (TEST id — replace with your real AdMob App ID before release).
-             Must match AdsConfig.ADMOB_APP_ID. -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8117548332904163~2883931517" />
+        <!-- v3.7.58 (190) NO-ADS: the v3.7.56 AdMob entries are gone —
+             APPLICATION_ID meta-data, AdActivity, the init provider,
+             AdService, the two handler activities, the ad-services
+             config and the ad-services library. The gms.version
+             meta-data below STAYS: it comes from
+             play-services-basement and the ML Kit OCR (MeterOcr)
+             needs it. -->
 
-        <!-- v3.7.56 (188): Google Mobile Ads SDK 23.6.0 components,
-             merged manually from the play-services-ads-lite AAR
-             manifest (no Gradle manifest merger in this manual
-             build). AdActivity is REQUIRED for interstitials;
-             MobileAdsInitProvider auto-initializes the SDK at app
-             start (AdsManager.init also calls MobileAds.initialize
-             — the SDK ignores repeat calls); AdService plus the
-             two handler activities are the SDK's own components.
-             The ${applicationId} placeholder is written out
-             literally here (aapt2 does not substitute it). -->
-        <activity
-            android:name="com.google.android.gms.ads.AdActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent" />
-        <provider
-            android:name="com.google.android.gms.ads.MobileAdsInitProvider"
-            android:authorities="com.hatch.bijlibill.mobileadsinitprovider"
-            android:exported="false"
-            android:initOrder="100" />
-        <service
-            android:name="com.google.android.gms.ads.AdService"
-            android:enabled="true"
-            android:exported="false" />
-        <activity
-            android:name="com.google.android.gms.ads.OutOfContextTestingActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:exported="false" />
-        <activity
-            android:name="com.google.android.gms.ads.NotificationHandlerActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <property
-            android:name="android.adservices.AD_SERVICES_CONFIG"
-            android:resource="@xml/gma_ad_services_config" />
-        <uses-library
-            android:name="android.ext.adservices"
-            android:required="false" />
         <!-- v3.7.56 (188): Play Services version, from the
              play-services-basement AAR manifest. -->
         <meta-data

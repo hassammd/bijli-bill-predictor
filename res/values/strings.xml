@@ -106,7 +106,6 @@
     <string name="feat_noads">✓  No ads — banner and interstitial ads removed</string>
     <!-- v3.7.56 (188): accessibility label for the AdView banner
          slot (also the compiled-resource marker for the ads build) -->
-    <string name="ad_label">Advertisement</string>
     <string name="feat_refs">✓  Unlimited saved references</string>
     <string name="feat_priority">✓  Priority support</string>
     <string name="billing_title">Premium</string>

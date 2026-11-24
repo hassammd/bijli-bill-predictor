@@ -1,4 +1,27 @@
 #!/bin/bash
+# Bijli Bill v3.7.58 (190) — NO-ADS build (user order, voice call
+# 2026-11-24 ~23:48 PKT: "ads waghera... ye nahi" — ads go in a
+# LATER release; this release ships with NO ads at all):
+#   - AdsConfig.java DELETED (it held the real AdMob IDs).
+#   - AdsManager.java is now a NO-OP STUB: the 11 call sites in 9
+#     activities compile unchanged, but init / loadBannerInto /
+#     maybeShowInterstitialAfter do nothing — no SDK init, no
+#     banner, no interstitial, no ad request, no ID.
+#   - AdMob SDK jars EXCLUDED from javac/d8 (ADS_EXCLUDE) and
+#     AdMob AAR res dirs skipped — the APK dex contains zero
+#     AdMob classes; build.sh FAILS the build if AdView or any
+#     "ca-app-pub" string is found in dex.
+#   - Manifest: APPLICATION_ID, AdActivity, MobileAdsInitProvider,
+#     AdService, handler activities, AD_SERVICES_CONFIG, the
+#     ext.adservices library, AD_ID + ADSERVICES_* + WAKE_LOCK
+#     permissions and the <queries> block are all gone (all added
+#     for ads in 188). gms.version stays (basement, ML Kit needs it).
+#   - Bills list "TEST NATIVE AD" placeholder card gone
+#     (nativeAdCard + its AdsConfig.NATIVE_AD_UNIT_ID reference);
+#     ad_label strings gone from both locales.
+#   - v3.7.57 fixes INTACT: wrong-company error, CAPTCHA
+#     re-challenge handling, Urdu BidiText due lines, one-line
+#     "Select Your Company" label. Nothing else changed.
 # Bijli Bill v3.7.57 (189) — wrong-company + Urdu RTL build (user orders,
 # voice calls 2026-11-24 ~12:10 + ~12:12 PKT, go-ahead "laga ke bhejo"):
 #   - WRONG-COMPANY REFERENCE: a reference entered while another
@@ -359,6 +382,16 @@ if [ ! -d build/mlkit/aar-libs ] || \
 fi
 echo "  $(ls build/mlkit/aar-libs/*.jar | wc -l) AAR jars"
 
+# v3.7.58 (190) NO-ADS: the AdMob SDK jars are NEVER linked. The ads
+# AARs stay downloaded in build/mlkit/aar-repo (gitignored) but are
+# excluded from javac/d8 here — the shipped APK must contain zero
+# AdMob code. (Shared deps — base/basement/tasks, ML Kit, firebase,
+# transport — stay: ML Kit OCR needs them.)
+ADS_EXCLUDE='play-services-ads|ads-adservices|play-services-measurement|user-messaging-platform|play-services-appset'
+LIB_JARS=$(ls build/mlkit/aar-libs/*.jar | grep -v -E "$ADS_EXCLUDE")
+LIB_CP=$(echo $LIB_JARS | tr ' ' ':')
+echo "  $(echo "$LIB_JARS" | wc -l) AAR jars linked (ads excluded)"
+
 echo "== unit tests =="
 javac -encoding UTF-8 -nowarn -d build/test-classes \
   -cp "$ANDROID_JAR" \
@@ -403,6 +436,11 @@ i=0
 for d in build/mlkit/aar-res/*/; do
   [ -d "$d" ] || continue
   n=$(basename "$d")
+  # v3.7.58 (190) NO-ADS: never compile AdMob AAR resources.
+  case "$n" in
+    play-services-ads*|ads-adservices*|play-services-measurement*|user-messaging-platform*|play-services-appset*)
+      echo "  (skip, ads: $n)"; continue ;;
+  esac
   "$BT/aapt2" compile --dir "$d" -o "build/aar-res-zip/$n.zip" 2>/dev/null || \
     echo "  (skip, empty: $n)"
   i=$((i+1))
@@ -422,7 +460,7 @@ echo "== javac (app + library R classes + ML Kit) =="
 find build/gen-lib -name "R.java" > build/rjava.list
 wc -l build/rjava.list
 javac -encoding UTF-8 -source 8 -target 8 -nowarn \
-  -cp "$ANDROID_JAR:build/mlkit/aar-libs/*" -d build/classes \
+  -cp "$ANDROID_JAR:$LIB_CP" -d build/classes \
   build/gen/com/hatch/bijlibill/R.java \
   @build/rjava.list \
   java/com/hatch/bijlibill/*.java
@@ -430,7 +468,7 @@ javac -encoding UTF-8 -source 8 -target 8 -nowarn \
 echo "== d8 (app + AAR classes) =="
 "$BT/d8" --min-api 24 --output build/dex \
   $(find build/classes -name "*.class") \
-  build/mlkit/aar-libs/*.jar
+  $LIB_JARS
 ls build/dex/
 
 echo "== add dex files (APK, multidex-aware) =="
@@ -487,16 +525,20 @@ echo "== ML Kit classes in APK =="
 unzip -l build/final.apk | grep -c "classes.*dex"
 unzip -l build/final.apk | grep -m2 "classes" || true
 
-echo "== Mobile Ads classes in APK =="
-# v3.7.56: the real GMS ads SDK must be linked — fail loudly if
-# AdView is absent from every classes*.dex.
+echo "== NO AdMob classes in APK (v3.7.58 no-ads release) =="
+# v3.7.58: NO ads in this release — fail loudly if ANY AdMob class
+# or ANY AdMob ID string is present in any classes*.dex.
 rm -rf build/dexcheck && mkdir -p build/dexcheck
 unzip -o -q build/final.apk 'classes*.dex' -d build/dexcheck
-if ! grep -rl "com/google/android/gms/ads/AdView" build/dexcheck/classes*.dex >/dev/null 2>&1; then
-  echo "BUILD FAILED: AdMob AdView class missing from APK dex — SDK not linked" >&2
+if grep -rl "com/google/android/gms/ads/AdView" build/dexcheck/classes*.dex >/dev/null 2>&1; then
+  echo "BUILD FAILED: AdMob AdView class present in APK dex — ads not removed" >&2
   exit 1
 fi
-echo "  AdView present in dex"
+if grep -rl "ca-app-pub" build/dexcheck/classes*.dex >/dev/null 2>&1; then
+  echo "BUILD FAILED: AdMob ID (ca-app-pub) present in APK dex" >&2
+  exit 1
+fi
+echo "  no AdMob classes in dex"
 
 echo "== AAB manifest =="
 for xp in "/manifest/@package" "/manifest/@android:versionCode" "/manifest/@android:versionName"; do
@@ -514,16 +556,16 @@ java -jar "$BUNDLETOOL" build-apks --bundle=build/signed.aab \
 "$BT/apksigner" verify build/univ/universal.apk
 
 mkdir -p "$OUTDIR"
-cp build/final.apk "$OUTDIR/bijli-bill-v3.7.57.apk"
-cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.57.aab"
+cp build/final.apk "$OUTDIR/bijli-bill-v3.7.58.apk"
+cp build/signed.aab "$OUTDIR/bijli-bill-publish-3.7.58.aab"
 # v3.7.34: fail loudly if either output is missing — a silent
 # missing AAB must never reach delivery again.
-for f in "$OUTDIR/bijli-bill-v3.7.57.apk" \
-        "$OUTDIR/bijli-bill-publish-3.7.57.aab"; do
+for f in "$OUTDIR/bijli-bill-v3.7.58.apk" \
+        "$OUTDIR/bijli-bill-publish-3.7.58.aab"; do
     if [ ! -s "$f" ]; then
         echo "BUILD FAILED: missing output $f" >&2
         exit 1
     fi
 done
-ls -la "$OUTDIR/bijli-bill-v3.7.57.apk" "$OUTDIR/bijli-bill-publish-3.7.57.aab"
+ls -la "$OUTDIR/bijli-bill-v3.7.58.apk" "$OUTDIR/bijli-bill-publish-3.7.58.aab"
 echo BUILD_OK
